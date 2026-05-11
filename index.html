@@ -849,17 +849,32 @@ function updatePriceNote() {
     : "";
 }
 
-// Fetch live BTC/USD
-fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd")
-  .then(r => r.ok ? r.json() : null)
-  .then(d => {
-    if (d && d.bitcoin && d.bitcoin.usd) {
-      state.btcPrice = d.bitcoin.usd;
-      updatePriceNote();
-      calc();
+// Fetch live BTC/USD — same primary source as the device firmware (CoinGecko),
+// with mempool.space as fallback in case CoinGecko rate-limits the browser.
+async function fetchBtcPrice() {
+  try {
+    const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&precision=2");
+    if (r.ok) {
+      const d = await r.json();
+      if (d?.bitcoin?.usd) return d.bitcoin.usd;
     }
-  })
-  .catch(() => {});
+  } catch {}
+  try {
+    const r = await fetch("https://mempool.space/api/v1/prices");
+    if (r.ok) {
+      const d = await r.json();
+      if (d?.USD) return d.USD;
+    }
+  } catch {}
+  return null;
+}
+fetchBtcPrice().then(price => {
+  if (price) {
+    state.btcPrice = price;
+    updatePriceNote();
+    calc();
+  }
+});
 updatePriceNote();
 
 // Spend mode toggle
