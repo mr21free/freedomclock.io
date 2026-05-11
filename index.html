@@ -539,7 +539,7 @@
     <div class="qmark" style="margin-top:32px">"</div>
     <p class="q-text" id="qText">The trick is not to spend a lifetime trying to outrun the clock that's already on your desk.</p>
     <div class="attr" id="qAttr">· Freedom Clock</div>
-    <button class="swap" id="qSwap">Show me another <span style="margin-left:4px">↻</span></button>
+    <button class="swap" id="qSwap">Next <span style="margin-left:4px">↻</span></button>
     <p style="margin-top:48px;color:var(--ink-soft);max-width:54ch;margin-left:auto;margin-right:auto;font-size:16px">Between glances at your freedom number, the screen surfaces a short line worth thinking about. From Seneca, Perkins, Housel, Naval, and many others.</p>
   </div>
 </section>
@@ -677,7 +677,7 @@
   <div class="container">
     <p class="big">Your <em>time</em> is the only currency that doesn't compound.</p>
     <div class="ctas">
-      <a class="btn btn-primary" href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Get the code on GitHub <span class="arrow">→</span></a>
+      <a class="btn btn-primary" href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Build guide, parts list &amp; firmware <span class="arrow">→</span></a>
       <a class="btn btn-ghost" href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">Read the story</a>
     </div>
   </div>
@@ -687,7 +687,7 @@
   <div class="container row">
     <div>Built openly. MIT licensed. Make it yours.</div>
     <div style="display:flex;gap:22px">
-      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Build guide</a>
       <a href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">The story</a>
       <a href="#calculator">Calculator</a>
     </div>
@@ -805,12 +805,12 @@ function calc() {
     ? '<span style="font-size:38px;letter-spacing:0.04em">INF</span>'
     : Math.round(coveragePct) + '<span class="pct">%</span>';
 
-  // Share text
-  const timeStr = isForever ? "FOREVER" : ymwText(freedomMonths);
-  const shareMsg = `If you stopped earning tomorrow, how long could you keep living the life you want? Mine: ${timeStr}. freedomclock.io`;
-  window.__shareText = shareMsg;
-  $("xShare").href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMsg)}`;
-  $("nShare").href = `https://snort.social/?compose=${encodeURIComponent(shareMsg)}`;
+  // Share — the question only, no personal numbers
+  const shareQuestion = "If you stopped earning tomorrow, how long could you keep living the life you want? freedomclock.io";
+  window.__shareText = shareQuestion;
+  const enc = encodeURIComponent(shareQuestion);
+  $("xShare").href = `https://twitter.com/intent/tweet?text=${enc}`;
+  $("nShare").href = `https://snort.social/?compose=${enc}`;
 }
 
 // ---------- Input bindings ----------
@@ -887,8 +887,9 @@ function showScreen(name) {
   if (!isDefault) updateDeviceQuote();
 }
 function updateDeviceQuote() {
-  $("dQuoteText").textContent = quotes[qi][0];
-  $("dQuoteAttr").textContent = "— " + quotes[qi][1];
+  if (!quotes.length) return;
+  $("dQuoteText").textContent = quotes[qi].text;
+  $("dQuoteAttr").textContent = "— " + quotes[qi].author;
 }
 $("btnDefault").addEventListener("click", () => showScreen("default"));
 $("btnQuote").addEventListener("click",   () => showScreen("quote"));
@@ -897,7 +898,7 @@ $("btnQuote").addEventListener("click",   () => showScreen("quote"));
 $("copyShare").addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(window.__shareText || "");
-    flash("Copied to clipboard");
+    flash("Question copied");
   } catch {
     flash("Copy failed — try selecting manually");
   }
@@ -911,24 +912,41 @@ function flash(msg) {
 }
 
 // ---------- Quotes ----------
-const quotes = [
-  ["The trick is not to spend a lifetime trying to outrun the clock that's already on your desk.", "Freedom Clock"],
-  ["It is not that we have a short time to live, but that we waste much of it.", "Seneca"],
-  ["The highest form of wealth is the ability to wake up every morning and say, 'I can do whatever I want today.'", "Morgan Housel"],
-  ["You can always make more money. You can never make more time.", "Bill Perkins"],
-  ["Retire from the idea of retirement. Live the life now.", "Naval Ravikant"],
-  ["Time is the most valuable thing a man can spend.", "Theophrastus"],
-  ["Lost wealth may be replaced by industry. Lost time is gone forever.", "Samuel Smiles"],
-  ["How we spend our days is, of course, how we spend our lives.", "Annie Dillard"],
-  ["The man who moves a mountain begins by carrying away small stones.", "Confucius"],
-  ["Do not save what is left after spending, but spend what is left after saving.", "Warren Buffett"],
-];
+// Loaded from quotes.json — same source as the physical device firmware.
+let quotes = [];
 let qi = 0;
-$("qSwap").addEventListener("click", () => {
-  qi = (qi + 1) % quotes.length;
-  $("qText").textContent = quotes[qi][0];
-  $("qAttr").textContent = "· " + quotes[qi][1];
+
+function showCurrentQuote() {
+  if (!quotes.length) return;
+  $("qText").textContent = quotes[qi].text;
+  $("qAttr").textContent = "· " + quotes[qi].author;
   if ($("screenQuote").style.display !== "none") updateDeviceQuote();
+}
+
+fetch("quotes.json")
+  .then(r => r.ok ? r.json() : [])
+  .then(data => {
+    quotes = data;
+    qi = Math.floor(Math.random() * quotes.length); // start at a random quote
+    showCurrentQuote();
+  })
+  .catch(() => {
+    // Fallback if fetch fails (e.g. opening file:// locally)
+    quotes = [
+      {text: "It is not that we have a short time to live, but that we waste much of it.", author: "Seneca"},
+      {text: "The price of anything is the amount of life you exchange for it.", author: "Henry David Thoreau"},
+      {text: "Do not save what is left after spending, but spend what is left after saving.", author: "Warren Buffett"},
+      {text: "Real wealth is not having to go to meetings.", author: "Naval Ravikant"},
+      {text: "How we spend our days is how we spend our lives.", author: "Annie Dillard"},
+    ];
+    qi = 0;
+    showCurrentQuote();
+  });
+
+$("qSwap").addEventListener("click", () => {
+  if (!quotes.length) return;
+  qi = (qi + 1) % quotes.length;
+  showCurrentQuote();
 });
 
 // ---------- FAQ accordion ----------
