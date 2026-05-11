@@ -743,7 +743,7 @@ const state = {
 
 const modeHints = {
   sell:   "Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.",
-  borrow: "Borrow against your portfolio instead of selling. Keeps the principal compounding; you live off credit.",
+  borrow: "Borrow against your portfolio each year instead of selling. Principal keeps compounding; accumulated debt compounds at the borrow rate. Freedom ends when debt reaches the portfolio value.",
 };
 
 // ---------- Core calculation ----------
@@ -753,21 +753,28 @@ function computeYears(savingsUSD, annualSpend, mode, growthR, inflR, loanR) {
   if (savingsUSD <= 0)  return 0;
 
   if (mode === "sell") {
-    const r = growthR - inflR; // real annual return (decimal)
-    if (r <= 0) return savingsUSD / annualSpend;
-    // portfolio self-sustaining if annual return >= annual spend
-    if (savingsUSD * r >= annualSpend) return Infinity;
-    return -Math.log(1 - (savingsUSD * r / annualSpend)) / Math.log(1 + r);
+    // Exact real return via Fisher equation: (1+g)/(1+i) - 1
+    const r = (1 + growthR) / (1 + inflR) - 1;
+    if (Math.abs(r) < 1e-10) return savingsUSD / annualSpend; // ~zero real return
+    const x = 1 - (savingsUSD * r / annualSpend);
+    if (x <= 0) return Infinity; // portfolio return alone covers spend indefinitely
+    return -Math.log(x) / Math.log(1 + r);
   }
 
-  // borrow mode: net rate after borrow cost (nominal), then real
-  const netNominal = growthR - loanR;
-  const netReal    = netNominal - inflR;
-  const effectiveR = netReal > 0 ? netReal : (netNominal > 0 ? netNominal : 0);
-
-  if (effectiveR <= 0) return savingsUSD / annualSpend;
-  if (savingsUSD * effectiveR >= annualSpend) return Infinity;
-  return -Math.log(1 - (savingsUSD * effectiveR / annualSpend)) / Math.log(1 + effectiveR);
+  // Borrow mode: year-by-year simulation.
+  // The portfolio is never sold — it grows at nominal growthR.
+  // Each year you borrow that year's inflation-adjusted spend.
+  // Accumulated debt compounds at loanR.
+  // Freedom ends when total debt reaches the portfolio value.
+  let P = savingsUSD;
+  let D = 0;
+  for (let y = 0; y < 300; y++) {
+    const spend = annualSpend * Math.pow(1 + inflR, y); // nominal spend in year y
+    D = (D + spend) * (1 + loanR);                      // borrow then compound debt
+    P *= (1 + growthR);                                  // portfolio grows
+    if (D >= P) return y + 1;                            // debt overtook portfolio
+  }
+  return Infinity; // survived 300 years — effectively FOREVER
 }
 
 // ---------- Calculator ----------
@@ -797,21 +804,6 @@ function calc() {
   $("oCov").innerHTML  = isForever
     ? '<span style="font-size:38px;letter-spacing:0.04em">INF</span>'
     : Math.round(coveragePct) + '<span class="pct">%</span>';
-
-  // Details screen
-  const realR    = growthR - inflR;
-  const needRate = (savingsUSD > 0 && state.mode === "sell") ? (annualSpend / savingsUSD) : null;
-  const dispR    = state.mode === "sell" ? realR
-    : (growthR - loanR - inflR); // effective real rate for borrow
-
-  $("dWealth").textContent  = state.unit === "btc"
-    ? state.btc.toFixed(2) + " BTC"
-    : fmtUSD(savingsUSD);
-  $("dSpend2").textContent  = fmtUSD(state.spend) + "/mo";
-  $("dReturn").textContent  = (dispR * 100).toFixed(1) + "%/yr";
-  $("dNeed").textContent    = (needRate !== null && savingsUSD > 0)
-    ? (needRate * 100).toFixed(1) + "%/yr"
-    : "—";
 
   // Share text
   const timeStr = isForever ? "FOREVER" : ymwText(freedomMonths);
