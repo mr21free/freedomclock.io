@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Freedom Clock · turn your savings into time</title>
+<meta name="description" content="A calm, open-source desk device that turns your savings into the number that actually matters: how much of your life you've already bought back." />
+<link rel="canonical" href="https://freedomclock.io/" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="apple-touch-icon" href="assets/favicon.svg" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://freedomclock.io/" />
+<meta property="og:title" content="Freedom Clock · turn your savings into time" />
+<meta property="og:description" content="A calm, open-source desk device. No notifications. No noise. Just one number: how much of your life you've already bought back." />
+<meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Freedom Clock · turn your savings into time" />
+<meta name="twitter:description" content="A calm, open-source desk device. No notifications. No noise. Just one number: how much of your life you've already bought back." />
+<meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
+
+<!-- Mobile -->
+<meta name="theme-color" content="#c47a3a" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=VT323&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:          oklch(0.955 0.013 78);
+    --bg-deep:     oklch(0.925 0.016 75);
+    --paper:       oklch(0.975 0.010 80);
+    --ink:         oklch(0.22 0.012 55);
+    --ink-soft:    oklch(0.40 0.012 60);
+    --ink-mute:    oklch(0.56 0.010 65);
+    --rule:        oklch(0.86 0.012 70);
+    --rule-soft:   oklch(0.90 0.010 72);
+    --accent:      oklch(0.685 0.155 48);
+    --accent-deep: oklch(0.55 0.16 42);
+    --screen:      #181614;
+    --screen-px:   #d6cfc3;
+    --screen-dim:  #7c7368;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:400;-webkit-font-smoothing:antialiased;line-height:1.55;font-feature-settings:"ss01" on}
+  body{overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  input{font:inherit;color:inherit}
+
+  .mono{font-family:"VT323",ui-monospace,monospace;letter-spacing:0.03em}
+  .eyebrow{font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-mute);font-weight:500}
+  .container{max-width:1180px;margin:0 auto;padding:0 32px}
+  .rule{height:1px;background:var(--rule);width:100%}
+
+  /* nav */
+  nav.top{position:sticky;top:0;z-index:50;background:color-mix(in oklab, var(--bg) 88%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule-soft)}
+  nav.top .row{display:flex;align-items:center;justify-content:space-between;height:64px}
+  nav.top .brand{display:flex;align-items:center;gap:10px;font-weight:500}
+  nav.top .brand img{width:26px;height:26px;display:block}
+  nav.top .links{display:flex;gap:28px;align-items:center;color:var(--ink-soft);font-size:14px}
+  nav.top .links a:hover{color:var(--ink)}
+  nav.top .cta{padding:9px 14px;border:1px solid var(--ink);border-radius:999px;font-size:13px;background:var(--ink);color:var(--bg);transition:background .2s, color .2s}
+  nav.top .cta:hover{background:transparent;color:var(--ink)}
+
+  /* HERO */
+  .hero{padding:72px 0 56px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:64px;align-items:center}
+  .hero h1{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(40px,5.6vw,72px);line-height:1.02;letter-spacing:-0.03em}
+  .hero h1 em{font-style:normal;color:var(--accent-deep);font-weight:500}
+  .hero p.lede{margin-top:28px;font-size:19px;line-height:1.55;color:var(--ink-soft);max-width:48ch}
+  .hero .ctas{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;transition:transform .15s ease, background .2s ease}
+  .btn-primary{background:var(--ink);color:var(--bg)}
+  .btn-primary:hover{transform:translateY(-1px);background:var(--accent-deep)}
+  .btn-ghost{border:1px solid var(--rule);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn .arrow{display:inline-block;transition:transform .2s}
+  .btn:hover .arrow{transform:translateX(3px)}
+  .hero .meta{margin-top:48px;display:flex;flex-direction:column;gap:10px;color:var(--ink-mute);font-size:13px}
+  .hero .meta b{color:var(--ink);font-weight:500}
+  .hero-photo{position:relative;border-radius:8px;overflow:hidden;background:var(--bg-deep)}
+  .hero-photo img{width:100%;height:auto;display:block}
+  .hero-photo .tag{position:absolute;bottom:16px;left:16px;background:color-mix(in oklab, var(--paper) 92%, transparent);padding:8px 12px;border-radius:6px;font-size:12px;color:var(--ink-soft);border:1px solid var(--rule-soft);backdrop-filter:blur(6px)}
+
+  /* THE QUESTION */
+  .question{padding:120px 0 100px;text-align:center}
+  .question .ask{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(28px,3.6vw,46px);line-height:1.18;max-width:26ch;margin:0 auto;letter-spacing:-0.02em}
+  .question .ask em{font-style:normal;color:var(--accent-deep);font-weight:500}
+  .question .below{margin-top:32px;color:var(--ink-soft);max-width:58ch;margin-left:auto;margin-right:auto;font-size:17px}
+
+  /* SIGNALS */
+  .signals{padding:80px 0 40px}
+  .section-head{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:end;margin-bottom:48px}
+  .section-head h2{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-0.025em}
+  .section-head p{color:var(--ink-soft);font-size:17px;max-width:50ch}
+  .signal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .signal{background:var(--paper);border:1px solid var(--rule-soft);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:18px;min-height:280px}
+  .signal .num{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:28px;color:var(--accent-deep);line-height:1;letter-spacing:0.02em}
+  .signal h3{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:22px;line-height:1.15;letter-spacing:-0.015em}
+  .signal p{color:var(--ink-soft);font-size:15px}
+  .signal .mini-screen{margin-top:auto;background:var(--screen);color:var(--screen-px);font-family:"VT323",monospace;font-size:22px;padding:12px 14px;border-radius:6px;letter-spacing:0.06em}
+  .signal .mini-screen .sub{display:block;color:var(--screen-dim);font-size:13px;letter-spacing:0.18em;margin-bottom:6px;text-transform:uppercase}
+
+  /* CALCULATOR */
+  .calc{padding:80px 0;background:linear-gradient(180deg, transparent, color-mix(in oklab, var(--bg-deep) 60%, transparent) 30%, color-mix(in oklab, var(--bg-deep) 60%, transparent) 70%, transparent);position:relative}
+  .calc-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:start;margin-top:48px}
+  .inputs{display:flex;flex-direction:column;gap:22px}
+  .field{display:flex;flex-direction:column;gap:8px}
+  .field label{font-size:13px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:baseline}
+  .field label .val{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:500}
+  .field input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;height:24px}
+  .field input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--rule);border-radius:2px}
+  .field input[type=range]::-moz-range-track{height:2px;background:var(--rule);border-radius:2px}
+  .field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);margin-top:-8px;cursor:grab;border:3px solid var(--bg)}
+  .field input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:grab;border:3px solid var(--bg)}
+  .field input[type=number],.field input[type=text]{padding:14px 16px;border:1px solid var(--rule);background:var(--paper);border-radius:8px;font-size:16px;font-variant-numeric:tabular-nums;width:100%;font-family:"IBM Plex Mono",monospace;transition:border-color .2s}
+  .field input[type=number]:focus,.field input[type=text]:focus{outline:none;border-color:var(--accent)}
+  .field .with-suffix{position:relative}
+  .field .with-suffix .suffix{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink-mute);font-size:14px;pointer-events:none;font-family:"IBM Plex Mono",monospace}
+  .field input[type=number]::-webkit-outer-spin-button,.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .field input[type=number]{-moz-appearance:textfield}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .field .hint{font-size:12px;color:var(--ink-mute)}
+  .seg{display:flex;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:3px;gap:3px}
+  .seg button{flex:1;padding:9px 10px;border-radius:6px;font-size:13px;color:var(--ink-soft);transition:all .15s}
+  .seg button.on{background:var(--ink);color:var(--bg)}
+
+  /* device readout */
+  .device{position:sticky;top:96px}
+  .device-shell{background:var(--accent);padding:14px;border-radius:14px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%), inset 0 1px 0 color-mix(in oklab, white 30%, transparent), inset 0 -2px 0 color-mix(in oklab, black 15%, transparent);aspect-ratio:250/122;display:flex;flex-direction:column}
+  .device-shell .screen{flex:1;background:var(--screen);border-radius:5px;padding:14px 16px 12px 16px;color:var(--screen-px);font-family:"VT323",monospace;display:grid;grid-template-columns:75% 25%;gap:0;position:relative;overflow:hidden}
+  .screen-wrap{position:relative;flex:1;display:flex}
+  .screen-wrap > .screen{flex:1}
+  .screen .col-l{display:grid;grid-template-rows:1fr 1fr;border-right:1px solid #2a2622;padding-right:14px}
+  .screen .col-l > div{display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .screen .col-l > div + div{border-top:1px solid #2a2622}
+  .screen .col-r{display:flex;flex-direction:column;justify-content:center;padding-left:14px;gap:4px}
+  .screen .label{font-size:13px;letter-spacing:0.14em;color:var(--screen-px);text-transform:uppercase;line-height:1.05}
+  .screen .big{font-size:34px;letter-spacing:0.04em;line-height:1;color:var(--screen-px);margin-top:6px;display:flex;align-items:baseline;gap:0}
+  .screen .big .seg-num{display:inline-block;min-width:1.8ch;text-align:left}
+  .screen .big .seg-suf{font-size:0.6em;margin-right:0.55em;margin-left:0.05em;color:var(--screen-px)}
+  .screen .big .seg-suf:last-child{margin-right:0}
+  .screen .cov{font-size:54px;letter-spacing:0.02em;line-height:1;margin-top:4px}
+  .screen .cov .pct{font-size:0.55em;margin-left:0.05em}
+  .screen-head{position:absolute;top:8px;right:12px;color:var(--screen-px);font-size:13px;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;z-index:2;font-family:"VT323",monospace}
+  .batt{display:inline-block;width:22px;height:10px;border:1.5px solid var(--screen-px);border-radius:1px;position:relative}
+  .batt::after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:var(--screen-px)}
+  .batt span{display:block;height:100%;background:var(--screen-px);width:94%}
+
+  /* quote screen */
+  .screen.quote-screen{grid-template-columns:1fr;display:flex;flex-direction:column;gap:4px;padding:10px 14px 10px 14px}
+  .screen.quote-screen .qs-label{font-size:12px;letter-spacing:0.2em;color:var(--screen-dim);text-transform:uppercase;line-height:1;flex-shrink:0}
+  .screen.quote-screen .qs-text{font-size:14px;line-height:1.18;color:var(--screen-px);flex:1;overflow:hidden;letter-spacing:0.02em}
+  .screen.quote-screen .qs-attr{font-size:13px;color:var(--screen-dim);letter-spacing:0.10em;flex-shrink:0}
+
+  .device-caption{margin-top:18px;text-align:center;color:var(--ink-mute);font-size:12px;letter-spacing:0.12em;text-transform:uppercase}
+  .toggle-screen{margin-top:12px;display:flex;justify-content:center;gap:8px}
+  .toggle-screen button{padding:6px 14px;font-size:12px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:999px;transition:all .15s}
+  .toggle-screen button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+  /* share */
+  .share{padding:80px 0;background:var(--bg-deep)}
+  .share-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center;margin-top:32px}
+  .share-card{background:var(--accent);padding:18px;border-radius:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%)}
+  .share-card .scr{background:var(--screen);border-radius:6px;color:var(--screen-px);font-family:"VT323",monospace;padding:22px 26px;display:flex;flex-direction:column;gap:12px}
+  .share-card .scr .lbl{font-size:14px;letter-spacing:0.16em;text-transform:uppercase}
+  .share-card .scr .big{font-size:44px;letter-spacing:0.04em;line-height:1}
+  .share-card .scr .cov{font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:var(--screen-dim)}
+  .share-card .scr .cov b{font-family:"VT323",monospace;color:var(--screen-px);font-size:26px;font-weight:400;letter-spacing:0.04em;margin-right:8px}
+  .share-card .foot{background:var(--screen);border-radius:6px;color:var(--screen-px);font-family:"VT323",monospace;font-size:18px;letter-spacing:0.12em;text-align:center;padding:8px}
+  .share-actions{display:flex;flex-direction:column;gap:12px}
+  .share-actions .btn{justify-content:center}
+  .share-actions .hint{font-size:13px;color:var(--ink-mute);margin-top:6px}
+
+  /* quote */
+  .quote{padding:120px 0;text-align:center}
+  .quote .qmark{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:96px;line-height:0.6;color:var(--accent)}
+  .quote .q-text{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(22px,2.8vw,34px);line-height:1.32;margin-top:16px;max-width:32ch;margin-left:auto;margin-right:auto;letter-spacing:-0.015em}
+  .quote .attr{margin-top:24px;color:var(--ink-mute);font-size:13px;letter-spacing:0.2em;text-transform:uppercase}
+  .quote .swap{margin-top:36px;display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid var(--rule);border-radius:999px;font-size:13px;color:var(--ink-soft);background:var(--paper);cursor:pointer;transition:border-color .2s,color .2s}
+  .quote .swap:hover{border-color:var(--ink);color:var(--ink)}
+
+  /* calm pillars */
+  .pillars{padding:80px 0}
+  .pillar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:48px}
+  .pillar{background:var(--paper);border:1px solid var(--rule-soft);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px;min-height:220px}
+  .pillar .n{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:22px;color:var(--accent-deep);line-height:1;letter-spacing:0.02em}
+  .pillar h4{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:19px;letter-spacing:-0.015em}
+  .pillar h4 span{color:var(--accent-deep);font-weight:400}
+  .pillar p{color:var(--ink-soft);font-size:14.5px}
+
+  /* build it */
+  .build{padding:100px 0;background:var(--bg-deep)}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:48px}
+  .step{background:var(--paper);border:1px solid var(--rule-soft);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px;min-height:260px}
+  .step .n{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:22px;color:var(--accent-deep);line-height:1;letter-spacing:0.02em}
+  .step h5{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:19px;letter-spacing:-0.015em}
+  .step p{color:var(--ink-soft);font-size:14.5px}
+  .step .time{margin-top:auto;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute)}
+  .bom{margin-top:48px;background:var(--paper);border:1px solid var(--rule-soft);border-radius:14px;overflow:hidden}
+  .bom .bom-head{padding:22px 28px;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule-soft)}
+  .bom .bom-head h3{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:22px;letter-spacing:-0.015em}
+  .bom .bom-head .total{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:24px;color:var(--accent-deep);letter-spacing:0.02em}
+  .bom table{width:100%;border-collapse:collapse}
+  .bom td{padding:16px 28px;border-bottom:1px solid var(--rule-soft);font-size:15px}
+  .bom tr:last-child td{border-bottom:0}
+  .bom td.what{color:var(--ink)}
+  .bom td.detail{color:var(--ink-soft)}
+  .bom td.cost{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+
+  /* badges */
+  .badges{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+  .badges span{font-size:12px;color:var(--ink-soft);background:var(--paper);border:1px solid var(--rule);padding:6px 12px;border-radius:999px}
+  .badges span b{color:var(--accent-deep);font-weight:500}
+
+  /* faq */
+  .faq{padding:100px 0}
+  .faq-list{margin-top:36px;border-top:1px solid var(--rule)}
+  .faq-item{border-bottom:1px solid var(--rule);padding:24px 0;cursor:pointer}
+  .faq-item .q{display:flex;justify-content:space-between;align-items:center;font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:18px;letter-spacing:-0.015em}
+  .faq-item .plus{color:var(--accent-deep);transition:transform .25s ease;font-size:22px;line-height:1;flex-shrink:0;margin-left:16px}
+  .faq-item.open .plus{transform:rotate(45deg)}
+  .faq-item .a{max-height:0;overflow:hidden;color:var(--ink-soft);transition:max-height .3s ease, margin-top .3s ease;font-size:16px;max-width:62ch}
+  .faq-item.open .a{max-height:300px;margin-top:14px}
+
+  /* closing */
+  .closing{padding:120px 0;text-align:center;border-top:1px solid var(--rule-soft)}
+  .closing .big{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(32px,4.6vw,60px);line-height:1.1;letter-spacing:-0.03em;max-width:22ch;margin:0 auto}
+  .closing .big em{font-style:normal;color:var(--accent-deep);font-weight:500}
+  .closing .ctas{margin-top:40px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  footer{padding:48px 0 60px;color:var(--ink-mute);font-size:13px;border-top:1px solid var(--rule-soft)}
+  footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+  footer a:hover{color:var(--ink)}
+
+  /* toast */
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1916;color:#F4EFE6;padding:12px 22px;border-radius:999px;font-size:14px;z-index:999;font-family:"IBM Plex Mono",monospace;box-shadow:0 12px 40px rgba(0,0,0,0.2);pointer-events:none;opacity:0;transition:opacity .2s}
+  .toast.show{opacity:1}
+
+  /* responsive */
+  @media (max-width:900px){
+    .pillar-grid{grid-template-columns:repeat(2,1fr)}
+    .steps{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:760px){
+    .hero{padding:48px 0 32px}
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .section-head{grid-template-columns:1fr;gap:20px}
+    .signal-grid{grid-template-columns:1fr}
+    .calc-grid{grid-template-columns:1fr;gap:40px}
+    .device{position:static}
+    .share-grid{grid-template-columns:1fr}
+    nav.top .links{display:none}
+    nav.top .cta{display:none}
+  }
+  @media (max-width:560px){
+    .container{padding:0 22px}
+    .pillar-grid,.steps{grid-template-columns:1fr}
+    .hero h1{font-size:48px}
+    .field-row{grid-template-columns:1fr}
+    .bom td{padding:12px 18px}
+  }
+</style>
+</head>
+<body>
+
+<!-- toast element (reused) -->
+<div class="toast" id="toast"></div>
+
+<nav class="top">
+  <div class="container row">
+    <a href="#" class="brand"><img src="assets/favicon.svg" alt="Freedom Clock logo" /> Freedom Clock</a>
+    <div class="links">
+      <a href="#calculator">Calculator</a>
+      <a href="#build">Build it</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a class="cta" href="#build">Build your own →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">An open-source clock</span>
+      <h1 style="margin-top:18px">Turn your savings into <em>time</em>.</h1>
+      <p class="lede">The Freedom Clock is a calm little screen for your desk. No prices, no notifications, no badge counters. It just sits there and quietly answers one question: <b style="color:var(--ink)">how much of your life have you already bought back?</b></p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#calculator">Try the calculator <span class="arrow">→</span></a>
+        <a class="btn btn-ghost" href="#build">See how it's built</a>
+      </div>
+      <div class="badges">
+        <span><b>Open source</b></span>
+        <span><b>~$30</b> in parts</span>
+        <span><b>No cloud</b></span>
+        <span><b>No account</b></span>
+      </div>
+      <div class="meta">
+        <span><b>Minutes</b> to assemble</span>
+        <span><b>No coding</b> required</span>
+        <span><b>Fully yours.</b> No sign-up, no email, no phone, no cloud.</span>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <img src="assets/device-hero.png" alt="The Freedom Clock — a small orange e-ink display sitting on a stone on a wooden desk, showing freedom time" loading="eager" />
+      <div class="tag">The actual device. ~$30 in parts.</div>
+    </div>
+  </div>
+</header>
+
+<!-- THE QUESTION -->
+<section class="question">
+  <div class="container">
+    <span class="eyebrow">The question this answers</span>
+    <p class="ask" style="margin-top:28px">Your savings are a number.<br/>What if they were <em>a feeling?</em></p>
+    <p class="below">Most money apps answer the wrong question. They show you what you have. Your balance, your return, your net worth. But you don't wake up thinking about your net worth. You wake up wondering whether today is a day you chose, or a day that was chosen for you.</p>
+    <p class="below" style="margin-top:18px">The Freedom Clock answers the question your gut is actually asking: <b style="color:var(--ink)">if I stopped earning tomorrow, how long could I keep living the life I want?</b> The answer shows up in years and months, not dollars. It's on your desk every morning, without you opening anything.</p>
+  </div>
+</section>
+
+<!-- SIGNALS -->
+<section class="signals">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">What it shows</span>
+        <h2 style="margin-top:14px">Three quiet<br/>signals.</h2>
+      </div>
+      <p>The main screen is intentionally simple, so you can read it in one glance.</p>
+    </div>
+    <div class="signal-grid">
+      <div class="signal">
+        <div class="num">01</div>
+        <h3>Freedom time</h3>
+        <p>How long your savings could carry your chosen lifestyle, in human units. Not dollars. Not blocks. Time.</p>
+        <div class="mini-screen">
+          <span class="sub">Freedom time</span>
+          02y 02m 2w
+        </div>
+      </div>
+      <div class="signal">
+        <div class="num">02</div>
+        <h3>Lifetime left</h3>
+        <p>A quiet memento mori. Even if the portfolio keeps growing, this clock keeps moving. Are you using the time well?</p>
+        <div class="mini-screen">
+          <span class="sub">Lifetime left</span>
+          48y 08m 1w
+        </div>
+      </div>
+      <div class="signal">
+        <div class="num">03</div>
+        <h3>Freedom coverage</h3>
+        <p>What percentage of the life you have left is already financially covered. A single number that closes the gap, week by week.</p>
+        <div class="mini-screen">
+          <span class="sub">Coverage</span>
+          05 %
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="calc" id="calculator">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Try it now</span>
+        <h2 style="margin-top:14px">Your freedom,<br/>on screen.</h2>
+      </div>
+      <p>All numbers stay in your browser. Nothing is sent anywhere.</p>
+    </div>
+
+    <div class="calc-grid">
+      <!-- LEFT: inputs -->
+      <div class="inputs">
+
+        <div class="field">
+          <label>Your savings <span style="color:var(--ink-mute);font-weight:400" id="priceNote"></span></label>
+          <div class="seg" id="unit" style="margin-bottom:10px">
+            <button data-unit="usd" class="on">USD</button>
+            <button data-unit="btc">BTC</button>
+          </div>
+          <div class="with-suffix" id="usdWrap">
+            <input type="number" id="savings" value="1000000" min="0" step="1000" />
+            <span class="suffix">USD</span>
+          </div>
+          <div class="with-suffix" id="btcWrap" style="display:none">
+            <input type="number" id="btc" value="2.1" min="0" step="0.01" />
+            <span class="suffix">BTC</span>
+          </div>
+          <div class="hint">Anything you'd actually live off. Cash, index funds, Bitcoin, all of the above.</div>
+        </div>
+
+        <div class="field">
+          <label>Monthly spend</label>
+          <div class="with-suffix">
+            <input type="number" id="spend" value="10000" min="0" step="100" />
+            <span class="suffix">USD / mo</span>
+          </div>
+          <div class="hint">What it costs to live the life you actually want, not just to survive.</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Your age</label>
+            <input type="number" id="age" value="35" min="1" max="119" step="1" />
+          </div>
+          <div class="field">
+            <label>Life expectancy</label>
+            <input type="number" id="life" value="85" min="2" max="130" step="1" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Portfolio growth</label>
+            <div class="with-suffix">
+              <input type="number" id="growth" value="10" min="0" max="100" step="0.5" />
+              <span class="suffix">% / yr</span>
+            </div>
+            <div class="hint">Expected annual nominal return.</div>
+          </div>
+          <div class="field">
+            <label>Inflation</label>
+            <div class="with-suffix">
+              <input type="number" id="infl" value="2" min="0" max="50" step="0.5" />
+              <span class="suffix">% / yr</span>
+            </div>
+            <div class="hint">Expected annual rate.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Spend model</label>
+          <div class="seg" id="mode">
+            <button data-mode="sell" class="on">Sell monthly</button>
+            <button data-mode="borrow">Borrow against</button>
+          </div>
+          <div class="hint" id="modeHint">Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.</div>
+        </div>
+
+        <div class="field" id="borrowField" style="display:none">
+          <label>Borrow rate</label>
+          <div class="with-suffix">
+            <input type="number" id="borrow" value="8" min="0" max="100" step="0.5" />
+            <span class="suffix">% / yr</span>
+          </div>
+          <div class="hint">Annual interest on the loan secured against your portfolio.</div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: device mockup -->
+      <div class="device">
+        <div class="device-shell">
+          <div class="screen-wrap">
+            <div class="screen-head"><span class="batt"><span></span></span> 94%</div>
+
+            <!-- Main screen -->
+            <div class="screen" id="screenMain">
+              <div class="col-l">
+                <div>
+                  <div class="label">Your expected freedom time</div>
+                  <div class="big" id="oTime"></div>
+                </div>
+                <div>
+                  <div class="label">Expected lifetime left</div>
+                  <div class="big" id="oLife"></div>
+                </div>
+              </div>
+              <div class="col-r">
+                <div class="label">Freedom<br/>coverage</div>
+                <div class="cov" id="oCov"></div>
+              </div>
+            </div>
+
+            <!-- Quote screen -->
+            <div class="screen quote-screen" id="screenQuote" style="display:none">
+              <div class="qs-label">Quote</div>
+              <div class="qs-text" id="dQuoteText"></div>
+              <div class="qs-attr" id="dQuoteAttr"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="toggle-screen">
+          <button class="on" id="btnDefault">Default</button>
+          <button id="btnQuote">Quote</button>
+        </div>
+        <div class="device-caption">Real device. Real calculation. No cloud.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SHARE -->
+<section class="share" id="share">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Pass it on</span>
+        <h2 style="margin-top:14px">What's your<br/>freedom time?</h2>
+      </div>
+      <p>Your number stayed in your browser, and it should stay yours. The question, though, is worth passing on. So share the idea, not the digits.</p>
+    </div>
+    <div class="share-grid">
+      <div class="share-card">
+        <div class="scr">
+          <div class="lbl">A question for the desk</div>
+          <div class="big" style="font-size:30px;line-height:1.15">IF YOU STOPPED EARNING TOMORROW, HOW LONG COULD YOU KEEP LIVING THE LIFE YOU WANT?</div>
+        </div>
+        <div class="foot">FREEDOMCLOCK · ASK QUIETLY</div>
+      </div>
+      <div class="share-actions">
+        <button class="btn btn-primary" id="copyShare">Copy the question</button>
+        <a class="btn btn-ghost" id="xShare" target="_blank" rel="noopener">Post on X</a>
+        <a class="btn btn-ghost" id="nShare" target="_blank" rel="noopener">Post on Nostr</a>
+        <p class="hint">No numbers, no balances, no totals. Just the prompt and a link to the project. Your calculation never leaves this tab.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote">
+  <div class="container">
+    <span class="eyebrow">Now it whispers too</span>
+    <div class="qmark" style="margin-top:32px">"</div>
+    <p class="q-text" id="qText">The trick is not to spend a lifetime trying to outrun the clock that's already on your desk.</p>
+    <div class="attr" id="qAttr">· Freedom Clock</div>
+    <button class="swap" id="qSwap">Show me another <span style="margin-left:4px">↻</span></button>
+    <p style="margin-top:48px;color:var(--ink-soft);max-width:54ch;margin-left:auto;margin-right:auto;font-size:16px">Between glances at your freedom number, the screen surfaces a short line worth thinking about. From Seneca, Perkins, Housel, Naval, and many others.</p>
+  </div>
+</section>
+
+<!-- CALM PILLARS -->
+<section class="pillars">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">The point of it</span>
+        <h2 style="margin-top:14px">Calm,<br/>by design.</h2>
+      </div>
+      <p>It's not a dashboard or a notification. It's a small personal object that lives in your peripheral vision and asks one good question whenever you happen to look at it.</p>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="n">01</div>
+        <h4>Slow refresh</h4>
+        <p>Updates in cadence with your life, not the market. Days, not seconds. Battery lasts months.</p>
+      </div>
+      <div class="pillar">
+        <div class="n">02</div>
+        <h4>No app</h4>
+        <p>No phone, no login, no doom-scroll. You glance at it, the way you'd glance at a window.</p>
+      </div>
+      <div class="pillar">
+        <div class="n">03</div>
+        <h4>Local only</h4>
+        <p>Runs on your home Wi-Fi. Numbers never leave the room. Your finances are no one's business.</p>
+      </div>
+      <div class="pillar">
+        <div class="n">04</div>
+        <h4>Yours to change</h4>
+        <p>Open hardware, open code, MIT licensed. Re-skin it, re-purpose it, or build one as a gift for someone you love.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD IT -->
+<section class="build" id="build">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Build it yourself</span>
+        <h2 style="margin-top:14px">An afternoon.<br/>Maybe a coffee.</h2>
+      </div>
+      <p>You don't need to be a developer. You don't need to solder. The hard parts (the software, the math, the layout) are already done. You just plug a few things together.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h5>Order the parts</h5>
+        <p>One small e-ink board, a battery, a USB-C cable. Total around $30 from your favourite electronics shop.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h5>Install the software</h5>
+        <p>Download a file from the GitHub page, plug the board into your computer, hit upload in the Arduino IDE. One click.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h5>Enter your numbers</h5>
+        <p>Open the device's setup page on your phone. Type in what you save and what you spend. Save.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <h5>Put it on your desk</h5>
+        <p>Set it next to your monitor, your coffee, your reading chair. Glance at it every now and then. Notice what changes.</p>
+      </div>
+    </div>
+
+    <div class="bom">
+      <div class="bom-head">
+        <h3>What you need</h3>
+        <div class="total">around $30</div>
+      </div>
+      <table>
+        <tbody>
+          <tr><td class="what">Heltec Vision Master E290</td><td class="cost">~$22</td></tr>
+          <tr><td class="what">3.7V Li-Po battery, ~1000mAh</td><td class="cost">~$5</td></tr>
+          <tr><td class="what">USB-C cable</td><td class="cost">~$3</td></tr>
+          <tr><td class="what">A stand of your choice</td><td class="cost">$0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Honest questions</span>
+        <h2 style="margin-top:14px">Things people<br/>ask first.</h2>
+      </div>
+      <p>The Freedom Clock is opinionated. These are the most common questions, answered the way I'd answer a friend who asked over coffee.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item open">
+        <div class="q">Do I need to own Bitcoin to use this?<span class="plus">+</span></div>
+        <div class="a">No. Today the clock works with either cash (USD) or Bitcoin, not yet a mix of the two. You enter a single portfolio value and the device translates it into time. Bitcoin was the original spark, but the device cares about freedom, not the asset class. Support for combinations and other assets is on the way.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Is it accurate? It feels like a big number to trust.<span class="plus">+</span></div>
+        <div class="a">It's a thoughtful estimate, not a guarantee. That's why there's a Details screen that shows every assumption behind the calculation — real return, spend rate, and whether your portfolio is self-sustaining. Change one of the inputs and the number adapts. The point isn't precision. It's the conversation it starts.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What does FOREVER mean?<span class="plus">+</span></div>
+        <div class="a">When your portfolio's real annual return (growth minus inflation) covers your annual spend without touching the principal, your money lasts indefinitely. At that point the clock shows FOREVER and coverage shows INF. You can see exactly why in the Details screen — if your "real return" percentage exceeds your "need rate" percentage, you've crossed that line.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Where does my data go?<span class="plus">+</span></div>
+        <div class="a">Nowhere. The device runs on your local Wi-Fi, talking only to a small service on your home network (or directly to itself). No accounts, no cloud, no analytics. Even this calculator runs entirely in your browser. The only external call is to CoinGecko for a live BTC price if you switch to BTC mode.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">I can't code. Can I still build it?<span class="plus">+</span></div>
+        <div class="a">Yes. The hard parts are done. You install one program (the Arduino IDE), open a file, and click upload. The README walks you through it in plain English, and there's a Discord if you get stuck.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">Why not just an app on my phone?<span class="plus">+</span></div>
+        <div class="a">Because phones are noisy. The Freedom Clock is meant to be glance-able and unobtrusive: a physical reminder, not another notification fighting for your attention. The medium is the message.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What's the motivational quote thing?<span class="plus">+</span></div>
+        <div class="a">Between updates of your freedom number, the screen rotates a small library of short lines worth re-reading: on time, on attention, on what enough looks like. You can edit the list, replace it with your own, or turn it off entirely.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="container">
+    <p class="big">Your <em>time</em> is the only currency that doesn't compound.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Get the code on GitHub <span class="arrow">→</span></a>
+      <a class="btn btn-ghost" href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">Read the story</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container row">
+    <div>Built openly. MIT licensed. Make it yours.</div>
+    <div style="display:flex;gap:22px">
+      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">The story</a>
+      <a href="#calculator">Calculator</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---------- Helpers ----------
+const $ = (id) => document.getElementById(id);
+
+function fmtUSD(n) {
+  if (n >= 1e6) return "$" + (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+  if (n >= 1e3) return "$" + Math.round(n / 1e3) + "k";
+  return "$" + Math.round(n);
+}
+
+function ymwHtml(totalMonths) {
+  if (!isFinite(totalMonths) || totalMonths < 0) totalMonths = 0;
+  if (totalMonths > 99 * 12) totalMonths = 99 * 12;
+  const y  = Math.floor(totalMonths / 12);
+  const rm = totalMonths - y * 12;
+  const m  = Math.floor(rm);
+  const w  = Math.min(3, Math.floor((rm - m) * 4));
+  return `<span class="seg-num">${String(y).padStart(2,"0")}</span><span class="seg-suf">y</span>` +
+         `<span class="seg-num">${String(m).padStart(2,"0")}</span><span class="seg-suf">m</span>` +
+         `<span class="seg-num" style="min-width:1ch">${w}</span><span class="seg-suf">w</span>`;
+}
+
+function ymwText(totalMonths) {
+  if (!isFinite(totalMonths) || totalMonths < 0) totalMonths = 0;
+  if (totalMonths > 99 * 12) totalMonths = 99 * 12;
+  const y  = Math.floor(totalMonths / 12);
+  const rm = totalMonths - y * 12;
+  const m  = Math.floor(rm);
+  const w  = Math.min(3, Math.floor((rm - m) * 4));
+  return `${String(y).padStart(2,"0")}y ${String(m).padStart(2,"0")}m ${w}w`;
+}
+
+// ---------- State ----------
+const state = {
+  savings:  1000000,
+  spend:    10000,
+  age:      35,
+  life:     85,
+  growth:   10,
+  infl:     2,
+  mode:     "sell",
+  borrow:   8,
+  unit:     "usd",
+  btc:      2.1,
+  btcPrice: 95000,
+};
+
+const modeHints = {
+  sell:   "Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.",
+  borrow: "Borrow against your portfolio instead of selling. Keeps the principal compounding; you live off credit.",
+};
+
+// ---------- Core calculation ----------
+function computeYears(savingsUSD, annualSpend, mode, growthR, inflR, loanR) {
+  // Returns years of freedom (Infinity = FOREVER)
+  if (annualSpend <= 0) return Infinity;
+  if (savingsUSD <= 0)  return 0;
+
+  if (mode === "sell") {
+    const r = growthR - inflR; // real annual return (decimal)
+    if (r <= 0) return savingsUSD / annualSpend;
+    // portfolio self-sustaining if annual return >= annual spend
+    if (savingsUSD * r >= annualSpend) return Infinity;
+    return -Math.log(1 - (savingsUSD * r / annualSpend)) / Math.log(1 + r);
+  }
+
+  // borrow mode: net rate after borrow cost (nominal), then real
+  const netNominal = growthR - loanR;
+  const netReal    = netNominal - inflR;
+  const effectiveR = netReal > 0 ? netReal : (netNominal > 0 ? netNominal : 0);
+
+  if (effectiveR <= 0) return savingsUSD / annualSpend;
+  if (savingsUSD * effectiveR >= annualSpend) return Infinity;
+  return -Math.log(1 - (savingsUSD * effectiveR / annualSpend)) / Math.log(1 + effectiveR);
+}
+
+// ---------- Calculator ----------
+function calc() {
+  const savingsUSD  = state.unit === "btc" ? state.btc * state.btcPrice : state.savings;
+  const annualSpend = Math.max(state.spend * 12, 0);
+  const growthR     = state.growth / 100;
+  const inflR       = state.infl   / 100;
+  const loanR       = state.borrow / 100;
+
+  const years       = computeYears(savingsUSD, annualSpend, state.mode, growthR, inflR, loanR);
+  const isForever   = !isFinite(years) || years > 999;
+
+  const lifetimeLeft   = Math.max(state.life - state.age, 0);
+  const freedomYears   = isForever ? lifetimeLeft : Math.min(years, lifetimeLeft);
+  const freedomMonths  = freedomYears * 12;
+  const lifeMonths     = lifetimeLeft * 12;
+  const coveragePct    = lifetimeLeft > 0
+    ? (isForever ? 100 : Math.min(100, (years / lifetimeLeft) * 100))
+    : 0;
+
+  // Main screen
+  $("oTime").innerHTML = isForever
+    ? '<span style="font-size:32px;letter-spacing:0.04em">FOREVER</span>'
+    : ymwHtml(freedomMonths);
+  $("oLife").innerHTML = ymwHtml(lifeMonths);
+  $("oCov").innerHTML  = isForever
+    ? '<span style="font-size:38px;letter-spacing:0.04em">INF</span>'
+    : Math.round(coveragePct) + '<span class="pct">%</span>';
+
+  // Details screen
+  const realR    = growthR - inflR;
+  const needRate = (savingsUSD > 0 && state.mode === "sell") ? (annualSpend / savingsUSD) : null;
+  const dispR    = state.mode === "sell" ? realR
+    : (growthR - loanR - inflR); // effective real rate for borrow
+
+  $("dWealth").textContent  = state.unit === "btc"
+    ? state.btc.toFixed(2) + " BTC"
+    : fmtUSD(savingsUSD);
+  $("dSpend2").textContent  = fmtUSD(state.spend) + "/mo";
+  $("dReturn").textContent  = (dispR * 100).toFixed(1) + "%/yr";
+  $("dNeed").textContent    = (needRate !== null && savingsUSD > 0)
+    ? (needRate * 100).toFixed(1) + "%/yr"
+    : "—";
+
+  // Share text
+  const timeStr = isForever ? "FOREVER" : ymwText(freedomMonths);
+  const shareMsg = `If you stopped earning tomorrow, how long could you keep living the life you want? Mine: ${timeStr}. freedomclock.io`;
+  window.__shareText = shareMsg;
+  $("xShare").href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMsg)}`;
+  $("nShare").href = `https://snort.social/?compose=${encodeURIComponent(shareMsg)}`;
+}
+
+// ---------- Input bindings ----------
+function bind(id, key, parser) {
+  $(id).addEventListener("input", () => {
+    const v = (parser || parseFloat)($(id).value);
+    state[key] = isFinite(v) ? v : 0;
+    calc();
+  });
+}
+bind("savings", "savings");
+bind("spend",   "spend");
+bind("age",     "age");
+bind("life",    "life");
+bind("growth",  "growth");
+bind("infl",    "infl");
+bind("borrow",  "borrow");
+bind("btc",     "btc");
+
+// Unit toggle (USD / BTC)
+document.querySelectorAll("#unit button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#unit button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    state.unit = b.dataset.unit;
+    $("usdWrap").style.display = state.unit === "usd" ? "" : "none";
+    $("btcWrap").style.display = state.unit === "btc" ? "" : "none";
+    updatePriceNote();
+    calc();
+  });
+});
+
+function updatePriceNote() {
+  $("priceNote").textContent = state.unit === "btc"
+    ? "· BTC/USD " + fmtUSD(state.btcPrice)
+    : "";
+}
+
+// Fetch live BTC/USD
+fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd")
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    if (d && d.bitcoin && d.bitcoin.usd) {
+      state.btcPrice = d.bitcoin.usd;
+      updatePriceNote();
+      calc();
+    }
+  })
+  .catch(() => {});
+updatePriceNote();
+
+// Spend mode toggle
+document.querySelectorAll("#mode button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#mode button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    state.mode = b.dataset.mode;
+    $("modeHint").textContent = modeHints[state.mode];
+    $("borrowField").style.display = state.mode === "borrow" ? "" : "none";
+    calc();
+  });
+});
+
+// Initial render
+calc();
+
+// ---------- Device screen toggle ----------
+function showScreen(name) {
+  const isDefault = name === "default";
+  $("screenMain").style.display  = isDefault ? "" : "none";
+  $("screenQuote").style.display = isDefault ? "none" : "";
+  $("btnDefault").classList.toggle("on", isDefault);
+  $("btnQuote").classList.toggle("on", !isDefault);
+  if (!isDefault) updateDeviceQuote();
+}
+function updateDeviceQuote() {
+  $("dQuoteText").textContent = quotes[qi][0];
+  $("dQuoteAttr").textContent = "— " + quotes[qi][1];
+}
+$("btnDefault").addEventListener("click", () => showScreen("default"));
+$("btnQuote").addEventListener("click",   () => showScreen("quote"));
+
+// ---------- Share ----------
+$("copyShare").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(window.__shareText || "");
+    flash("Copied to clipboard");
+  } catch {
+    flash("Copy failed — try selecting manually");
+  }
+});
+
+function flash(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+// ---------- Quotes ----------
+const quotes = [
+  ["The trick is not to spend a lifetime trying to outrun the clock that's already on your desk.", "Freedom Clock"],
+  ["It is not that we have a short time to live, but that we waste much of it.", "Seneca"],
+  ["The highest form of wealth is the ability to wake up every morning and say, 'I can do whatever I want today.'", "Morgan Housel"],
+  ["You can always make more money. You can never make more time.", "Bill Perkins"],
+  ["Retire from the idea of retirement. Live the life now.", "Naval Ravikant"],
+  ["Time is the most valuable thing a man can spend.", "Theophrastus"],
+  ["Lost wealth may be replaced by industry. Lost time is gone forever.", "Samuel Smiles"],
+  ["How we spend our days is, of course, how we spend our lives.", "Annie Dillard"],
+  ["The man who moves a mountain begins by carrying away small stones.", "Confucius"],
+  ["Do not save what is left after spending, but spend what is left after saving.", "Warren Buffett"],
+];
+let qi = 0;
+$("qSwap").addEventListener("click", () => {
+  qi = (qi + 1) % quotes.length;
+  $("qText").textContent = quotes[qi][0];
+  $("qAttr").textContent = "· " + quotes[qi][1];
+  if ($("screenQuote").style.display !== "none") updateDeviceQuote();
+});
+
+// ---------- FAQ accordion ----------
+document.querySelectorAll(".faq-item").forEach(item => {
+  item.addEventListener("click", () => item.classList.toggle("open"));
+});
+</script>
+
+</body>
+</html>
