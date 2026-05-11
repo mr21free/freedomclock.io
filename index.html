@@ -525,7 +525,6 @@
       <div class="share-actions">
         <button class="btn btn-primary" id="copyShare">Copy the question</button>
         <a class="btn btn-ghost" id="xShare" target="_blank" rel="noopener">Post on X</a>
-        <a class="btn btn-ghost" id="nShare" target="_blank" rel="noopener">Post on Nostr</a>
         <p class="hint">No numbers, no balances, no totals. Just the prompt and a link to the project. Your calculation never leaves this tab.</p>
       </div>
     </div>
@@ -810,7 +809,6 @@ function calc() {
   window.__shareText = shareQuestion;
   const enc = encodeURIComponent(shareQuestion);
   $("xShare").href = `https://twitter.com/intent/tweet?text=${enc}`;
-  $("nShare").href = `https://snort.social/?compose=${enc}`;
 }
 
 // ---------- Input bindings ----------
