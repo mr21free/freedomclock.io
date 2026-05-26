@@ -113,6 +113,7 @@
   /* SIGNALS */
   .signals{padding:80px 0 40px}
   .section-head{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:end;margin-bottom:48px}
+  .calc .section-head{grid-template-columns:1fr 1.05fr;gap:56px}
   .section-head h2{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-0.025em}
   .section-head p{color:var(--ink-soft);font-size:17px;max-width:50ch}
   .signal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -120,8 +121,9 @@
   .signal .num{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:28px;color:var(--accent-deep);line-height:1;letter-spacing:0.02em}
   .signal h3{font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:22px;line-height:1.15;letter-spacing:-0.015em}
   .signal p{color:var(--ink-soft);font-size:15px}
-  .signal .mini-screen{margin-top:auto;background:var(--screen);color:var(--screen-px);font-family:"VT323",monospace;font-size:22px;padding:12px 14px;border-radius:6px;letter-spacing:0.06em}
+  .signal .mini-screen{margin-top:auto;background:var(--screen);color:var(--screen-px);font-family:"VT323",monospace;font-size:clamp(22px,3vw,42px);padding:12px 14px;border-radius:6px;letter-spacing:0.06em}
   .signal .mini-screen .sub{display:block;color:var(--screen-dim);font-size:13px;letter-spacing:0.18em;margin-bottom:6px;text-transform:uppercase}
+  .signal .mini-screen .val{white-space:nowrap}
 
   /* CALCULATOR */
   .calc{padding:80px 0;background:linear-gradient(180deg, transparent, color-mix(in oklab, var(--bg-deep) 60%, transparent) 30%, color-mix(in oklab, var(--bg-deep) 60%, transparent) 70%, transparent);position:relative}
@@ -149,14 +151,17 @@
 
   /* device readout */
   .device{position:sticky;top:96px}
-  .device-shell{background:var(--accent);padding:14px;border-radius:14px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%), inset 0 1px 0 color-mix(in oklab, white 30%, transparent), inset 0 -2px 0 color-mix(in oklab, black 15%, transparent);aspect-ratio:250/122;display:flex;flex-direction:column}
-  .device-shell .screen{flex:1;background:var(--screen);border-radius:5px;padding:14px 16px 12px 16px;color:var(--screen-px);font-family:"VT323",monospace;display:grid;grid-template-columns:75% 25%;gap:0;position:relative;overflow:hidden}
+  .device-shell{background:var(--accent);padding:14px 0 14px 20px;border-radius:14px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%), inset 0 1px 0 color-mix(in oklab, white 30%, transparent), inset 0 -2px 0 color-mix(in oklab, black 15%, transparent);display:flex;flex-direction:row;align-items:stretch}
+  .device-screen-part{flex:1;aspect-ratio:250/122;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+  .device-btn-side{width:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
+  .device-btn-side img{width:70%;max-height:70%;object-fit:contain;opacity:0.5}
+  .device-shell .screen{flex:1;background:var(--screen);border-radius:5px;padding:14px 16px 12px 16px;color:var(--screen-px);font-family:"VT323",monospace;display:grid;grid-template-columns:70% 30%;gap:0;position:relative;overflow:hidden}
   .screen-wrap{position:relative;flex:1;display:flex}
   .screen-wrap > .screen{flex:1}
   .screen .col-l{display:grid;grid-template-rows:1fr 1fr;border-right:1px solid #2a2622;padding-right:14px}
   .screen .col-l > div{display:flex;flex-direction:column;justify-content:center;gap:4px}
   .screen .col-l > div + div{border-top:1px solid #2a2622}
-  .screen .col-r{display:flex;flex-direction:column;justify-content:center;padding-left:14px;gap:4px}
+  .screen .col-r{display:flex;flex-direction:column;justify-content:center;align-items:center;padding-left:0;gap:4px;text-align:center}
   .screen .label{font-size:13px;letter-spacing:0.14em;color:var(--screen-px);text-transform:uppercase;line-height:1.05}
   .screen .big{font-size:54px;letter-spacing:0.04em;line-height:1;color:var(--screen-px);margin-top:6px;display:flex;align-items:baseline;gap:0}
   .screen .big .seg-num{display:inline-block;min-width:1.8ch;text-align:left}
@@ -165,6 +170,7 @@
   .screen .cov{font-size:54px;letter-spacing:0.02em;line-height:1;margin-top:4px}
   .screen .cov .pct{font-size:0.55em;margin-left:0.05em}
   .screen-head{position:absolute;top:8px;right:12px;color:var(--screen-px);font-size:13px;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;z-index:2;font-family:"VT323",monospace}
+  .screen-wrap.quote-active .screen-head{display:none}
   .batt{display:inline-block;width:22px;height:10px;border:1.5px solid var(--screen-px);border-radius:1px;position:relative}
   .batt::after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:var(--screen-px)}
   .batt span{display:block;height:100%;background:var(--screen-px);width:94%}
@@ -180,6 +186,7 @@
   .screen.quote-screen .qs-stats .qs-mid{color:var(--screen-dim);flex:1;text-align:center}
 
   .device-caption{margin-top:18px;text-align:center;color:var(--ink-mute);font-size:12px;letter-spacing:0.12em;text-transform:uppercase}
+  .device-forever-hint{font-size:12px;color:var(--ink-mute);text-align:center;margin-top:6px;min-height:16px;opacity:0.75}
   .toggle-screen{margin-top:12px;display:flex;justify-content:center;gap:8px}
   .toggle-screen button{padding:6px 14px;font-size:12px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:999px;transition:all .15s}
   .toggle-screen button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -268,13 +275,25 @@
     .pillar-grid{grid-template-columns:repeat(2,1fr)}
     .steps{grid-template-columns:repeat(2,1fr)}
   }
+  @media (max-width:1060px){
+    .screen .big{font-size:40px;margin-top:4px}
+    .screen .cov{font-size:40px}
+  }
+  @media (max-width:980px){
+    .section-head{grid-template-columns:1fr;gap:20px}
+    .calc .section-head{grid-template-columns:1fr;gap:20px}
+    .calc-grid{grid-template-columns:1fr;gap:40px}
+    .device{position:static}
+    .screen .big{font-size:54px;margin-top:6px}
+    .screen .cov{font-size:54px}
+  }
   @media (max-width:760px){
     .hero{padding:48px 0 32px}
     .hero-grid{grid-template-columns:1fr;gap:40px}
-    .section-head{grid-template-columns:1fr;gap:20px}
     .signal-grid{grid-template-columns:1fr}
-    .calc-grid{grid-template-columns:1fr;gap:40px}
-    .device{position:static}
+    .signal .mini-screen{font-size:42px}
+    .device-btn-side{width:52px}
+    .device-shell{padding:10px 0 10px 14px}
     .share-grid{grid-template-columns:1fr}
     nav.top .links{display:none}
     nav.top .cta{display:none}
@@ -285,6 +304,10 @@
     .hero h1{font-size:48px}
     .field-row{grid-template-columns:1fr}
     .bom td{padding:12px 18px}
+    .screen .big{font-size:32px;margin-top:3px}
+    .screen .cov{font-size:32px}
+    .screen .label{font-size:11px}
+    .screen-head{font-size:11px}
   }
 </style>
 </head>
@@ -329,10 +352,12 @@
         <div class="hero-track" id="heroTrack">
           <img src="assets/device-hero.png" alt="The Freedom Clock — a small orange e-ink display sitting on a stone on a wooden desk, showing freedom time" loading="eager" />
           <img src="assets/device-hero-2.png" alt="The Freedom Clock showing a motivational quote on its e-ink screen" loading="lazy" />
+          <img src="assets/device-hero-3.png" alt="The Freedom Clock — another view of the device on a desk" loading="lazy" />
         </div>
         <div class="hero-dots" id="heroDots">
           <span class="on" data-idx="0"></span>
           <span data-idx="1"></span>
+          <span data-idx="2"></span>
         </div>
       </div>
     </div>
@@ -366,7 +391,7 @@
         <p>How long your savings could carry your chosen lifestyle, in human units. Not dollars. Not blocks. Time.</p>
         <div class="mini-screen">
           <span class="sub">Freedom time</span>
-          02y 02m 2w
+          <span class="val" id="sTime">02y 02m 2w</span>
         </div>
       </div>
       <div class="signal">
@@ -375,7 +400,7 @@
         <p>A quiet memento mori. Even if the portfolio keeps growing, this clock keeps moving. Are you using the time well?</p>
         <div class="mini-screen">
           <span class="sub">Lifetime left</span>
-          48y 08m 1w
+          <span class="val" id="sLife">48y 08m 1w</span>
         </div>
       </div>
       <div class="signal">
@@ -384,7 +409,7 @@
         <p>What percentage of the life you have left is already financially covered. A single number that closes the gap, week by week.</p>
         <div class="mini-screen">
           <span class="sub">Coverage</span>
-          05 %
+          <span class="val" id="sCov">5%</span>
         </div>
       </div>
     </div>
@@ -407,14 +432,23 @@
       <div class="inputs">
 
         <div class="field">
+          <label>Currency</label>
+          <div class="seg" id="currency">
+            <button data-currency="usd" class="on">USD</button>
+            <button data-currency="eur">EUR</button>
+            <button data-currency="chf">CHF</button>
+          </div>
+        </div>
+
+        <div class="field">
           <label>Your savings <span style="color:var(--ink-mute);font-weight:400" id="priceNote"></span></label>
           <div class="seg" id="unit" style="margin-bottom:10px">
-            <button data-unit="usd" class="on">USD</button>
+            <button data-unit="cash" class="on" id="unitCashBtn">USD</button>
             <button data-unit="btc">BTC</button>
           </div>
           <div class="with-suffix" id="usdWrap">
             <input type="number" id="savings" value="1000000" min="0" step="1000" />
-            <span class="suffix">USD</span>
+            <span class="suffix" id="savingsSuffix">USD</span>
           </div>
           <div class="with-suffix" id="btcWrap" style="display:none">
             <input type="number" id="btc" value="2.1" min="0" step="0.01" />
@@ -427,9 +461,27 @@
           <label>Monthly spend</label>
           <div class="with-suffix">
             <input type="number" id="spend" value="10000" min="0" step="100" />
-            <span class="suffix">USD / mo</span>
+            <span class="suffix" id="spendSuffix">USD / mo</span>
           </div>
           <div class="hint">What it costs to live the life you actually want, not just to survive.</div>
+        </div>
+
+        <div class="field">
+          <label>Monthly income</label>
+          <div class="with-suffix">
+            <input type="number" id="income" value="0" min="0" step="100" />
+            <span class="suffix" id="incomeSuffix">USD / mo</span>
+          </div>
+          <div class="hint">Pension, rental income, or any recurring income that offsets what you withdraw.</div>
+        </div>
+
+        <div class="field" id="incomeGrowthField" style="display:none">
+          <label>Income growth</label>
+          <div class="with-suffix">
+            <input type="number" id="incomeGrowth" value="0" min="0" max="100" step="0.5" />
+            <span class="suffix">% / yr</span>
+          </div>
+          <div class="hint">Expected annual rise in income (e.g. inflation-linked pension).</div>
         </div>
 
         <div class="field-row">
@@ -450,7 +502,7 @@
               <input type="number" id="growth" value="10" min="0" max="100" step="0.5" />
               <span class="suffix">% / yr</span>
             </div>
-            <div class="hint">Expected annual nominal return.</div>
+            <div class="hint">Expected annual nominal return.<br><span style="opacity:0.7">Reference: S&amp;P 500 ≈ 10% &middot; BTC 10yr avg ≈ 62% &middot; bonds ≈ 4%</span></div>
           </div>
           <div class="field">
             <label>Inflation</label>
@@ -485,6 +537,7 @@
       <!-- RIGHT: device mockup -->
       <div class="device">
         <div class="device-shell">
+          <div class="device-screen-part">
           <div class="screen-wrap">
             <div class="screen-head"><span class="batt"><span></span></span> 94%</div>
 
@@ -527,6 +580,10 @@
             </div>
 
           </div>
+          </div><!-- /device-screen-part -->
+          <div class="device-btn-side">
+            <img src="assets/logo_black_transparent.svg" alt="">
+          </div>
         </div>
 
         <div class="toggle-screen">
@@ -534,6 +591,7 @@
           <button id="btnQuote">Quote</button>
         </div>
         <div class="device-caption">Real device. Real calculation. No cloud.</div>
+        <div class="device-forever-hint" id="foreverHint"></div>
       </div>
 
     </div>
@@ -652,14 +710,14 @@
     <div class="bom">
       <div class="bom-head">
         <h3>What you need</h3>
-        <div class="total">around $30</div>
+        <div class="total" data-usd="30">around $30</div>
       </div>
       <table>
         <tbody>
-          <tr><td class="what"><a href="https://heltec.org/project/vision-master-e290/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px">Heltec Vision Master E290</a></td><td class="cost">~$22</td></tr>
-          <tr><td class="what">3.7V Li-Po battery, ~1000mAh</td><td class="cost">~$5</td></tr>
-          <tr><td class="what">USB-C cable</td><td class="cost">~$3</td></tr>
-          <tr><td class="what">A stand of your choice (3D printed case, wood, stone ...)</td><td class="cost">$0</td></tr>
+          <tr><td class="what"><a href="https://heltec.org/project/vision-master-e290/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px">Heltec Vision Master E290</a></td><td class="cost" data-usd="22">~$22</td></tr>
+          <tr><td class="what">3.7V Li-Po battery, ~1000mAh</td><td class="cost" data-usd="5">~$5</td></tr>
+          <tr><td class="what">USB-C cable</td><td class="cost" data-usd="3">~$3</td></tr>
+          <tr><td class="what">A stand of your choice (3D printed case, wood, stone ...)</td><td class="cost" data-usd="0">$0</td></tr>
         </tbody>
       </table>
     </div>
@@ -679,7 +737,7 @@
     <div class="faq-list">
       <div class="faq-item open">
         <div class="q">Do I need to own Bitcoin to use this?<span class="plus">+</span></div>
-        <div class="a">No. Today the clock works with either cash (USD) or Bitcoin, not yet a mix of the two. You enter a single portfolio value and the device translates it into time. Bitcoin was the original spark, but the device cares about freedom, not the asset class. Support for combinations and other assets is on the way.</div>
+        <div class="a">No. Today the clock works with either cash (USD, EUR, or CHF) or Bitcoin, not yet a mix of the two. You enter a single portfolio value and the device translates it into time. Bitcoin was the original spark, but the device cares about freedom, not the asset class. Support for combinations and other assets is on the way.</div>
       </div>
       <div class="faq-item">
         <div class="q">Is it accurate? It feels like a big number to trust.<span class="plus">+</span></div>
@@ -735,19 +793,78 @@
 // ---------- Helpers ----------
 const $ = (id) => document.getElementById(id);
 
-function fmtUSD(n) {
-  if (n >= 1e6) return "$" + (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
-  if (n >= 1e3) return "$" + Math.round(n / 1e3) + "k";
-  return "$" + Math.round(n);
+function currencySymbol() {
+  if (state.currency === "eur") return "€";
+  if (state.currency === "chf") return "CHF ";
+  return "$";
+}
+function currencyLabel() {
+  return state.currency.toUpperCase();
+}
+function fmtCurrency(n) {
+  const sym = currencySymbol();
+  if (n >= 1e6) return sym + (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+  if (n >= 1e3) return sym + Math.round(n / 1e3) + "k";
+  return sym + Math.round(n);
 }
 
+function bomFxRate() {
+  if (state.currency === "eur") return state.fxRates.eur || 0.92;
+  if (state.currency === "chf") return state.fxRates.chf || 0.90;
+  return 1;
+}
+
+function updateBomPrices() {
+  const sym = currencySymbol();
+  const rate = bomFxRate();
+  let totalConverted = 0;
+
+  document.querySelectorAll(".cost[data-usd]").forEach(el => {
+    const usd = parseFloat(el.dataset.usd);
+    const converted = Math.round(usd * rate);
+    totalConverted += converted;
+    el.textContent = usd === 0 ? sym + "0" : "~" + sym + converted;
+  });
+
+  const totalEl = document.querySelector(".total[data-usd]");
+  if (totalEl) totalEl.textContent = "around " + sym + totalConverted;
+}
+
+async function fetchFxRates() {
+  try {
+    const r = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,CHF");
+    if (r.ok) {
+      const d = await r.json();
+      if (d?.rates?.EUR) state.fxRates.eur = d.rates.EUR;
+      if (d?.rates?.CHF) state.fxRates.chf = d.rates.CHF;
+      updateBomPrices();
+    }
+  } catch {}
+}
+
+function ymwFromDays(days) {
+  let d = Math.max(0, Math.round(days));
+  const y = Math.floor(d / 365); d %= 365;
+  const m = Math.floor(d / 30);  d %= 30;
+  const w = Math.min(4, Math.floor(d / 7));
+  return `<span class="seg-num">${String(y).padStart(2,"0")}</span><span class="seg-suf">y</span>` +
+         `<span class="seg-num">${String(m).padStart(2,"0")}</span><span class="seg-suf">m</span>` +
+         `<span class="seg-num" style="min-width:1ch">${w}</span><span class="seg-suf">w</span>`;
+}
+function ymwTextFromDays(days) {
+  let d = Math.max(0, Math.round(days));
+  const y = Math.floor(d / 365); d %= 365;
+  const m = Math.floor(d / 30);  d %= 30;
+  const w = Math.min(4, Math.floor(d / 7));
+  return `${String(y).padStart(2,"0")}y ${String(m).padStart(2,"0")}m ${w}w`;
+}
 function ymwHtml(totalMonths) {
   if (!isFinite(totalMonths) || totalMonths < 0) totalMonths = 0;
   if (totalMonths > 99 * 12) totalMonths = 99 * 12;
   const y  = Math.floor(totalMonths / 12);
   const rm = totalMonths - y * 12;
   const m  = Math.floor(rm);
-  const w  = Math.min(3, Math.floor((rm - m) * 4));
+  const w  = Math.min(4, Math.max(0, Math.round((rm - m) * 4.345)));
   return `<span class="seg-num">${String(y).padStart(2,"0")}</span><span class="seg-suf">y</span>` +
          `<span class="seg-num">${String(m).padStart(2,"0")}</span><span class="seg-suf">m</span>` +
          `<span class="seg-num" style="min-width:1ch">${w}</span><span class="seg-suf">w</span>`;
@@ -759,7 +876,7 @@ function ymwText(totalMonths) {
   const y  = Math.floor(totalMonths / 12);
   const rm = totalMonths - y * 12;
   const m  = Math.floor(rm);
-  const w  = Math.min(3, Math.floor((rm - m) * 4));
+  const w  = Math.min(4, Math.max(0, Math.round((rm - m) * 4.345)));
   return `${String(y).padStart(2,"0")}y ${String(m).padStart(2,"0")}m ${w}w`;
 }
 
@@ -771,11 +888,15 @@ const state = {
   life:     85,
   growth:   10,
   infl:     2,
+  income:       0,
+  incomeGrowth: 0,
   mode:     "sell",
   borrow:   8,
-  unit:     "usd",
+  unit:     "cash",
+  currency: "usd",
   btc:      2.1,
   btcPrice: 95000,
+  fxRates:  { eur: null, chf: null },
 };
 
 const modeHints = {
@@ -784,73 +905,149 @@ const modeHints = {
 };
 
 // ---------- Core calculation ----------
-function computeYears(savingsUSD, annualSpend, mode, growthR, inflR, loanR) {
+function computeYears(savingsUSD, annualSpend, annualIncome, mode, growthR, inflR, incomeGrowthR, loanR) {
   // Returns years of freedom (Infinity = FOREVER)
   if (annualSpend <= 0) return Infinity;
-  if (savingsUSD <= 0)  return 0;
+  if (savingsUSD <= 0 && annualIncome < annualSpend) return 0;
 
   if (mode === "sell") {
-    // Monthly real rate + monthly withdrawals — matches device firmware behavior.
-    // Annual formula overstates freedom by ~2 years because it assumes one lump
-    // withdrawal per year rather than 12 smaller ones.
-    const r = Math.pow((1 + growthR) / (1 + inflR), 1/12) - 1; // monthly real rate
-    const monthlySpend = annualSpend / 12;
-    if (Math.abs(r) < 1e-12) return (savingsUSD / monthlySpend) / 12;
-    const x = 1 - (savingsUSD * r / monthlySpend);
-    if (x <= 0) return Infinity;
-    return -Math.log(x) / Math.log(1 + r) / 12; // months → years
+    // Matches device firmware exactly:
+    // 1. Grow portfolio first
+    // 2. Check if remaining can cover withdrawal (break if not, without subtracting)
+    // 3. Subtract and advance expenses for next month
+    // 4. Partial month = remaining / finalWithdrawal → fractional weeks via 4.345 factor
+    const rMonthly       = Math.pow(1 + growthR,       1 / 12) - 1;
+    const inflMonthly    = Math.pow(1 + inflR,         1 / 12) - 1;
+    const incomeGrowthMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+    let P            = savingsUSD;
+    let monthlySpend = annualSpend  / 12;
+    let monthlyIncome= annualIncome / 12;
+    let m = 0;
+    while (m < 200 * 12) {
+      P *= (1 + rMonthly);
+      const withdrawal = Math.max(0, monthlySpend - monthlyIncome);
+      if (P < withdrawal) break;
+      P -= withdrawal;
+      monthlySpend  *= (1 + inflMonthly);
+      monthlyIncome *= (1 + incomeGrowthMo);
+      m++;
+    }
+    if (m >= 200 * 12) return Infinity;
+    const finalWithdrawal = Math.max(0, monthlySpend - monthlyIncome);
+    const partial = (finalWithdrawal > 0 && P > 0) ? Math.min(P / finalWithdrawal, 0.999) : 0;
+    return (m + partial) / 12;
   }
 
-  // Borrow mode: year-by-year simulation.
-  // The portfolio is never sold — it grows at nominal growthR.
-  // Each year you borrow that year's inflation-adjusted spend.
-  // Accumulated debt compounds at loanR.
-  // Freedom ends when total debt reaches the portfolio value.
+  // Borrow mode — matches device firmware exactly:
+  // 1. Grow collateral, 2. compound existing debt, 3. check if new borrow fits,
+  // 4. add borrow (no same-year interest on new borrow), 5. partial-year remainder.
   let P = savingsUSD;
   let D = 0;
+  let spendAdj  = annualSpend;
+  let incomeAdj = annualIncome;
   for (let y = 0; y < 300; y++) {
-    const spend = annualSpend * Math.pow(1 + inflR, y); // nominal spend in year y
-    D = (D + spend) * (1 + loanR);                      // borrow then compound debt
-    P *= (1 + growthR);                                  // portfolio grows
-    if (D >= P) return y + 1;                            // debt overtook portfolio
+    P *= (1 + growthR);
+    D *= (1 + loanR);
+    const borrow = Math.max(0, spendAdj - incomeAdj);
+    if (D + borrow > P) {
+      const shortfall = spendAdj - incomeAdj;
+      const partial = (shortfall > 0 && P > D) ? Math.min((P - D) / shortfall, 0.999) : 0;
+      return y + partial;
+    }
+    D += borrow;
+    spendAdj  *= (1 + inflR);
+    incomeAdj *= (1 + incomeGrowthR);
   }
-  return Infinity; // survived 300 years — effectively FOREVER
+  return Infinity;
 }
 
 // ---------- Calculator ----------
 function calc() {
-  const savingsUSD  = state.unit === "btc" ? state.btc * state.btcPrice : state.savings;
-  const annualSpend = Math.max(state.spend * 12, 0);
-  const growthR     = state.growth / 100;
-  const inflR       = state.infl   / 100;
-  const loanR       = state.borrow / 100;
+  const savingsUSD    = state.unit === "btc" ? state.btc * state.btcPrice : state.savings;
+  const annualSpend   = Math.max(state.spend        * 12, 0);
+  const annualIncome  = Math.max(state.income       * 12, 0);
+  const growthR       = state.growth       / 100;
+  const inflR         = state.infl         / 100;
+  const incomeGrowthR = state.incomeGrowth / 100;
+  const loanR         = state.borrow       / 100;
+  const effectiveMode = (state.mode === "borrow" && loanR > 0) ? "borrow" : "sell";
 
-  const years       = computeYears(savingsUSD, annualSpend, state.mode, growthR, inflR, loanR);
+  const years       = computeYears(savingsUSD, annualSpend, annualIncome, effectiveMode, growthR, inflR, incomeGrowthR, loanR);
   const isForever   = !isFinite(years) || years > 999;
 
+  // Use Jan 1 of death year — matches device behavior and avoids bias from today's date
   const today          = new Date();
-  const deathDate      = new Date(state.birthYear + state.life, today.getMonth(), today.getDate());
-  const lifetimeLeft   = Math.max(0, (deathDate - today) / (1000 * 60 * 60 * 24 * 365.25));
-  const freedomYears   = isForever ? lifetimeLeft : Math.min(years, lifetimeLeft);
-  const freedomMonths  = freedomYears * 12;
-  const lifeMonths     = lifetimeLeft * 12;
-  const coveragePct    = lifetimeLeft > 0
-    ? (isForever ? 100 : Math.min(100, (years / lifetimeLeft) * 100))
+  const deathDate      = new Date(state.birthYear + state.life, 0, 1);
+  const remainingDays  = Math.max(0, (deathDate - today) / (1000 * 60 * 60 * 24));
+  const lifetimeLeft   = remainingDays / 365.25; // years, used only for coverage ratio
+
+  // Coverage — raw ratio, not capped at 100 (device shows e.g. 619%)
+  const coveragePct  = lifetimeLeft > 0
+    ? (isForever ? Infinity : (years / lifetimeLeft) * 100)
     : 0;
+  const isInfCov     = !isFinite(coveragePct);
+
+  // Freedom time — raw years, not capped to lifetime
+  // When years >= 100 show just "NNy" (matching device large-value display)
+  let oTimeHtml, dQsTimeText;
+  if (isForever) {
+    oTimeHtml    = '<span class="seg-num">FOREVER</span>';
+    dQsTimeText  = "FOREVER";
+  } else if (years >= 100) {
+    oTimeHtml    = `<span class="seg-num" style="font-size:54px">${Math.floor(years)}</span><span class="seg-suf">y</span>`;
+    dQsTimeText  = Math.floor(years) + "y";
+  } else {
+    oTimeHtml    = ymwHtml(years * 12);
+    dQsTimeText  = ymwText(years * 12);
+  }
+
+  // Coverage display — shrink font for large values so it fits the panel
+  let oCovHtml;
+  if (isInfCov) {
+    oCovHtml = '<span style="font-size:38px;letter-spacing:0.04em">INF</span>';
+  } else if (coveragePct >= 1000) {
+    oCovHtml = `<span style="font-size:26px;letter-spacing:0.02em">${Math.round(coveragePct)}</span><span class="pct">%</span>`;
+  } else {
+    oCovHtml = Math.round(coveragePct) + '<span class="pct">%</span>';
+  }
 
   // Main screen
-  $("oTime").innerHTML = isForever
-    ? '<span style="font-size:32px;letter-spacing:0.04em">FOREVER</span>'
-    : ymwHtml(freedomMonths);
-  $("oLife").innerHTML = ymwHtml(lifeMonths);
-  $("oCov").innerHTML  = isForever
-    ? '<span style="font-size:38px;letter-spacing:0.04em">INF</span>'
-    : Math.round(coveragePct) + '<span class="pct">%</span>';
+  $("oTime").innerHTML = oTimeHtml;
+  $("oLife").innerHTML = ymwFromDays(remainingDays);
+  $("oCov").innerHTML  = oCovHtml;
 
   // Quote screen stats (always kept in sync)
-  $("dQsTime").textContent = isForever ? "FOREVER" : ymwText(freedomMonths);
-  $("dQsLife").textContent = ymwText(lifeMonths);
-  $("dQsCov").textContent  = isForever ? "" : Math.round(coveragePct) + "%";
+  $("dQsTime").textContent = dQsTimeText;
+  $("dQsLife").textContent = ymwTextFromDays(remainingDays);
+  $("dQsCov").textContent  = isInfCov ? "" : Math.round(coveragePct) + "%";
+
+  // Signal card mini-screens
+  $("sTime").textContent = dQsTimeText;
+  $("sLife").textContent = ymwTextFromDays(remainingDays);
+  $("sCov").textContent  = isInfCov ? "INF" : Math.round(coveragePct) + "%";
+
+  // Reverse calc: how much more until FOREVER?
+  // FOREVER condition: real return on wealth covers net annual spend
+  // Sell: P × (growthR − inflR) ≥ netSpend  →  P_needed = netSpend / (growthR − inflR)
+  // Borrow: P × (growthR − loanR) ≥ netSpend →  P_needed = netSpend / (growthR − loanR)
+  const netAnnualSpend = Math.max(0, annualSpend - annualIncome);
+  let foreverHintText = "";
+  if (!isForever && netAnnualSpend > 0) {
+    const rateGap = effectiveMode === "borrow" ? (growthR - loanR) : (growthR - inflR);
+    if (rateGap > 0.001) {
+      const pNeeded = netAnnualSpend / rateGap;
+      const gap = pNeeded - savingsUSD;
+      if (gap > 0) {
+        if (state.unit === "btc") {
+          const gapBtc = gap / state.btcPrice;
+          foreverHintText = "For FOREVER: " + gapBtc.toFixed(2) + " BTC more at current price (" + fmtCurrency(gap) + ")";
+        } else {
+          foreverHintText = "For FOREVER: " + fmtCurrency(gap) + " more at current spend";
+        }
+      }
+    }
+  }
+  $("foreverHint").textContent = foreverHintText;
 
   // Share — the question only, no personal numbers
   const shareQuestion = "If you stopped earning tomorrow, how long could you keep living the life you want? freedomclock.io";
@@ -873,8 +1070,19 @@ bind("birthYear", "birthYear");
 bind("life",    "life");
 bind("growth",  "growth");
 bind("infl",    "infl");
-bind("borrow",  "borrow");
-bind("btc",     "btc");
+bind("borrow",      "borrow");
+bind("btc",         "btc");
+bind("incomeGrowth","incomeGrowth");
+
+// Income: bind + show/hide incomeGrowthField reactively
+function syncIncome() {
+  const v = parseFloat($("income").value);
+  state.income = isFinite(v) ? v : 0;
+  $("incomeGrowthField").style.display = state.income > 0 ? "" : "none";
+  calc();
+}
+$("income").addEventListener("input",  syncIncome);
+$("income").addEventListener("change", syncIncome);
 
 // Unit toggle (USD / BTC)
 document.querySelectorAll("#unit button").forEach(b => {
@@ -882,34 +1090,55 @@ document.querySelectorAll("#unit button").forEach(b => {
     document.querySelectorAll("#unit button").forEach(x => x.classList.remove("on"));
     b.classList.add("on");
     state.unit = b.dataset.unit;
-    $("usdWrap").style.display = state.unit === "usd" ? "" : "none";
+    $("usdWrap").style.display = state.unit === "cash" ? "" : "none";
     $("btcWrap").style.display = state.unit === "btc" ? "" : "none";
     updatePriceNote();
     calc();
   });
 });
 
+// Currency toggle (USD / EUR / CHF)
+document.querySelectorAll("#currency button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#currency button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    state.currency = b.dataset.currency;
+    const lbl = currencyLabel();
+    $("unitCashBtn").textContent = lbl;
+    $("savingsSuffix").textContent = lbl;
+    $("spendSuffix").textContent = lbl + " / mo";
+    $("incomeSuffix").textContent = lbl + " / mo";
+    fetchBtcPrice(state.currency).then(price => {
+      if (price) { state.btcPrice = price; updatePriceNote(); calc(); }
+    });
+    updateBomPrices();
+    calc();
+  });
+});
+
 function updatePriceNote() {
   $("priceNote").textContent = state.unit === "btc"
-    ? "· BTC/USD " + fmtUSD(state.btcPrice)
+    ? "· BTC/" + currencyLabel() + " " + fmtCurrency(state.btcPrice)
     : "";
 }
 
 // Fetch live BTC/USD — same primary source as the device firmware (CoinGecko),
 // with mempool.space as fallback in case CoinGecko rate-limits the browser.
-async function fetchBtcPrice() {
+async function fetchBtcPrice(currency) {
+  const cur = currency || state.currency || "usd";
   try {
-    const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&precision=2");
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${cur}&precision=2`);
     if (r.ok) {
       const d = await r.json();
-      if (d?.bitcoin?.usd) return d.bitcoin.usd;
+      if (d?.bitcoin?.[cur]) return d.bitcoin[cur];
     }
   } catch {}
   try {
     const r = await fetch("https://mempool.space/api/v1/prices");
     if (r.ok) {
       const d = await r.json();
-      if (d?.USD) return d.USD;
+      const key = cur.toUpperCase();
+      if (d?.[key]) return d[key];
     }
   } catch {}
   return null;
@@ -921,6 +1150,7 @@ fetchBtcPrice().then(price => {
     calc();
   }
 });
+fetchFxRates();
 updatePriceNote();
 
 // Spend mode toggle
@@ -945,15 +1175,65 @@ function showScreen(name) {
   $("screenQuote").style.display = isDefault ? "none" : "";
   $("btnDefault").classList.toggle("on", isDefault);
   $("btnQuote").classList.toggle("on", !isDefault);
+  document.querySelector(".screen-wrap").classList.toggle("quote-active", !isDefault);
   if (!isDefault) updateDeviceQuote();
+}
+// Canvas used for measuring VT323 text width without touching the DOM
+let _qcvs = null;
+function _countWrappedLines(str, maxW, sz) {
+  if (!_qcvs) _qcvs = document.createElement("canvas");
+  const ctx = _qcvs.getContext("2d");
+  ctx.font = sz + "px VT323";
+  let line = "", n = 0;
+  for (const word of str.split(/\s+/).filter(Boolean)) {
+    const candidate = line ? line + " " + word : word;
+    if (ctx.measureText(candidate).width > maxW && line) { n++; line = word; }
+    else line = candidate;
+  }
+  return n + (line ? 1 : 0);
+}
+function fitQuoteText() {
+  const screen = document.getElementById("screenQuote");
+  const body   = screen ? screen.querySelector(".qs-body")  : null;
+  const stats  = screen ? screen.querySelector(".qs-stats") : null;
+  const attr   = screen ? screen.querySelector(".qs-attr")  : null;
+  const text   = $("dQuoteText");
+  const dsp    = document.querySelector(".device-screen-part");
+  if (!body || !text || !dsp) return;
+  text.style.fontSize = "";
+  body.style.maxHeight = "";
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const dspH  = dsp.getBoundingClientRect().height;
+    const textW = text.getBoundingClientRect().width;
+    if (dspH <= 0 || textW <= 0) return;
+    const statsH = stats ? stats.getBoundingClientRect().height : 20;
+    const attrH  = attr  ? attr.getBoundingClientRect().height + 7 : 31;
+    // avail = space for entire qs-body (text + gap + attr)
+    // dspH - screen padding(16) - divider+its margin(6) - statsH
+    const avail = dspH - statsH - 22;
+    // Hard cap: qs-body can never grow past avail, so stats always stay visible
+    body.style.maxHeight = avail + "px";
+    const str = (text.textContent || "").trim();
+    // Canvas word-wrap — same logic as device firmware countWrappedLines.
+    // Use 97% of textW as a small safety margin for browser vs canvas rounding.
+    let size = 32, min = 12;
+    while (size > min) {
+      const textH = _countWrappedLines(str, textW * 0.97, size) * size * 1.15;
+      if (textH + attrH <= avail) break;
+      size--;
+    }
+    text.style.fontSize = size + "px";
+  }));
 }
 function updateDeviceQuote() {
   if (!quotes.length) return;
   $("dQuoteText").textContent = quotes[qi].text;
   $("dQuoteAttr").textContent = quotes[qi].author;
+  fitQuoteText();
 }
 $("btnDefault").addEventListener("click", () => showScreen("default"));
 $("btnQuote").addEventListener("click",   () => showScreen("quote"));
+window.addEventListener("resize", () => { if ($("screenQuote").style.display !== "none") fitQuoteText(); });
 
 // ---------- Share ----------
 $("copyShare").addEventListener("click", async () => {
