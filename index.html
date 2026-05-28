@@ -196,26 +196,26 @@
   .asset-row{padding:8px 0;border-bottom:1px solid var(--rule)}
   .asset-row:last-of-type{border-bottom:none;padding-bottom:0}
   .ar-main{display:grid;grid-template-columns:2fr 1.6fr 1.6fr 36px;gap:6px;align-items:center}
-  .ar-main--btc{grid-template-columns:2fr 1.6fr 1.6fr}
-  .ar-header--btc{grid-template-columns:2fr 1.6fr 1.6fr}
-  .ar-val{padding-right:52px}
+.ar-val{padding-right:52px}
   .ar-gval{padding-right:60px}
   .ar-rm{border:1px solid var(--rule);border-radius:8px;background:transparent;color:var(--ink-mute);cursor:pointer;font-size:17px;padding:0;display:flex;align-items:center;justify-content:center;align-self:stretch;transition:all .12s}
   .ar-rm:hover{color:var(--ink);border-color:var(--ink-mute)}
   .ar-btcnote{font-size:11px;color:var(--ink-mute);margin-top:3px;padding-left:1px;grid-column:1/-1}
+  .borrow-header{display:flex;align-items:center;padding:0 0 6px 0;border-bottom:1px solid var(--rule);margin-bottom:2px}
+  .borrow-header-asset{font-size:12px;color:var(--ink-mute);flex:1}
+  .borrow-header-rate{font-size:12px;color:var(--ink-mute);width:130px;flex-shrink:0;text-align:left}
   .borrow-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--rule-soft)}
   .borrow-item:last-child{border-bottom:none}
   .borrow-item input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;flex-shrink:0}
   .borrow-spacer{flex:1}
   .borrow-name{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;flex-shrink:0}
+  .borrow-sold-tag{font-size:11px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:4px;padding:1px 5px;margin-left:6px;flex-shrink:0}
   .borrow-rate-field{width:130px;flex-shrink:0}
   .borrow-rate-field input{padding-right:52px}
   .borrow-rate-field.disabled{opacity:0.35;pointer-events:none}
   .add-asset-btn{margin-top:10px;width:100%;padding:9px;background:transparent;border:1px dashed var(--rule);border-radius:8px;color:var(--ink-mute);font-size:13px;cursor:pointer;font-family:inherit;letter-spacing:0.02em;transition:all .15s}
   .add-asset-btn:hover{border-color:var(--ink-mute);color:var(--ink)}
   .add-asset-btn:disabled{opacity:0.35;cursor:not-allowed}
-  .export-btn{margin-top:28px;width:100%;padding:12px;background:transparent;border:1px solid var(--ink);border-radius:8px;color:var(--ink);font-size:13px;cursor:pointer;font-family:inherit;letter-spacing:0.04em;transition:all .15s}
-  .export-btn:hover{background:var(--ink);color:var(--bg)}
   /* export modal */
   .export-modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px}
   .export-panel{background:var(--paper);border-radius:12px;width:100%;max-width:720px;max-height:84vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
@@ -237,11 +237,7 @@
   @media(max-width:560px){
     .ar-header,.ar-main{grid-template-columns:1fr 1fr 36px}
     .ar-name-col{grid-column:1/3}
-    .ar-main--btc{grid-template-columns:1fr 1fr}
-    .ar-main--btc .ar-name-col{grid-column:1/3}
-    .ar-header--btc{grid-template-columns:1fr 1fr}
-    .ar-header--btc .ar-hcol:first-child{grid-column:1/3;display:none}
-  }
+}
   .toggle-screen{margin-top:12px;display:flex;justify-content:center;gap:8px}
   .toggle-screen button{padding:6px 14px;font-size:12px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:999px;transition:all .15s}
   .toggle-screen button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -498,8 +494,8 @@
         <div class="field">
           <label>Your savings</label>
           <div class="seg" id="topUnit" style="margin-bottom:10px">
-            <button data-tu="btc" class="on">BTC</button>
-            <button data-tu="assets">ASSETS</button>
+            <button data-tu="btc" class="on">BTC &amp; ASSETS</button>
+            <button data-tu="assets">ASSETS ONLY</button>
           </div>
           <div id="assetRows"></div>
           <button class="add-asset-btn" id="addAssetBtn" style="display:none">+ Add asset</button>
@@ -558,12 +554,12 @@
           <div class="seg" id="mode">
             <button data-mode="sell" class="on">Sell monthly</button>
             <button data-mode="borrow">Borrow against</button>
+            <button data-mode="borrow-sell">Borrow & sell</button>
           </div>
           <div class="hint" id="modeHint">Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.</div>
         </div>
 
         <div id="borrowSection" class="field" style="display:none">
-          <label id="borrowSectionLabel">Borrow against</label>
           <div id="borrowRows"></div>
         </div>
 
@@ -627,8 +623,8 @@
         </div>
         <div class="device-caption">Real device. Real calculation. No cloud.</div>
         <div class="device-forever-hint" id="foreverHint"></div>
-        <button class="export-btn" id="exportBtn">↓ Export data</button>
-        <button class="export-btn" id="shareBtn" style="margin-top:8px">🔗 Share with password</button>
+        <button class="btn btn-ghost" id="exportBtn" style="width:100%;justify-content:center;margin-top:28px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export data</button>
+        <button class="btn btn-ghost" id="shareBtn" style="width:100%;justify-content:center;margin-top:8px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Share with password</button>
       </div>
 
     </div>
@@ -837,8 +833,9 @@
       <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;line-height:1.6">Your numbers are encrypted with AES-256 and stored only inside the link itself — nothing is sent to or stored on any server. Share the link and password separately — without the password the link reveals nothing.</p>
       <label style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute);display:block;margin-bottom:6px">Password</label>
       <div style="position:relative;margin-bottom:6px">
-        <input id="sharePassword" type="password" placeholder="min. 6 characters" autocomplete="off" style="width:100%;padding:10px 40px 10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);font:inherit;font-size:14px"/>
-        <button id="sharePasswordToggle" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-mute);padding:2px 4px;line-height:1;display:flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <input id="sharePassword" type="password" placeholder="min. 6 characters" autocomplete="off" style="width:100%;padding:10px 68px 10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);font:inherit;font-size:14px"/>
+        <button id="sharePasswordToggle" type="button" style="position:absolute;right:36px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-mute);padding:2px 4px;line-height:1;display:flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button id="sharePasswordCopy" type="button" title="Copy password" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-mute);padding:2px 4px;line-height:1;display:flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
       <div id="shareStrengthBar" style="height:4px;border-radius:2px;background:var(--rule);margin-bottom:4px;overflow:hidden"><div id="shareStrengthFill" style="height:100%;width:0;border-radius:2px;transition:width .3s,background .3s"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -849,9 +846,9 @@
       <button id="shareGenerate" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px">Generate encrypted link</button>
       <div id="shareResult" style="display:none;margin-top:20px">
         <label style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute);display:block;margin-bottom:6px">Encrypted link</label>
-        <div style="display:flex;gap:8px;margin-bottom:10px">
-          <input id="shareUrl" type="text" readonly style="flex:1;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);font:inherit;font-size:12px;color:var(--ink-mute);min-width:0"/>
-          <button id="shareCopyBtn" class="btn btn-ghost" style="padding:10px 14px;white-space:nowrap;flex-shrink:0">Copy</button>
+        <div style="position:relative;margin-bottom:10px">
+          <input id="shareUrl" type="text" readonly style="width:100%;padding:10px 40px 10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);font:inherit;font-size:12px;color:var(--ink-mute)"/>
+          <button id="shareCopyBtn" type="button" title="Copy link" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-mute);padding:2px 4px;line-height:1;display:flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         </div>
       </div>
     </div>
@@ -894,7 +891,7 @@
     </div>
     <div class="export-ftr">
       <span class="export-note" id="exportNote"></span>
-      <button class="btn btn-primary" id="exportDownload" style="padding:10px 18px;font-size:13px">↓ Download CSV</button>
+      <button class="btn btn-primary" id="exportDownload" style="padding:10px 18px;font-size:13px"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download CSV</button>
     </div>
   </div>
 </div>
@@ -930,9 +927,11 @@ function btcPriceHint() {
 }
 function updateSavingsHint() {
   const isBtcMode = state.assets[0].unit === "btc";
-  $("savingsHint").textContent = isBtcMode
-    ? "Live BTC price: " + btcPriceHint() + " — updated automatically."
-    : "Each asset grows at its own rate. In sell mode, lowest-growth assets are drawn first — for example, cash before bonds, bonds before stocks.";
+  if (isBtcMode) {
+    $("savingsHint").textContent = "Live BTC price: " + btcPriceHint() + " — updated automatically.";
+  } else {
+    $("savingsHint").textContent = "Each asset grows at its own rate.";
+  }
 }
 
 function bomFxRate() {
@@ -1012,13 +1011,13 @@ function ymwText(totalMonths) {
 // ---------- State ----------
 const state = {
   assets: [
-    { name: "All savings", amount: 2.1, growth: 10, unit: "btc", borrowable: true, borrowRate: 0 }
+    { name: "Bitcoin", amount: 2.1, growth: 10, unit: "btc", borrowable: true, borrowRate: 8 }
   ],
-  _btcAmount:  2.1,
-  _cashAmount: 1000000,
-  _btcGrowth:  10,
-  _cashGrowth: 10,
-  btcBorrowRate: 0,
+  _btcSideAssets: [],   // fiat assets kept while in BTC & Assets tab
+  _cashAssets:    [{ name: "All savings", amount: 1000000, growth: 10, unit: "cash", borrowable: true, borrowRate: 0 }],
+  _btcAmount:    2.1,
+  _btcGrowth:    10,
+  btcBorrowRate: 8,
   spend:    10000,
   birthYear: 1990,
   life:     85,
@@ -1047,9 +1046,17 @@ function weightedGrowthR() {
 }
 
 const modeHints = {
-  sell:   "Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.",
-  borrow: "Borrow against your portfolio each year instead of selling. Principal keeps compounding; accumulated debt compounds at the borrow rate. Freedom ends when debt reaches the portfolio value.",
+  borrow:       "Borrow against your portfolio each year instead of selling. Principal keeps compounding; accumulated debt compounds at the borrow rate. Freedom ends when debt reaches the portfolio value.",
+  "borrow-sell": "Borrow against collateral assets first. Once debt reaches the limit, sell off the remaining portfolio starting from the lowest-growth asset first.",
 };
+function getModeHint(mode) {
+  if (mode === "sell") {
+    const multi = state.assets.length > 1;
+    return "Sell a slice of the portfolio each month to cover your spend. Principal slowly drains."
+      + (multi ? " Lowest-growth assets are drawn first." : "");
+  }
+  return modeHints[mode] || "";
+}
 
 // ---------- Core calculation (multi-asset) ----------
 function computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR) {
@@ -1095,29 +1102,99 @@ function computeYearsBorrow(assets, annualSpend, annualIncome, inflR, incomeGrow
   if (annualSpend <= 0) return Infinity;
   const borrowable = assets.filter(a => a.borrowable && a.borrowRate > 0);
   if (borrowable.length === 0) return computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR);
-  // All assets grow; only borrowable ones are collateral
   const pools = assets.map(a => ({
     value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
     growthMul:  1 + a.growth / 100,
-    borrowable: a.borrowable,
+    borrowable: a.borrowable && a.borrowRate > 0,
     borrowRate: a.borrowRate / 100,
+    debt:       0,
   }));
-  let D = 0, spendAdj = annualSpend, incomeAdj = annualIncome;
+  let spendAdj = annualSpend, incomeAdj = annualIncome;
   for (let y = 0; y < 300; y++) {
     for (const p of pools) p.value *= p.growthMul;
     const bPools     = pools.filter(p => p.borrowable);
     const collateral = bPools.reduce((s, p) => s + p.value, 0);
-    const wRate      = bPools.reduce((s, p) => s + p.borrowRate * p.value, 0) / (collateral || 1);
-    D *= (1 + wRate);
-    const borrow = Math.max(0, spendAdj - incomeAdj);
-    if (D + borrow > collateral) {
-      const shortfall = spendAdj - incomeAdj;
-      const partial = (shortfall > 0 && collateral > D) ? Math.min((collateral - D) / shortfall, 0.999) : 0;
+    for (const p of bPools) p.debt *= (1 + p.borrowRate);
+    const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
+    const borrow     = Math.max(0, spendAdj - incomeAdj);
+    if (totalDebt + borrow > collateral) {
+      const partial = (borrow > 0 && collateral > totalDebt) ? Math.min((collateral - totalDebt) / borrow, 0.999) : 0;
       return y + partial;
     }
-    D += borrow;
+    for (const p of bPools) p.debt += borrow * (p.value / collateral);
     spendAdj  *= (1 + inflR);
     incomeAdj *= (1 + incomeGrowthR);
+  }
+  return Infinity;
+}
+
+function computeYearsBorrowSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR) {
+  if (annualSpend <= 0) return Infinity;
+  const hasBorrowable = assets.some(a => a.borrowable && a.borrowRate > 0);
+  if (!hasBorrowable) return computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR);
+
+  const pools = assets.map(a => ({
+    value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
+    growthMul:  1 + a.growth / 100,
+    sellMul:    Math.pow(1 + a.growth / 100, 1 / 12),
+    borrowable: a.borrowable && a.borrowRate > 0,
+    borrowRate: a.borrowRate / 100,
+    debt:       0,
+  }));
+  const sortedPools = pools.slice().sort((a, b) => a.sellMul - b.sellMul);
+
+  let spendAdj = annualSpend, incomeAdj = annualIncome;
+
+  // Phase 1: borrow (yearly)
+  let y = 0;
+  for (; y < 300; y++) {
+    for (const p of pools) p.value *= p.growthMul;
+    const bPools     = pools.filter(p => p.borrowable);
+    const collateral = bPools.reduce((s, p) => s + p.value, 0);
+    for (const p of bPools) p.debt *= (1 + p.borrowRate);
+    const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
+    const borrow     = Math.max(0, spendAdj - incomeAdj);
+    if (totalDebt + borrow > collateral) break;
+    for (const p of bPools) p.debt += borrow * (p.value / collateral);
+    spendAdj  *= (1 + inflR);
+    incomeAdj *= (1 + incomeGrowthR);
+  }
+  if (y >= 300) return Infinity;
+
+  // Transition: pay debt by selling lowest-growth first
+  let debt = pools.filter(p => p.borrowable).reduce((s, p) => s + p.debt, 0);
+  for (const p of sortedPools) {
+    if (debt <= 0) break;
+    const take = Math.min(p.value, debt);
+    p.value -= take;
+    debt -= take;
+  }
+  if (debt > 0) return y;
+
+  // Phase 2: sell (monthly)
+  const inflMo    = Math.pow(1 + inflR, 1 / 12) - 1;
+  const incGrowMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+  let mSpend  = spendAdj  / 12;
+  let mIncome = incomeAdj / 12;
+  let m = 0;
+  while (y * 12 + m < 300 * 12) {
+    for (const p of pools) p.value *= p.sellMul;
+    const needed = Math.max(0, mSpend - mIncome);
+    const avail  = pools.reduce((s, p) => s + p.value, 0);
+    if (avail < needed) {
+      const partial = (needed > 0 && avail > 0) ? Math.min(avail / needed, 0.999) : 0;
+      return y + (m + partial) / 12;
+    }
+    let draw = needed;
+    for (const p of sortedPools) {
+      if (draw <= 0) break;
+      const take = Math.min(p.value, draw);
+      p.value -= take;
+      draw -= take;
+    }
+    mSpend  *= (1 + inflMo);
+    mIncome *= (1 + incGrowMo);
+    m++;
   }
   return Infinity;
 }
@@ -1129,15 +1206,15 @@ function calc() {
   const inflR         = state.infl         / 100;
   const incomeGrowthR = state.incomeGrowth / 100;
   const isBtcMode = state.assets[0].unit === "btc";
-  const calcAssets = isBtcMode
-    ? [{ ...state.assets[0], borrowRate: state.btcBorrowRate }]
-    : state.assets;
-  const hasBorrowable = calcAssets.some(a => a.borrowable && a.borrowRate > 0);
-  const effectiveMode = (state.mode === "borrow" && hasBorrowable) ? "borrow" : "sell";
+  const hasBorrowable = state.assets.some(a => a.borrowable && a.borrowRate > 0);
+  const effectiveMode =
+    (state.mode === "borrow"      && hasBorrowable) ? "borrow" :
+    (state.mode === "borrow-sell" && hasBorrowable) ? "borrow-sell" : "sell";
 
-  const years = effectiveMode === "borrow"
-    ? computeYearsBorrow(calcAssets, annualSpend, annualIncome, inflR, incomeGrowthR)
-    : computeYearsSell(calcAssets, annualSpend, annualIncome, inflR, incomeGrowthR);
+  const years =
+    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR) :
+    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR) :
+    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR);
   const isForever   = !isFinite(years) || years > 999;
 
   // Use Jan 1 of death year — matches device behavior and avoids bias from today's date
@@ -1198,7 +1275,7 @@ function calc() {
     const savingsTotal = totalSavingsUSD();
     let rateGap;
     if (effectiveMode === "borrow") {
-      const bp = calcAssets.filter(a => a.borrowable);
+      const bp = state.assets.filter(a => a.borrowable);
       const bTotal = bp.reduce((s, a) => s + (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0);
       const wG = bTotal > 0 ? bp.reduce((s, a) => s + a.growth / 100 * (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0) / bTotal : 0;
       const wR = bTotal > 0 ? bp.reduce((s, a) => s + a.borrowRate / 100 * (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0) / bTotal : 0;
@@ -1265,6 +1342,7 @@ document.querySelectorAll("#currency button").forEach(b => {
       if (price) { state.btcPrice = price; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); }
     });
     renderAssets(); renderBorrowSection();
+    updateBorrowSellVisibility();
     updateBomPrices();
     calc();
   });
@@ -1275,32 +1353,25 @@ function renderAssets() {
   const container = $("assetRows");
   if (!container) return;
   const isBtcMode = state.assets[0].unit === "btc";
-  const assetsToRender = isBtcMode ? [state.assets[0]] : state.assets;
-  $("addAssetBtn").style.display = isBtcMode ? "none" : "";
-  const header = `<div class="ar-header${isBtcMode ? " ar-header--btc" : ""}">
+  const header = `<div class="ar-header">
     <div class="ar-hcol">Asset</div>
     <div class="ar-hcol">Amount</div>
     <div class="ar-hcol">Growth</div>
-    ${isBtcMode ? "" : '<div style="width:36px;flex-shrink:0"></div>'}
+    <div style="width:36px;flex-shrink:0"></div>
   </div>`;
-  container.innerHTML = header + assetsToRender.map((asset, i) => {
-    const isPrimary = i === 0;
+  container.innerHTML = header + state.assets.map((asset, i) => {
     const isBtc = asset.unit === "btc";
-    const amtSuf = isBtc ? "BTC" : currencyLabel();
+    const amtSuf  = isBtc ? "BTC" : currencyLabel();
     const amtStep = isBtc ? "0.01" : "1000";
-    const namePlaceholder = isPrimary ? "e.g. All savings" : "Asset name";
-    const nameVal = isBtc && isPrimary ? "Bitcoin" : asset.name.replace(/"/g,'&quot;');
-
-    const nameCol = `<div class="ar-name-col"><input class="ar-name" type="text" data-idx="${i}" placeholder="${namePlaceholder}" value="${nameVal}"${isBtc && isPrimary ? ' readonly style="background:var(--bg);border-color:transparent;color:var(--ink-soft);cursor:default"' : ''}/></div>`;
-
-    const rmBtn = isPrimary
-      ? (isBtcMode ? "" : `<div style="width:36px;flex-shrink:0"></div>`)
+    const namePlaceholder = i === 0 && !isBtc ? "e.g. All savings" : "Asset name";
+    const nameVal = isBtc ? "Bitcoin" : asset.name.replace(/"/g, "&quot;");
+    const nameReadonly = isBtc ? ' readonly style="background:var(--bg);border-color:transparent;color:var(--ink-soft);cursor:default"' : "";
+    const rmBtn = i === 0
+      ? `<div style="width:36px;flex-shrink:0"></div>`
       : `<button class="ar-rm" data-idx="${i}" title="Remove asset">×</button>`;
-
-    const rowClass = (isBtcMode && isPrimary) ? "ar-main ar-main--btc" : "ar-main";
     return `<div class="asset-row" data-idx="${i}">
-      <div class="${rowClass}">
-        ${nameCol}
+      <div class="ar-main">
+        <div class="ar-name-col"><input class="ar-name" type="text" data-idx="${i}" placeholder="${namePlaceholder}" value="${nameVal}"${nameReadonly}/></div>
         <div class="with-suffix">
           <input type="number" class="ar-val" data-idx="${i}" value="${asset.amount}" step="${amtStep}" min="0"/>
           <span class="suffix">${amtSuf}</span>
@@ -1314,20 +1385,25 @@ function renderAssets() {
     </div>`;
   }).join('');
 
+  $("addAssetBtn").style.display = "";
+  $("addAssetBtn").disabled = state.assets.length >= 6;
+
   // Event delegation
   container.querySelectorAll('.ar-val').forEach(inp => {
     inp.addEventListener('input', () => {
       const v = parseFloat(inp.value);
       const idx = +inp.dataset.idx;
       state.assets[idx].amount = isFinite(v) ? v : 0;
-      if (idx === 0 && state.assets[0].unit !== "btc") state._cashAmount = state.assets[0].amount;
+      if (idx === 0 && state.assets[0].unit === "btc") state._btcAmount = state.assets[0].amount;
       calc();
     });
   });
   container.querySelectorAll('.ar-gval').forEach(inp => {
     inp.addEventListener('input', () => {
       const v = parseFloat(inp.value);
-      state.assets[+inp.dataset.idx].growth = isFinite(v) ? v : 0;
+      const idx = +inp.dataset.idx;
+      state.assets[idx].growth = isFinite(v) ? v : 0;
+      if (idx === 0 && state.assets[0].unit === "btc") state._btcGrowth = state.assets[0].growth;
       calc();
     });
   });
@@ -1342,32 +1418,39 @@ function renderAssets() {
 function renderBorrowSection() {
   const section = $("borrowSection");
   const rowsEl  = $("borrowRows");
-  const labelEl = $("borrowSectionLabel");
   if (!section || !rowsEl) return;
   const isBtcMode = state.assets[0].unit === "btc";
-  const inBorrow  = state.mode === "borrow";
+  const inBorrow  = state.mode === "borrow" || state.mode === "borrow-sell";
 
   if (!inBorrow) { section.style.display = "none"; return; }
   section.style.display = "";
 
-  if (isBtcMode) {
-    if (labelEl) labelEl.textContent = "Borrow rate";
+  if (isBtcMode && state.assets.length === 1) {
+    // BTC-only — single rate input (simpler UX)
     rowsEl.innerHTML = `<div class="with-suffix" style="width:100%">
-      <input type="number" class="ar-brate-btc" value="${state.btcBorrowRate}" step="0.5" min="0" style="padding-right:60px"/>
+      <input type="number" class="ar-brate-btc" value="${state.assets[0].borrowRate}" step="0.5" min="0" style="padding-right:60px"/>
       <span class="suffix">% / yr</span>
-    </div>`;
+    </div>
+    <p class="hint" style="margin-top:8px">Annual interest rate charged on borrowed BTC collateral.</p>`;
     rowsEl.querySelector('.ar-brate-btc').addEventListener('input', e => {
       const v = parseFloat(e.target.value);
-      state.btcBorrowRate = isFinite(v) ? v : 0;
+      state.assets[0].borrowRate = isFinite(v) ? v : 0;
+      state.btcBorrowRate = state.assets[0].borrowRate;
       calc();
     });
   } else {
-    if (labelEl) labelEl.textContent = "Borrow against";
-    rowsEl.innerHTML = state.assets.map((asset, i) => {
-      const name = (asset.name || "Asset " + (i + 1)).slice(0, 18);
+    // Multi-asset (BTC + fiat, or Assets-only)
+    const isBorrowSell = state.mode === "borrow-sell";
+    rowsEl.innerHTML = `<div class="borrow-header">
+      <span class="borrow-header-asset">Asset</span>
+      <span class="borrow-header-rate">Borrow rate</span>
+    </div>` + state.assets.map((asset, i) => {
+      const name = (asset.unit === "btc" ? "Bitcoin" : (asset.name || "Asset " + (i + 1))).slice(0, 18);
+      const soldTag = (isBorrowSell && !asset.borrowable)
+        ? `<span class="borrow-sold-tag">sell</span>` : "";
       return `<div class="borrow-item">
         <input type="checkbox" class="ar-borrowable" data-idx="${i}"${asset.borrowable ? " checked" : ""}/>
-        <span class="borrow-name">${escapeHTML(name)}</span>
+        <span class="borrow-name">${escapeHTML(name)}</span>${soldTag}
         <span class="borrow-spacer"></span>
         <div class="with-suffix borrow-rate-field${asset.borrowable ? "" : " disabled"}">
           <input type="number" class="ar-brate" data-idx="${i}" value="${asset.borrowRate}" step="0.5" min="0"/>
@@ -1375,6 +1458,18 @@ function renderBorrowSection() {
         </div>
       </div>`;
     }).join('');
+
+    if (isBorrowSell) {
+      const soldNames = state.assets
+        .filter(a => !a.borrowable)
+        .map(a => a.unit === "btc" ? "Bitcoin" : (a.name || "Asset"))
+        .join(", ");
+      const hint = soldNames
+        ? `<p class="hint" style="margin-top:10px">When debt limit is reached, <strong>${escapeHTML(soldNames)}</strong> will be sold first (lowest growth first), then borrowed assets.</p>`
+        : `<p class="hint" style="margin-top:10px">All assets are used as collateral. Uncheck assets below to mark them for sale when the debt limit is reached.</p>`;
+      rowsEl.innerHTML += hint;
+    }
+
     rowsEl.querySelectorAll('.ar-borrowable').forEach(chk => {
       chk.addEventListener('change', () => {
         state.assets[+chk.dataset.idx].borrowable = chk.checked;
@@ -1384,7 +1479,9 @@ function renderBorrowSection() {
     rowsEl.querySelectorAll('.ar-brate').forEach(inp => {
       inp.addEventListener('input', () => {
         const v = parseFloat(inp.value);
-        state.assets[+inp.dataset.idx].borrowRate = isFinite(v) ? v : 0;
+        const idx = +inp.dataset.idx;
+        state.assets[idx].borrowRate = isFinite(v) ? v : 0;
+        if (idx === 0 && state.assets[0].unit === "btc") state.btcBorrowRate = state.assets[0].borrowRate;
         calc();
       });
     });
@@ -1392,17 +1489,21 @@ function renderBorrowSection() {
 }
 
 function addAsset() {
-  if (state.assets.length >= 7) return;
+  if (state.assets.length >= 6) return;
   state.assets.push({ name: "", amount: 0, growth: 0, unit: "cash", borrowable: false, borrowRate: 0 });
   renderAssets(); renderBorrowSection();
-  $("addAssetBtn").disabled = state.assets.length >= 7;
+  updateBorrowSellVisibility();
+  $("modeHint").textContent = getModeHint(state.mode);
   calc();
 }
 function removeAsset(idx) {
-  if (idx === 0 || state.assets.length <= 1) return;
+  const isBtcMode = state.assets[0].unit === "btc";
+  if (idx === 0) return;
+  if (!isBtcMode && state.assets.length <= 1) return;
   state.assets.splice(idx, 1);
   renderAssets(); renderBorrowSection();
-  $("addAssetBtn").disabled = false;
+  updateBorrowSellVisibility();
+  $("modeHint").textContent = getModeHint(state.mode);
   calc();
 }
 $("addAssetBtn").addEventListener("click", addAsset);
@@ -1439,23 +1540,35 @@ document.querySelectorAll("#topUnit button").forEach(b => {
     document.querySelectorAll("#topUnit button").forEach(x => x.classList.remove("on"));
     b.classList.add("on");
     const isBtc = b.dataset.tu === "btc";
-    if (isBtc) {
-      state._cashAmount = state.assets[0].amount;
-      state._cashGrowth = state.assets[0].growth;
-      state.assets[0].amount = state._btcAmount;
-      state.assets[0].growth = state._btcGrowth;
-    } else {
-      state._btcAmount  = state.assets[0].amount;
-      state._btcGrowth  = state.assets[0].growth;
-      state.assets[0].amount = state._cashAmount;
-      state.assets[0].growth = state._cashGrowth;
+    const currentlyBtc = state.assets[0].unit === "btc";
+    if (isBtc !== currentlyBtc) {
+      if (isBtc) {
+        // Switch to BTC & Assets: save Assets-only list, restore BTC side assets
+        state._cashAssets   = state.assets.slice();
+        state._btcAmount    = state._btcAmount;
+        state._btcGrowth    = state._btcGrowth;
+        state.assets = [
+          { name: "Bitcoin", unit: "btc", amount: state._btcAmount, growth: state._btcGrowth, borrowable: true, borrowRate: state.btcBorrowRate },
+          ...state._btcSideAssets,
+        ];
+      } else {
+        // Switch to Assets only: save BTC side assets, restore Assets-only list
+        state._btcAmount    = state.assets[0].amount;
+        state._btcGrowth    = state.assets[0].growth;
+        state.btcBorrowRate = state.assets[0].borrowRate;
+        state._btcSideAssets = state.assets.slice(1);
+        state.assets = state._cashAssets.length > 0
+          ? state._cashAssets.slice()
+          : [{ name: "All savings", amount: 1000000, growth: 10, unit: "cash", borrowable: true, borrowRate: 0 }];
+      }
     }
-    state.assets[0].unit = isBtc ? "btc" : "cash";
     if (isBtc && state.btcPrice <= 0) {
       fetchBtcPrice(state.currency).then(p => { if (p) { state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
     }
     renderAssets(); renderBorrowSection();
+    updateBorrowSellVisibility();
     updateSavingsHint();
+    $("modeHint").textContent = getModeHint(state.mode);
     calc();
   });
 });
@@ -1466,15 +1579,30 @@ document.querySelectorAll("#mode button").forEach(b => {
     document.querySelectorAll("#mode button").forEach(x => x.classList.remove("on"));
     b.classList.add("on");
     state.mode = b.dataset.mode;
-    $("modeHint").textContent = modeHints[state.mode];
+    $("modeHint").textContent = getModeHint(state.mode);
     renderAssets(); renderBorrowSection();
     calc();
   });
 });
 
+function updateBorrowSellVisibility() {
+  const btn = document.querySelector('#mode button[data-mode="borrow-sell"]');
+  if (!btn) return;
+  const isBtcOnly = state.assets[0].unit === "btc" && state.assets.length === 1;
+  btn.style.display = isBtcOnly ? "none" : "";
+  if (isBtcOnly && state.mode === "borrow-sell") {
+    state.mode = "borrow";
+    document.querySelectorAll("#mode button").forEach(x => x.classList.remove("on"));
+    document.querySelector('#mode button[data-mode="borrow"]').classList.add("on");
+    $("modeHint").textContent = getModeHint("borrow");
+  }
+}
+
 // Initial render
 renderAssets(); renderBorrowSection();
 updateSavingsHint();
+updateBorrowSellVisibility();
+$("modeHint").textContent = getModeHint(state.mode);
 calc();
 
 // ---------- Device screen toggle ----------
@@ -1568,16 +1696,14 @@ function simulateYearly() {
   const inflR         = state.infl         / 100;
   const incomeGrowthR = state.incomeGrowth / 100;
   const isBtcMode     = state.assets[0].unit === "btc";
-  const calcAssets    = isBtcMode
-    ? [{ ...state.assets[0], borrowRate: state.btcBorrowRate }]
-    : state.assets;
+  const calcAssets    = state.assets;
   const hasBorrowable = calcAssets.some(a => a.borrowable && a.borrowRate > 0);
-  const effectiveMode = (state.mode === "borrow" && hasBorrowable) ? "borrow" : "sell";
+  const effectiveMode =
+    (state.mode === "borrow"      && hasBorrowable) ? "borrow" :
+    (state.mode === "borrow-sell" && hasBorrowable) ? "borrow-sell" : "sell";
   const rows = [];
   const MAX_YEARS = 200;
-  const assetNames = isBtcMode
-    ? ["Bitcoin"]
-    : calcAssets.map((a, i) => a.name || "Asset " + (i + 1));
+  const assetNames = calcAssets.map((a, i) => a.unit === "btc" ? "Bitcoin" : (a.name || "Asset " + (i + 1)));
 
   // Year 0 — current state, no growth or withdrawal yet
   const year0total     = calcAssets.reduce((s, a) => s + (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0);
@@ -1622,20 +1748,21 @@ function simulateYearly() {
       if (isBtcMode) {
         const impliedPrice  = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr);
         row.btcPrice    = impliedPrice;
-        row.btcHoldings = endTotal > 0 ? endTotal / impliedPrice : 0;
+        row.btcHoldings = impliedPrice > 0 ? assetValues[0] / impliedPrice : 0;
       }
       rows.push(row);
       if (exhausted || endTotal <= 0) break;
     }
-  } else {
+  } else if (effectiveMode === "borrow") {
     const pools = calcAssets.map((a, idx) => ({
       idx,
       value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
       growthMul:  1 + a.growth / 100,
-      borrowable: a.borrowable,
+      borrowable: a.borrowable && a.borrowRate > 0,
       borrowRate: a.borrowRate / 100,
+      debt:       0,
     }));
-    let D = 0, spendAdj = annualSpend, incomeAdj = annualIncome;
+    let spendAdj = annualSpend, incomeAdj = annualIncome;
 
     for (let yr = 1; yr <= MAX_YEARS; yr++) {
       const startTotal = pools.reduce((s, p) => s + p.value, 0);
@@ -1644,23 +1771,109 @@ function simulateYearly() {
       const growth     = endTotal - startTotal;
       const bPools     = pools.filter(p => p.borrowable);
       const collateral = bPools.reduce((s, p) => s + p.value, 0);
-      const wRate      = bPools.reduce((s, p) => s + p.borrowRate * p.value, 0) / (collateral || 1);
-      D *= (1 + wRate);
-      const borrow    = Math.max(0, spendAdj - incomeAdj);
-      const exhausted = D + borrow > collateral;
-      D += borrow;
+      for (const p of bPools) p.debt *= (1 + p.borrowRate);
+      const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
+      const borrow     = Math.max(0, spendAdj - incomeAdj);
+      const exhausted  = totalDebt + borrow > collateral;
+      for (const p of bPools) p.debt += borrow * (p.value / (collateral || 1));
+      const D = bPools.reduce((s, p) => s + p.debt, 0);
       const assetValues = new Array(calcAssets.length).fill(0);
       pools.forEach(p => { assetValues[p.idx] = p.value; });
       const row = { year: yr, portfolioStart: startTotal, growth, income: incomeAdj, spend: spendAdj, borrowed: borrow, debt: D, netEquity: endTotal - D, portfolioEnd: endTotal, assetValues };
       if (isBtcMode) {
         const impliedPrice  = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr);
         row.btcPrice    = impliedPrice;
-        row.btcHoldings = endTotal > 0 ? endTotal / impliedPrice : 0;
+        row.btcHoldings = impliedPrice > 0 ? assetValues[0] / impliedPrice : 0;
       }
       rows.push(row);
       spendAdj  *= (1 + inflR);
       incomeAdj *= (1 + incomeGrowthR);
       if (exhausted) break;
+    }
+  } else if (effectiveMode === "borrow-sell") {
+    const pools = calcAssets.map((a, idx) => ({
+      idx,
+      value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
+      growthMul:  1 + a.growth / 100,
+      sellMul:    Math.pow(1 + a.growth / 100, 1 / 12),
+      borrowable: a.borrowable && a.borrowRate > 0,
+      borrowRate: a.borrowRate / 100,
+      debt:       0,
+    }));
+    const sortedPools = pools.slice().sort((a, b) => a.sellMul - b.sellMul);
+    const inflMo    = Math.pow(1 + inflR, 1 / 12) - 1;
+    const incGrowMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+
+    let spendAdj = annualSpend, incomeAdj = annualIncome;
+    let mSpend = annualSpend / 12, mIncome = annualIncome / 12;
+    let phase = "borrow";
+
+    for (let yr = 1; yr <= MAX_YEARS; yr++) {
+      const startTotal = pools.reduce((s, p) => s + p.value, 0);
+
+      if (phase === "borrow") {
+        for (const p of pools) p.value *= p.growthMul;
+        const endTotal   = pools.reduce((s, p) => s + p.value, 0);
+        const growth     = endTotal - startTotal;
+        const bPools     = pools.filter(p => p.borrowable);
+        const collateral = bPools.reduce((s, p) => s + p.value, 0);
+        for (const p of bPools) p.debt *= (1 + p.borrowRate);
+        const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
+        const borrow     = Math.max(0, spendAdj - incomeAdj);
+
+        if (totalDebt + borrow > collateral) {
+          // Transition: pay total debt by selling lowest-growth first
+          let debt = totalDebt;
+          for (const p of sortedPools) { if (debt <= 0) break; const take = Math.min(p.value, debt); p.value -= take; debt -= take; }
+          for (const p of bPools) p.debt = 0;
+          phase = "sell";
+          mSpend  = spendAdj  / 12;
+          mIncome = incomeAdj / 12;
+          const afterDebt = pools.reduce((s, p) => s + p.value, 0);
+          const assetValues = new Array(calcAssets.length).fill(0);
+          pools.forEach(p => { assetValues[p.idx] = p.value; });
+          const row = { year: yr, phase: "sell", portfolioStart: startTotal, growth, income: 0, spend: 0, withdrawal: 0, borrowed: 0, debt: 0, netEquity: afterDebt, portfolioEnd: afterDebt, assetValues };
+          if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+          rows.push(row);
+          spendAdj *= (1 + inflR); incomeAdj *= (1 + incomeGrowthR);
+          mSpend = spendAdj / 12;  mIncome = incomeAdj / 12;
+          if (afterDebt <= 0) break;
+          continue;
+        }
+
+        for (const p of bPools) p.debt += borrow * (p.value / (collateral || 1));
+        const D = bPools.reduce((s, p) => s + p.debt, 0);
+        const assetValues = new Array(calcAssets.length).fill(0);
+        pools.forEach(p => { assetValues[p.idx] = p.value; });
+        const row = { year: yr, phase: "borrow", portfolioStart: startTotal, growth, income: incomeAdj, spend: spendAdj, borrowed: borrow, debt: D, netEquity: endTotal - D, portfolioEnd: endTotal, assetValues };
+        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+        rows.push(row);
+        spendAdj  *= (1 + inflR);
+        incomeAdj *= (1 + incomeGrowthR);
+
+      } else {
+        // Sell phase — monthly
+        let yearGrowth = 0, yearIncome = 0, yearSpend = 0, yearWithdrawal = 0, exhausted = false;
+        for (let mo = 0; mo < 12; mo++) {
+          for (const p of pools) { const old = p.value; p.value *= p.sellMul; yearGrowth += p.value - old; }
+          const needed = Math.max(0, mSpend - mIncome);
+          const avail  = pools.reduce((s, p) => s + p.value, 0);
+          yearIncome += mIncome;
+          if (avail < needed) { exhausted = true; break; }
+          yearSpend += mSpend; yearWithdrawal += needed;
+          let draw = needed;
+          for (const p of sortedPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+          mSpend  *= (1 + inflMo);
+          mIncome *= (1 + incGrowMo);
+        }
+        const endTotal = pools.reduce((s, p) => s + p.value, 0);
+        const assetValues = new Array(calcAssets.length).fill(0);
+        pools.forEach(p => { assetValues[p.idx] = p.value; });
+        const row = { year: yr, phase: "sell", portfolioStart: startTotal, growth: yearGrowth, income: yearIncome, spend: yearSpend, withdrawal: yearWithdrawal, borrowed: 0, debt: 0, netEquity: endTotal, portfolioEnd: endTotal, assetValues };
+        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+        rows.push(row);
+        if (exhausted || endTotal <= 0) break;
+      }
     }
   }
   return { rows, effectiveMode, isBtcMode, assetNames };
@@ -1677,14 +1890,15 @@ function populateExportSummary() {
   const annualSpend   = Math.max(state.spend   * 12, 0);
   const annualIncome  = Math.max(state.income  * 12, 0);
   const inflR         = state.infl / 100;
-  const calcAssets    = isBtcMode
-    ? [{ ...state.assets[0], borrowRate: state.btcBorrowRate }]
-    : state.assets;
-  const hasBorrowable = calcAssets.some(a => a.borrowable && a.borrowRate > 0);
-  const effectiveMode = (state.mode === "borrow" && hasBorrowable) ? "borrow" : "sell";
-  const years = effectiveMode === "borrow"
-    ? computeYearsBorrow(calcAssets, annualSpend, annualIncome, inflR, state.incomeGrowth / 100)
-    : computeYearsSell(calcAssets, annualSpend, annualIncome, inflR, state.incomeGrowth / 100);
+  const hasBorrowable = state.assets.some(a => a.borrowable && a.borrowRate > 0);
+  const effectiveMode =
+    (state.mode === "borrow"      && hasBorrowable) ? "borrow" :
+    (state.mode === "borrow-sell" && hasBorrowable) ? "borrow-sell" : "sell";
+  const incGrowthR = state.incomeGrowth / 100;
+  const years =
+    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incGrowthR) :
+    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR) :
+    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR);
   const isForever = !isFinite(years) || years > 999;
   const resultText = isForever ? "FOREVER" : ymwText(years * 12);
   const sym = currencySymbol();
@@ -1697,34 +1911,31 @@ function populateExportSummary() {
     <tr><td>Monthly income</td><td>${sym}${Math.round(state.income).toLocaleString()}</td></tr>
     ${state.income > 0 ? `<tr><td>Income growth</td><td>${state.incomeGrowth}% / yr</td></tr>` : ""}
     <tr><td>Inflation</td><td>${state.infl}% / yr</td></tr>
-    <tr><td>Spend model</td><td>${effectiveMode}</td></tr>
+    <tr><td>Spend model</td><td>${state.mode}</td></tr>
     <tr><td>Birth year</td><td>${state.birthYear}</td></tr>
     <tr><td>Life expectancy</td><td>${state.life} yrs</td></tr>
   </tbody></table>
   <div class="section-label">Savings</div>
   <table><thead><tr>
     <th>Asset</th><th>Amount</th><th>Growth</th>
-    ${effectiveMode === "borrow" ? "<th>Borrow rate</th>" : ""}
+    ${effectiveMode === "borrow" || effectiveMode === "borrow-sell" ? "<th>Borrow rate</th>" : ""}
   </tr></thead><tbody>`;
 
-  if (isBtcMode) {
-    const a = state.assets[0];
+  state.assets.forEach(a => {
+    const isBtcAsset = a.unit === "btc";
+    const amtCell = isBtcAsset
+      ? `${a.amount} BTC<br><span style="color:var(--ink-mute);font-size:11px">≈ ${sym}${Math.round(a.amount * state.btcPrice).toLocaleString()} at ${btcPriceHint()}</span>`
+      : `${sym}${Math.round(a.amount).toLocaleString()}`;
+    const borrowCell = (effectiveMode === "borrow" || effectiveMode === "borrow-sell")
+      ? `<td>${a.borrowable ? a.borrowRate + "% / yr" : "—"}</td>`
+      : "";
     html += `<tr>
-      <td>Bitcoin</td>
-      <td>${a.amount} BTC<br><span style="color:var(--ink-mute);font-size:11px">≈ ${sym}${Math.round(a.amount * state.btcPrice).toLocaleString()} at ${btcPriceHint()}</span></td>
+      <td>${escapeHTML(isBtcAsset ? "Bitcoin" : (a.name || "Asset"))}</td>
+      <td>${amtCell}</td>
       <td>${a.growth}% / yr</td>
-      ${effectiveMode === "borrow" ? `<td>${state.btcBorrowRate}% / yr</td>` : ""}
+      ${borrowCell}
     </tr>`;
-  } else {
-    state.assets.forEach(a => {
-      html += `<tr>
-        <td>${escapeHTML(a.name || "Asset")}</td>
-        <td>${sym}${Math.round(a.amount).toLocaleString()}</td>
-        <td>${a.growth}% / yr</td>
-        ${effectiveMode === "borrow" ? `<td>${a.borrowable ? a.borrowRate + "% / yr" : "—"}</td>` : ""}
-      </tr>`;
-    });
-  }
+  });
 
   html += `</tbody></table>
   <div class="section-label">Result</div>
@@ -1741,33 +1952,38 @@ function populateExportSummary() {
 function populateExportData() {
   const { rows, effectiveMode, isBtcMode, assetNames } = simulateYearly();
   const sym = currencySymbol();
-  const isBorrow  = effectiveMode === "borrow";
-  const hasIncome = state.income > 0;
-  const showPerAsset = !isBtcMode && assetNames.length > 1;
+  const isBorrow     = effectiveMode === "borrow";
+  const isBorrowSell = effectiveMode === "borrow-sell";
+  const hasIncome    = state.income > 0;
+  const showPerAsset = assetNames.length > 1;
 
   let html = `<table><thead><tr><th>Year</th>`;
+  if (isBorrowSell) html += `<th>Phase</th>`;
   if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>`;
   html += `<th>Portfolio start</th><th>Growth</th>`;
   if (showPerAsset) assetNames.forEach(n => { html += `<th>${n}</th>`; });
-  if (isBorrow) {
-    if (showPerAsset) assetNames.forEach((n, i) => { if (state.assets[i] && state.assets[i].borrowable) html += `<th>${n} borrowed</th>`; });
+  if (isBorrow || isBorrowSell) {
+    if (showPerAsset && isBorrow) assetNames.forEach((n, i) => { if (state.assets[i] && state.assets[i].borrowable) html += `<th>${n} borrowed</th>`; });
     html += `<th>Borrowed</th><th>Debt</th><th>Net equity</th>`;
-  } else {
+  }
+  if (!isBorrow) {
     if (hasIncome) html += `<th>Income</th><th>Spend</th>`;
     html += `<th>Withdrawal</th>`;
   }
   html += `<th>Portfolio end</th></tr></thead><tbody>`;
 
   rows.forEach(r => {
-    html += `<tr><td>${r.year}</td>`;
+    html += `<tr>`;
+    html += `<td>${r.year}</td>`;
+    if (isBorrowSell) html += `<td style="color:var(--ink-mute);font-size:12px;text-transform:capitalize">${r.phase || ""}</td>`;
     if (isBtcMode) {
       html += `<td>${sym}${Math.round(r.btcPrice).toLocaleString()}</td>`;
       html += `<td>${r.btcHoldings.toFixed(4)}</td>`;
     }
     html += `<td>${fmtCurrency(r.portfolioStart)}</td><td>+${fmtCurrency(r.growth)}</td>`;
     if (showPerAsset) r.assetValues.forEach(v => { html += `<td>${fmtCurrency(v)}</td>`; });
-    if (isBorrow) {
-      if (showPerAsset) {
+    if (isBorrow || isBorrowSell) {
+      if (showPerAsset && isBorrow) {
         const totalCollateral = state.assets.reduce((s, a, i) => s + (a.borrowable ? r.assetValues[i] : 0), 0);
         state.assets.forEach((a, i) => {
           if (!a.borrowable) return;
@@ -1776,7 +1992,8 @@ function populateExportData() {
         });
       }
       html += `<td>${fmtCurrency(r.borrowed)}</td><td>${fmtCurrency(r.debt)}</td><td>${fmtCurrency(r.netEquity)}</td>`;
-    } else {
+    }
+    if (!isBorrow) {
       if (hasIncome) html += `<td>${fmtCurrency(r.income)}</td><td>${fmtCurrency(r.spend)}</td>`;
       html += `<td>${fmtCurrency(r.withdrawal)}</td>`;
     }
@@ -1790,9 +2007,11 @@ function populateExportData() {
 function buildCSV() {
   const { rows, effectiveMode, isBtcMode, assetNames } = simulateYearly();
   const isBorrow     = effectiveMode === "borrow";
+  const isBorrowSell = effectiveMode === "borrow-sell";
   const hasIncome    = state.income > 0;
-  const showPerAsset = !isBtcMode && assetNames.length > 1;
+  const showPerAsset = assetNames.length > 1;
   const cur = state.currency.toUpperCase();
+  const sym = currencySymbol();
   const row2 = (a, b) => [a, b, ""].join(",");
   const lines = [];
 
@@ -1805,22 +2024,25 @@ function buildCSV() {
   lines.push(row2("Monthly income (" + cur + ")", state.income));
   if (hasIncome) lines.push(row2("Income growth %", state.incomeGrowth));
   lines.push(row2("Inflation %", state.infl));
-  lines.push(row2("Spend model", effectiveMode));
+  lines.push(row2("Spend model", state.mode));
   lines.push(row2("Birth year", state.birthYear));
   lines.push(row2("Life expectancy", state.life));
   lines.push("");
 
-  if (isBtcMode) {
+  if (isBtcMode && state.assets.length === 1) {
     const a = state.assets[0];
     lines.push(row2("Bitcoin (BTC)", a.amount));
     lines.push(row2("BTC price (" + cur + ")", Math.round(state.btcPrice)));
     lines.push(row2("Bitcoin value (" + cur + ")", Math.round(a.amount * state.btcPrice)));
     lines.push(row2("BTC growth %", a.growth));
-    if (isBorrow) lines.push(row2("Borrow rate %", state.btcBorrowRate));
+    if (isBorrow) lines.push(row2("Borrow rate %", a.borrowRate));
   } else {
-    lines.push(["Asset", "Amount (" + cur + ")", "Growth %", "Borrowable", "Borrow rate %"].join(","));
+    lines.push(["Asset", "Amount", "Growth %", "Borrowable", "Borrow rate %"].join(","));
     state.assets.forEach(a => {
-      lines.push(['"' + (a.name || "Asset") + '"', a.amount, a.growth, a.borrowable ? "yes" : "no", a.borrowRate].join(","));
+      const isBtcAsset = a.unit === "btc";
+      const name = isBtcAsset ? "Bitcoin" : (a.name || "Asset");
+      const amt  = isBtcAsset ? a.amount + " BTC (≈" + sym + Math.round(a.amount * state.btcPrice).toLocaleString() + ")" : sym + Math.round(a.amount).toLocaleString();
+      lines.push(['"' + name + '"', '"' + amt + '"', a.growth, a.borrowable ? "yes" : "no", a.borrowRate].join(","));
     });
   }
   lines.push("");
@@ -1828,13 +2050,15 @@ function buildCSV() {
   // Data table
   lines.push("YEAR BY YEAR");
   const hdrs = ["Year"];
+  if (isBorrowSell) hdrs.push("Phase");
   if (isBtcMode) hdrs.push("BTC price (" + cur + ")", "BTC held");
   hdrs.push("Portfolio start (" + cur + ")", "Growth (" + cur + ")");
   if (showPerAsset) assetNames.forEach(n => hdrs.push(n + " (" + cur + ")"));
-  if (isBorrow) {
-    if (showPerAsset) assetNames.forEach(n => hdrs.push(n + " borrowed (" + cur + ")"));
+  if (isBorrow || isBorrowSell) {
+    if (showPerAsset && isBorrow) assetNames.forEach(n => hdrs.push(n + " borrowed (" + cur + ")"));
     hdrs.push("Total borrowed (" + cur + ")", "Total debt (" + cur + ")", "Net equity (" + cur + ")");
-  } else {
+  }
+  if (!isBorrow) {
     if (hasIncome) hdrs.push("Income (" + cur + ")", "Spend (" + cur + ")");
     hdrs.push("Withdrawal (" + cur + ")");
   }
@@ -1843,12 +2067,12 @@ function buildCSV() {
 
   rows.forEach(r => {
     const cols = [r.year];
+    if (isBorrowSell) cols.push(r.phase || "");
     if (isBtcMode) cols.push(Math.round(r.btcPrice), r.btcHoldings.toFixed(6));
     cols.push(Math.round(r.portfolioStart), Math.round(r.growth));
     if (showPerAsset) r.assetValues.forEach(v => cols.push(Math.round(v)));
-    if (isBorrow) {
-      // Per-asset borrow (proportional to collateral weight)
-      if (showPerAsset) {
+    if (isBorrow || isBorrowSell) {
+      if (showPerAsset && isBorrow) {
         const totalCollateral = state.assets.reduce((s, a, i) => s + (a.borrowable ? r.assetValues[i] : 0), 0);
         state.assets.forEach((a, i) => {
           const share = (a.borrowable && totalCollateral > 0) ? r.assetValues[i] / totalCollateral : 0;
@@ -1856,7 +2080,8 @@ function buildCSV() {
         });
       }
       cols.push(Math.round(r.borrowed), Math.round(r.debt), Math.round(r.netEquity));
-    } else {
+    }
+    if (!isBorrow) {
       if (hasIncome) cols.push(Math.round(r.income), Math.round(r.spend));
       cols.push(Math.round(r.withdrawal));
     }
@@ -1905,6 +2130,7 @@ async function encryptState(obj, password) {
 
 async function decryptState(encoded, password) {
   const bytes  = Uint8Array.from(atob(encoded.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+  if (bytes.length < 45) throw new Error("Invalid payload"); // 16 salt + 12 IV + 16 min ciphertext + 1 byte
   const salt   = bytes.slice(0, 16);
   const iv     = bytes.slice(16, 28);
   const ct     = bytes.slice(28);
@@ -1924,7 +2150,6 @@ function stateToShare() {
     infl: state.infl, birthYear: state.birthYear, life: state.life,
     mode: state.mode, currency: state.currency, btcBorrowRate: state.btcBorrowRate,
     _btcAmount: state._btcAmount, _btcGrowth: state._btcGrowth,
-    _cashAmount: state._cashAmount, _cashGrowth: state._cashGrowth,
     assets: state.assets.map(a => ({
       name: a.name, amount: a.amount, growth: a.growth,
       unit: a.unit, borrowable: a.borrowable, borrowRate: a.borrowRate,
@@ -1944,10 +2169,14 @@ function syncUIFromState() {
   $("spendSuffix").textContent  = currencyLabel() + " / mo";
   $("incomeSuffix").textContent = currencyLabel() + " / mo";
   document.querySelectorAll("#mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
-  $("modeHint").textContent = modeHints[state.mode];
+  $("modeHint").textContent = getModeHint(state.mode);
   const isBtc = state.assets[0].unit === "btc";
+  // Backward compat: old shared links stored BTC borrow rate in btcBorrowRate, not in assets[0].borrowRate
+  if (isBtc && state.btcBorrowRate !== state.assets[0].borrowRate) {
+    state.assets[0].borrowRate = state.btcBorrowRate;
+  }
   document.querySelectorAll("#topUnit button").forEach(b => b.classList.toggle("on", (b.dataset.tu === "btc") === isBtc));
-  renderAssets(); renderBorrowSection(); updateSavingsHint(); updateBomPrices();
+  renderAssets(); renderBorrowSection(); updateBorrowSellVisibility(); updateSavingsHint(); updateBomPrices();
   if (isBtc) {
     fetchBtcPrice(state.currency).then(p => { if (p) { state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
   }
@@ -2027,8 +2256,23 @@ function generateSecurePassword() {
   updateShareStrength();
 }
 
+const COPY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function copyToClipboard(text, btn) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = CHECK_ICON;
+    btn.style.color = "var(--accent)";
+    setTimeout(() => { btn.innerHTML = COPY_ICON; btn.style.color = ""; }, 1500);
+  }).catch(() => {});
+}
+
 $("sharePassword").addEventListener("input", updateShareStrength);
 $("shareGeneratePassword").addEventListener("click", generateSecurePassword);
+$("sharePasswordCopy").addEventListener("click", () => {
+  copyToClipboard($("sharePassword").value, $("sharePasswordCopy"));
+});
 
 // Share modal
 $("shareBtn").addEventListener("click", () => {
@@ -2061,12 +2305,8 @@ $("shareGenerate").addEventListener("click", async () => {
   $("shareGenerate").disabled = false;
 });
 
-$("shareCopyBtn").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText($("shareUrl").value);
-    $("shareCopyBtn").textContent = "Copied!";
-    setTimeout(() => { $("shareCopyBtn").textContent = "Copy"; }, 2000);
-  } catch { $("shareUrl").select(); }
+$("shareCopyBtn").addEventListener("click", () => {
+  copyToClipboard($("shareUrl").value, $("shareCopyBtn"));
 });
 
 // Load modal — shown on page load if ?c= param present
@@ -2083,7 +2323,7 @@ $("loadBtn").addEventListener("click", async () => {
   try {
     const params = new URLSearchParams(location.search);
     const s = await decryptState(params.get("c"), pw);
-    const allowed = ["spend","income","incomeGrowth","infl","birthYear","life","mode","currency","btcBorrowRate","_btcAmount","_btcGrowth","_cashAmount","_cashGrowth","assets"];
+    const allowed = ["spend","income","incomeGrowth","infl","birthYear","life","mode","currency","btcBorrowRate","_btcAmount","_btcGrowth","assets"];
     allowed.forEach(k => { if (k in s) state[k] = s[k]; });
     $("loadModal").style.display = "none";
     syncUIFromState();
