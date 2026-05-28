@@ -236,7 +236,8 @@
   .export-note{font-size:11px;color:var(--ink-mute)}
   @media(max-width:560px){
     .ar-header,.ar-main{grid-template-columns:1fr 1fr 36px}
-    .ar-name-col{grid-column:1/3}
+    .ar-header .ar-hcol:first-child,.ar-header>:last-child{display:none}
+    .ar-name-col{grid-column:1/-1}
 }
   .toggle-screen{margin-top:12px;display:flex;justify-content:center;gap:8px}
   .toggle-screen button{padding:6px 14px;font-size:12px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:999px;transition:all .15s}
@@ -553,7 +554,7 @@
           <label>Spend model</label>
           <div class="seg" id="mode">
             <button data-mode="sell" class="on">Sell monthly</button>
-            <button data-mode="borrow">Borrow against</button>
+            <button data-mode="borrow">Borrow</button>
             <button data-mode="borrow-sell">Borrow & sell</button>
           </div>
           <div class="hint" id="modeHint">Sell a slice of the portfolio each month to cover your spend. Principal slowly drains.</div>
@@ -770,7 +771,7 @@
     <div class="faq-list">
       <div class="faq-item open">
         <div class="q">Do I need to own Bitcoin to use this?<span class="plus">+</span></div>
-        <div class="a">No. You can enter savings, real estate, or any mix of assets in USD, EUR, or CHF — each with its own growth rate. Bitcoin is also supported as a standalone mode. Combining Bitcoin with other assets is still on the way. Bitcoin was the original spark, but the device cares about freedom, not the asset class.</div>
+        <div class="a">No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, or CHF — each with its own growth rate. Bitcoin is fully supported and can be combined with other assets in the same portfolio. Bitcoin was the original spark, but the device cares about freedom, not the asset class.</div>
       </div>
       <div class="faq-item">
         <div class="q">Is it accurate? It feels like a big number to trust.<span class="plus">+</span></div>
@@ -1371,7 +1372,7 @@ function renderAssets() {
       : `<button class="ar-rm" data-idx="${i}" title="Remove asset">×</button>`;
     return `<div class="asset-row" data-idx="${i}">
       <div class="ar-main">
-        <div class="ar-name-col"><input class="ar-name" type="text" data-idx="${i}" placeholder="${namePlaceholder}" value="${nameVal}"${nameReadonly}/></div>
+        <div class="ar-name-col"><input class="ar-name" type="text" data-idx="${i}" placeholder="${namePlaceholder}" value="${nameVal}" maxlength="15"${nameReadonly}/></div>
         <div class="with-suffix">
           <input type="number" class="ar-val" data-idx="${i}" value="${asset.amount}" step="${amtStep}" min="0"/>
           <span class="suffix">${amtSuf}</span>
@@ -1408,7 +1409,7 @@ function renderAssets() {
     });
   });
   container.querySelectorAll('.ar-name').forEach(inp => {
-    inp.addEventListener('input', () => { state.assets[+inp.dataset.idx].name = inp.value; renderBorrowSection(); });
+    inp.addEventListener('input', () => { state.assets[+inp.dataset.idx].name = inp.value.slice(0, 15); renderBorrowSection(); });
   });
   container.querySelectorAll('.ar-rm').forEach(btn => {
     btn.addEventListener('click', () => removeAsset(+btn.dataset.idx));
