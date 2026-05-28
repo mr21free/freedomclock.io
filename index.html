@@ -140,10 +140,13 @@
   .field input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:grab;border:3px solid var(--bg)}
   .field input[type=number],.field input[type=text]{padding:14px 16px;border:1px solid var(--rule);background:var(--paper);border-radius:8px;font-size:16px;font-variant-numeric:tabular-nums;width:100%;font-family:"IBM Plex Mono",monospace;transition:border-color .2s}
   .field input[type=number]:focus,.field input[type=text]:focus{outline:none;border-color:var(--accent)}
+  .field input[type=number]:invalid,input[type=number].ar-brate:invalid,input[type=number].ar-brate-btc:invalid,input[type=number].ar-gval:invalid{border-color:#e05;background:rgba(238,0,85,.05)}
   .field .with-suffix{position:relative}
   .field .with-suffix .suffix{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink-mute);font-size:14px;pointer-events:none;font-family:"IBM Plex Mono",monospace}
   .field input[type=number]::-webkit-outer-spin-button,.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .field input[type=number]{-moz-appearance:textfield}
+  #currency{width:calc(50% - 2px);padding:9px 28px 9px 10px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23fff' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--rule);margin:3px}
+  #currency:focus{outline:none}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .field .hint{font-size:12px;color:var(--ink-mute)}
   .seg{display:flex;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:3px;gap:3px}
@@ -187,7 +190,7 @@
   .screen.quote-screen .qs-stats .qs-mid{color:var(--screen-dim);flex:1;text-align:center}
 
   .device-caption{margin-top:18px;text-align:center;color:var(--ink-mute);font-size:12px;letter-spacing:0.12em;text-transform:uppercase}
-  .device-forever-hint{font-size:12px;color:var(--ink-mute);text-align:center;margin-top:6px;min-height:16px;opacity:0.75}
+  .device-forever-hint{font-size:13px;color:var(--ink);text-align:left;margin-top:24px;min-height:16px;font-weight:500;line-height:1.5}
 
   /* asset rows */
   #assetRows{display:flex;flex-direction:column;margin-top:8px}
@@ -485,11 +488,14 @@
 
         <div class="field">
           <label>Currency</label>
-          <div class="seg" id="currency">
-            <button data-currency="usd" class="on">USD</button>
-            <button data-currency="eur">EUR</button>
-            <button data-currency="chf">CHF</button>
-          </div>
+          <select id="currency">
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="gbp">GBP</option>
+            <option value="chf">CHF</option>
+            <option value="cad">CAD</option>
+            <option value="aud">AUD</option>
+          </select>
         </div>
 
         <div class="field">
@@ -506,16 +512,16 @@
         <div class="field">
           <label>Monthly spend</label>
           <div class="with-suffix">
-            <input type="number" id="spend" value="10000" min="0" step="100" />
+            <input type="number" id="spend" value="10000" min="0" max="10000000" step="any" />
             <span class="suffix" id="spendSuffix">USD / mo</span>
           </div>
-          <div class="hint">What it costs to live the life you actually want, not just to survive.</div>
+          <div class="hint">What it costs to live the life you actually want, not just to survive. Living in a lower cost-of-living country can bring FREEDOM much closer — same lifestyle, lower price. Explore cities on <a href="https://www.expatistan.com/cost-of-living/city" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">expatistan.com</a>.</div>
         </div>
 
         <div class="field">
           <label>Monthly income</label>
           <div class="with-suffix">
-            <input type="number" id="income" value="0" min="0" step="100" />
+            <input type="number" id="income" value="0" min="0" max="10000000" step="any" />
             <span class="suffix" id="incomeSuffix">USD / mo</span>
           </div>
           <div class="hint">Pension, rental income, or any recurring income that offsets what you withdraw.</div>
@@ -524,7 +530,7 @@
         <div class="field" id="incomeGrowthField" style="display:none">
           <label>Income growth</label>
           <div class="with-suffix">
-            <input type="number" id="incomeGrowth" value="0" min="0" max="100" step="0.5" />
+            <input type="number" id="incomeGrowth" value="0" min="-100" max="10000" step="any" />
             <span class="suffix">% / yr</span>
           </div>
           <div class="hint">Expected annual rise in income (e.g. inflation-linked pension).</div>
@@ -533,18 +539,18 @@
         <div class="field-row">
           <div class="field">
             <label>Birth year</label>
-            <input type="number" id="birthYear" value="1990" min="1900" max="2024" step="1" />
+            <input type="number" id="birthYear" value="1990" min="1900" step="1" />
           </div>
           <div class="field">
             <label>Life expectancy</label>
-            <input type="number" id="life" value="85" min="2" max="130" step="1" />
+            <input type="number" id="life" value="85" min="1" max="200" step="1" />
           </div>
         </div>
 
         <div class="field">
           <label>Inflation</label>
           <div class="with-suffix">
-            <input type="number" id="infl" value="2" min="0" max="50" step="0.5" />
+            <input type="number" id="infl" value="2" min="-100" max="10000" step="any" />
             <span class="suffix">% / yr</span>
           </div>
           <div class="hint">Expected annual rate.</div>
@@ -622,7 +628,6 @@
           <button class="on" id="btnDefault">Default</button>
           <button id="btnQuote">Quote</button>
         </div>
-        <div class="device-caption">Real device. Real calculation. No cloud.</div>
         <div class="device-forever-hint" id="foreverHint"></div>
         <button class="btn btn-ghost" id="exportBtn" style="width:100%;justify-content:center;margin-top:28px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export data</button>
         <button class="btn btn-ghost" id="shareBtn" style="width:100%;justify-content:center;margin-top:8px"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Share with password</button>
@@ -771,7 +776,7 @@
     <div class="faq-list">
       <div class="faq-item open">
         <div class="q">Do I need to own Bitcoin to use this?<span class="plus">+</span></div>
-        <div class="a">No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, or CHF — each with its own growth rate. Bitcoin is fully supported and can be combined with other assets in the same portfolio. Bitcoin was the original spark, but the device cares about freedom, not the asset class.</div>
+        <div class="a">No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, GBP, CHF, CAD, or AUD — each with its own growth rate. Bitcoin is fully supported and can be combined with other assets in the same portfolio. Bitcoin was the original spark, but the device cares about freedom, not the asset class.</div>
       </div>
       <div class="faq-item">
         <div class="q">Is it accurate? It feels like a big number to trust.<span class="plus">+</span></div>
@@ -904,13 +909,17 @@ const escapeHTML = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 
 function currencySymbol() {
   if (state.currency === "eur") return "€";
+  if (state.currency === "gbp") return "£";
   if (state.currency === "chf") return "CHF ";
+  if (state.currency === "cad") return "CA$";
+  if (state.currency === "aud") return "A$";
   return "$";
 }
 function currencyLabel() {
   return state.currency.toUpperCase();
 }
 function fmtCurrency(n) {
+  if (!isFinite(n) || isNaN(n)) return "—";
   const sym  = currencySymbol();
   const sign = n < 0 ? "-" : "";
   const abs  = Math.abs(n);
@@ -937,7 +946,10 @@ function updateSavingsHint() {
 
 function bomFxRate() {
   if (state.currency === "eur") return state.fxRates.eur || 0.92;
+  if (state.currency === "gbp") return state.fxRates.gbp || 0.79;
   if (state.currency === "chf") return state.fxRates.chf || 0.90;
+  if (state.currency === "cad") return state.fxRates.cad || 1.36;
+  if (state.currency === "aud") return state.fxRates.aud || 1.55;
   return 1;
 }
 
@@ -961,11 +973,14 @@ function updateBomPrices() {
 
 async function fetchFxRates() {
   try {
-    const r = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,CHF");
+    const r = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,CHF,CAD,AUD");
     if (r.ok) {
       const d = await r.json();
       if (d?.rates?.EUR) state.fxRates.eur = d.rates.EUR;
+      if (d?.rates?.GBP) state.fxRates.gbp = d.rates.GBP;
       if (d?.rates?.CHF) state.fxRates.chf = d.rates.CHF;
+      if (d?.rates?.CAD) state.fxRates.cad = d.rates.CAD;
+      if (d?.rates?.AUD) state.fxRates.aud = d.rates.AUD;
       updateBomPrices();
     }
   } catch {}
@@ -1028,7 +1043,7 @@ const state = {
   mode:     "sell",
   currency: "usd",
   btcPrice: 95000,
-  fxRates:  { eur: null, chf: null },
+  fxRates:  { eur: null, gbp: null, chf: null, cad: null, aud: null },
 };
 
 function totalSavingsUSD() {
@@ -1269,36 +1284,69 @@ function calc() {
   $("sLife").textContent = ymwTextFromDays(remainingDays);
   $("sCov").textContent  = isInfCov ? "INF" : Math.round(coveragePct) + "%";
 
+  // Portfolio survival: show age at which money runs out (when it doesn't cover lifetime)
+  let survivalText = "";
+  if (!isForever && years > 0 && years < lifetimeLeft) {
+    const ageAtDepletion = Math.floor(today.getFullYear() - state.birthYear + years);
+    survivalText = "FREEDOM time until age " + ageAtDepletion;
+  }
+
   // Reverse calc: how much more until FOREVER?
   const netAnnualSpend = Math.max(0, annualSpend - annualIncome);
   let foreverHintText = "";
+  let coastText = "";
   if (!isForever && netAnnualSpend > 0) {
     const savingsTotal = totalSavingsUSD();
-    let rateGap;
-    if (effectiveMode === "borrow") {
-      const bp = state.assets.filter(a => a.borrowable);
-      const bTotal = bp.reduce((s, a) => s + (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0);
-      const wG = bTotal > 0 ? bp.reduce((s, a) => s + a.growth / 100 * (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0) / bTotal : 0;
-      const wR = bTotal > 0 ? bp.reduce((s, a) => s + a.borrowRate / 100 * (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0) / bTotal : 0;
-      rateGap = wG - wR;
-    } else {
-      rateGap = weightedGrowthR() - inflR;
+    // Always use the sell-mode monthly formula — mode-independent, universally meaningful,
+    // and avoids misleadingly large thresholds when borrow rate ≈ growth rate.
+    const rM = Math.pow(1 + weightedGrowthR(), 1 / 12) - 1;
+    const iM = Math.pow(1 + inflR, 1 / 12) - 1;
+    const sellRateGap = rM - iM;
+    let pNeeded = Infinity, sustainableMonthly = 0;
+    if (sellRateGap > 0) {
+      pNeeded = (netAnnualSpend / 12) / sellRateGap;
+      sustainableMonthly = savingsTotal * sellRateGap + annualIncome / 12;
     }
-    if (rateGap > 0.001) {
-      const pNeeded = netAnnualSpend / rateGap;
-      const gap = pNeeded - savingsTotal;
-      if (gap > 0) {
-        const primaryIsBtc = state.assets.length === 1 && state.assets[0].unit === "btc";
-        if (primaryIsBtc) {
-          const gapBtc = gap / state.btcPrice;
-          foreverHintText = "For FOREVER: " + gapBtc.toFixed(2) + " BTC more at current price (" + fmtCurrency(gap) + ")";
-        } else {
-          foreverHintText = "For FOREVER: " + fmtCurrency(gap) + " more, split across assets at current ratios";
+    const gap = pNeeded - savingsTotal;
+    if (isFinite(pNeeded) && gap > 0) {
+      const primaryIsBtc = state.assets.length === 1 && state.assets[0].unit === "btc";
+      if (primaryIsBtc) {
+        // Ceiling-round so adding exactly the displayed BTC always reaches FOREVER
+        const gapBtcCeiled = Math.ceil(gap / state.btcPrice * 100) / 100;
+        if (gapBtcCeiled >= 0.01) {
+          const gapVal = gapBtcCeiled * state.btcPrice; // dollar cost of ceiling BTC
+          foreverHintText = "For FOREVER right now: " + gapBtcCeiled.toFixed(2) + " BTC more (worth " + fmtCurrency(gapVal) + " at current price)";
         }
+      } else if (gap >= 1) {
+        foreverHintText = "For FOREVER right now: " + fmtCurrency(gap) + " more, split across assets at current ratios";
+      }
+      if (sustainableMonthly > 0) {
+        const s = sustainableMonthly;
+        const sym = currencySymbol();
+        // Floor-round so the suggested spend is always at or below the sustainable threshold
+        const spendFmt = s >= 1e6
+          ? sym + (Math.floor(s / 1e5) / 10) + "M"
+          : s >= 1e3
+          ? sym + (Math.floor(s / 100) / 10) + "k"
+          : sym + Math.floor(s);
+        foreverHintText += (foreverHintText ? " — or reduce" : "Reduce") + " spend to " + spendFmt + "/mo";
+      }
+    }
+    // CoastFIRE: how long until untouched portfolio grows to FOREVER threshold on its own
+    const g = weightedGrowthR();
+    if (isFinite(pNeeded) && pNeeded > savingsTotal && savingsTotal > 0 && g > 0) {
+      const coastYears = Math.log(pNeeded / savingsTotal) / Math.log(1 + g);
+      if (coastYears > 0 && coastYears < 200) {
+        const ageAtCoast = Math.floor(today.getFullYear() - state.birthYear + coastYears);
+        coastText = "Portfolio reaches FOREVER on its own in " + ymwText(coastYears * 12) + " at age " + ageAtCoast + " when not sold.";
       }
     }
   }
-  $("foreverHint").textContent = foreverHintText;
+  const hintParts = [];
+  if (foreverHintText) hintParts.push(escapeHTML(foreverHintText));
+  if (coastText) hintParts.push(`<span style="display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)">${escapeHTML(coastText)}</span>`);
+  if (survivalText) hintParts.push(`<span style="display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)">${escapeHTML(survivalText)}</span>`);
+  $("foreverHint").innerHTML = hintParts.join("");
 
   // Share — the question only, no personal numbers
   const shareQuestion = "If you stopped earning tomorrow, how long could you keep living the life you want? freedomclock.io";
@@ -1309,11 +1357,16 @@ function calc() {
 
 // ---------- Input bindings ----------
 function bind(id, key, parser) {
-  $(id).addEventListener("input", () => {
-    const v = (parser || parseFloat)($(id).value);
-    state[key] = isFinite(v) ? v : 0;
-    calc();
-  });
+  const el = $(id);
+  function clamp(raw) {
+    let v = (parser || parseFloat)(raw);
+    if (!isFinite(v)) v = 0;
+    if (el.min !== "") v = Math.max(parseFloat(el.min), v);
+    if (el.max !== "") v = Math.min(parseFloat(el.max), v);
+    return v;
+  }
+  el.addEventListener("input", () => { state[key] = clamp(el.value); calc(); });
+  el.addEventListener("blur",  () => { el.value = clamp(el.value); });
 }
 bind("spend",       "spend");
 bind("birthYear",   "birthYear");
@@ -1321,32 +1374,39 @@ bind("life",        "life");
 bind("infl",        "infl");
 bind("incomeGrowth","incomeGrowth");
 
+// Set birthYear max dynamically — prevent future birth years
+$("birthYear").max = new Date().getFullYear();
+
 // Income: bind + show/hide incomeGrowthField reactively
+function clampIncome(raw) {
+  const el = $("income");
+  let v = parseFloat(raw);
+  if (!isFinite(v)) v = 0;
+  if (el.min !== "") v = Math.max(parseFloat(el.min), v);
+  if (el.max !== "") v = Math.min(parseFloat(el.max), v);
+  return v;
+}
 function syncIncome() {
-  const v = parseFloat($("income").value);
-  state.income = isFinite(v) ? v : 0;
+  state.income = clampIncome($("income").value);
   $("incomeGrowthField").style.display = state.income > 0 ? "" : "none";
   calc();
 }
 $("income").addEventListener("input",  syncIncome);
 $("income").addEventListener("change", syncIncome);
+$("income").addEventListener("blur",   () => { $("income").value = clampIncome($("income").value); });
 
-// Currency toggle (USD / EUR / CHF)
-document.querySelectorAll("#currency button").forEach(b => {
-  b.addEventListener("click", () => {
-    document.querySelectorAll("#currency button").forEach(x => x.classList.remove("on"));
-    b.classList.add("on");
-    state.currency = b.dataset.currency;
-    $("spendSuffix").textContent  = currencyLabel() + " / mo";
-    $("incomeSuffix").textContent = currencyLabel() + " / mo";
-    fetchBtcPrice(state.currency).then(price => {
-      if (price) { state.btcPrice = price; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); }
-    });
-    renderAssets(); renderBorrowSection();
-    updateBorrowSellVisibility();
-    updateBomPrices();
-    calc();
+// Currency selector
+$("currency").addEventListener("change", () => {
+  state.currency = $("currency").value;
+  $("spendSuffix").textContent  = currencyLabel() + " / mo";
+  $("incomeSuffix").textContent = currencyLabel() + " / mo";
+  fetchBtcPrice(state.currency).then(price => {
+    if (price) { state.btcPrice = price; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); }
   });
+  renderAssets(); renderBorrowSection();
+  updateBorrowSellVisibility();
+  updateBomPrices();
+  calc();
 });
 
 // ---------- Asset rows ----------
@@ -1363,9 +1423,8 @@ function renderAssets() {
   container.innerHTML = header + state.assets.map((asset, i) => {
     const isBtc = asset.unit === "btc";
     const amtSuf  = isBtc ? "BTC" : currencyLabel();
-    const amtStep = isBtc ? "0.01" : "1000";
     const namePlaceholder = i === 0 && !isBtc ? "e.g. All savings" : "Asset name";
-    const nameVal = isBtc ? "Bitcoin" : asset.name.replace(/"/g, "&quot;");
+    const nameVal = isBtc ? "Bitcoin" : escapeHTML(asset.name);
     const nameReadonly = isBtc ? ' readonly style="background:var(--bg);border-color:transparent;color:var(--ink-soft);cursor:default"' : "";
     const rmBtn = i === 0
       ? `<div style="width:36px;flex-shrink:0"></div>`
@@ -1374,11 +1433,11 @@ function renderAssets() {
       <div class="ar-main">
         <div class="ar-name-col"><input class="ar-name" type="text" data-idx="${i}" placeholder="${namePlaceholder}" value="${nameVal}" maxlength="15"${nameReadonly}/></div>
         <div class="with-suffix">
-          <input type="number" class="ar-val" data-idx="${i}" value="${asset.amount}" step="${amtStep}" min="0"/>
+          <input type="number" class="ar-val" data-idx="${i}" value="${asset.amount}" step="any" min="0"/>
           <span class="suffix">${amtSuf}</span>
         </div>
         <div class="with-suffix">
-          <input type="number" class="ar-gval" data-idx="${i}" value="${asset.growth}" step="0.5" min="0" max="200"/>
+          <input type="number" class="ar-gval" data-idx="${i}" value="${asset.growth}" step="any" min="-100" max="10000"/>
           <span class="suffix">% / yr</span>
         </div>
         ${rmBtn}
@@ -1391,22 +1450,26 @@ function renderAssets() {
 
   // Event delegation
   container.querySelectorAll('.ar-val').forEach(inp => {
+    const clampAmount = val => Math.max(0, isFinite(parseFloat(val)) ? parseFloat(val) : 0);
     inp.addEventListener('input', () => {
-      const v = parseFloat(inp.value);
+      const v = clampAmount(inp.value);
       const idx = +inp.dataset.idx;
-      state.assets[idx].amount = isFinite(v) ? v : 0;
-      if (idx === 0 && state.assets[0].unit === "btc") state._btcAmount = state.assets[0].amount;
+      state.assets[idx].amount = v;
+      if (idx === 0 && state.assets[0].unit === "btc") state._btcAmount = v;
       calc();
     });
+    inp.addEventListener('blur', () => { inp.value = clampAmount(inp.value); });
   });
   container.querySelectorAll('.ar-gval').forEach(inp => {
+    const clampGrowth = val => Math.max(-100, Math.min(10000, isFinite(parseFloat(val)) ? parseFloat(val) : 0));
     inp.addEventListener('input', () => {
-      const v = parseFloat(inp.value);
+      const v = clampGrowth(inp.value);
       const idx = +inp.dataset.idx;
-      state.assets[idx].growth = isFinite(v) ? v : 0;
-      if (idx === 0 && state.assets[0].unit === "btc") state._btcGrowth = state.assets[0].growth;
+      state.assets[idx].growth = v;
+      if (idx === 0 && state.assets[0].unit === "btc") state._btcGrowth = v;
       calc();
     });
+    inp.addEventListener('blur', () => { inp.value = clampGrowth(inp.value); });
   });
   container.querySelectorAll('.ar-name').forEach(inp => {
     inp.addEventListener('input', () => { state.assets[+inp.dataset.idx].name = inp.value.slice(0, 15); renderBorrowSection(); });
@@ -1429,15 +1492,19 @@ function renderBorrowSection() {
   if (isBtcMode && state.assets.length === 1) {
     // BTC-only — single rate input (simpler UX)
     rowsEl.innerHTML = `<div class="with-suffix" style="width:100%">
-      <input type="number" class="ar-brate-btc" value="${state.assets[0].borrowRate}" step="0.5" min="0" style="padding-right:60px"/>
+      <input type="number" class="ar-brate-btc" value="${state.assets[0].borrowRate}" step="any" min="0" max="100" style="padding-right:60px"/>
       <span class="suffix">% / yr</span>
     </div>
     <p class="hint" style="margin-top:8px">Annual interest rate charged on borrowed BTC collateral.</p>`;
-    rowsEl.querySelector('.ar-brate-btc').addEventListener('input', e => {
-      const v = parseFloat(e.target.value);
-      state.assets[0].borrowRate = isFinite(v) ? v : 0;
-      state.btcBorrowRate = state.assets[0].borrowRate;
+    const btcBrateEl = rowsEl.querySelector('.ar-brate-btc');
+    btcBrateEl.addEventListener('input', e => {
+      const v = Math.max(0, Math.min(100, isFinite(parseFloat(e.target.value)) ? parseFloat(e.target.value) : 0));
+      state.assets[0].borrowRate = v;
+      state.btcBorrowRate = v;
       calc();
+    });
+    btcBrateEl.addEventListener('blur', e => {
+      e.target.value = Math.max(0, Math.min(100, isFinite(parseFloat(e.target.value)) ? parseFloat(e.target.value) : 0));
     });
   } else {
     // Multi-asset (BTC + fiat, or Assets-only)
@@ -1454,7 +1521,7 @@ function renderBorrowSection() {
         <span class="borrow-name">${escapeHTML(name)}</span>${soldTag}
         <span class="borrow-spacer"></span>
         <div class="with-suffix borrow-rate-field${asset.borrowable ? "" : " disabled"}">
-          <input type="number" class="ar-brate" data-idx="${i}" value="${asset.borrowRate}" step="0.5" min="0"/>
+          <input type="number" class="ar-brate" data-idx="${i}" value="${asset.borrowRate}" step="any" min="0" max="100"/>
           <span class="suffix">% / yr</span>
         </div>
       </div>`;
@@ -1479,11 +1546,14 @@ function renderBorrowSection() {
     });
     rowsEl.querySelectorAll('.ar-brate').forEach(inp => {
       inp.addEventListener('input', () => {
-        const v = parseFloat(inp.value);
+        const v = Math.max(0, Math.min(100, isFinite(parseFloat(inp.value)) ? parseFloat(inp.value) : 0));
         const idx = +inp.dataset.idx;
-        state.assets[idx].borrowRate = isFinite(v) ? v : 0;
-        if (idx === 0 && state.assets[0].unit === "btc") state.btcBorrowRate = state.assets[0].borrowRate;
+        state.assets[idx].borrowRate = v;
+        if (idx === 0 && state.assets[0].unit === "btc") state.btcBorrowRate = v;
         calc();
+      });
+      inp.addEventListener('blur', () => {
+        inp.value = Math.max(0, Math.min(100, isFinite(parseFloat(inp.value)) ? parseFloat(inp.value) : 0));
       });
     });
   }
@@ -1546,8 +1616,6 @@ document.querySelectorAll("#topUnit button").forEach(b => {
       if (isBtc) {
         // Switch to BTC & Assets: save Assets-only list, restore BTC side assets
         state._cashAssets   = state.assets.slice();
-        state._btcAmount    = state._btcAmount;
-        state._btcGrowth    = state._btcGrowth;
         state.assets = [
           { name: "Bitcoin", unit: "btc", amount: state._btcAmount, growth: state._btcGrowth, borrowable: true, borrowRate: state.btcBorrowRate },
           ...state._btcSideAssets,
@@ -2166,7 +2234,7 @@ function syncUIFromState() {
   $("birthYear").value   = state.birthYear;
   $("life").value        = state.life;
   $("incomeGrowthField").style.display = state.income > 0 ? "" : "none";
-  document.querySelectorAll("#currency button").forEach(b => b.classList.toggle("on", b.dataset.currency === state.currency));
+  $("currency").value = state.currency;
   $("spendSuffix").textContent  = currencyLabel() + " / mo";
   $("incomeSuffix").textContent = currencyLabel() + " / mo";
   document.querySelectorAll("#mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
@@ -2326,6 +2394,22 @@ $("loadBtn").addEventListener("click", async () => {
     const s = await decryptState(params.get("c"), pw);
     const allowed = ["spend","income","incomeGrowth","infl","birthYear","life","mode","currency","btcBorrowRate","_btcAmount","_btcGrowth","assets"];
     allowed.forEach(k => { if (k in s) state[k] = s[k]; });
+    // Sanitise loaded values — prevent corrupt or malicious payloads from breaking the UI
+    const validModes = ["sell","borrow","borrow-sell"];
+    if (!validModes.includes(state.mode)) state.mode = "sell";
+    const validCurrencies = ["usd","eur","gbp","chf","cad","aud"];
+    if (!validCurrencies.includes(state.currency)) state.currency = "usd";
+    if (!Array.isArray(state.assets) || state.assets.length === 0) state.assets = [{ name:"Bitcoin", amount:0, growth:10, unit:"btc", borrowable:true, borrowRate:8 }];
+    state.assets = state.assets.slice(0, 6).map(a => ({
+      name:       String(a.name  || "").slice(0, 15),
+      amount:     isFinite(+a.amount)     ? Math.max(0, +a.amount)              : 0,
+      growth:     isFinite(+a.growth)     ? Math.max(-100, Math.min(10000, +a.growth)) : 0,
+      unit:       a.unit === "btc" ? "btc" : "cash",
+      borrowable: !!a.borrowable,
+      borrowRate: isFinite(+a.borrowRate) ? Math.max(0, Math.min(100, +a.borrowRate)) : 0,
+    }));
+    const numFields = ["spend","income","incomeGrowth","infl","birthYear","life","btcBorrowRate","_btcAmount","_btcGrowth"];
+    numFields.forEach(k => { if (!isFinite(state[k])) state[k] = 0; });
     $("loadModal").style.display = "none";
     syncUIFromState();
     history.replaceState(null, "", location.pathname); // clean URL
