@@ -190,7 +190,14 @@
   .screen.quote-screen .qs-stats .qs-mid{color:var(--screen-dim);flex:1;text-align:center}
 
   .device-caption{margin-top:18px;text-align:center;color:var(--ink-mute);font-size:12px;letter-spacing:0.12em;text-transform:uppercase}
-  .device-forever-hint{font-size:13px;color:var(--ink);text-align:left;margin-top:24px;min-height:16px;font-weight:500;line-height:1.5}
+  .device-forever-hint{font-size:13px;color:var(--ink);text-align:left;margin-top:24px;min-height:16px;line-height:1.5}
+  .insights-block{border-top:1px solid var(--rule);padding:18px 0 18px}
+  .insights-header{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:10px;font-weight:500}
+  .insights-rows{display:flex;flex-direction:column}
+  .insights-row{display:flex;align-items:baseline;gap:20px;padding:18px 0;border-bottom:1px solid var(--rule)}
+  .insights-key{color:var(--ink-mute);white-space:nowrap;font-size:13px;min-width:20ch}
+  .insights-val{font-weight:500;font-size:13px}
+  .insights-survival{margin-bottom:18px;font-size:13px;font-weight:500}
 
   /* asset rows */
   #assetRows{display:flex;flex-direction:column;margin-top:8px}
@@ -534,6 +541,15 @@
             <span class="suffix">% / yr</span>
           </div>
           <div class="hint">Expected annual rise in income (e.g. inflation-linked pension).</div>
+        </div>
+
+        <div class="field" id="monthlySavingsField" style="display:none">
+          <label>Monthly investments</label>
+          <div class="with-suffix">
+            <input type="number" id="monthlySavings" value="0" min="0" max="10000000" step="any" />
+            <span class="suffix" id="monthlySavingsSuffix">USD / mo</span>
+          </div>
+          <div class="hint">Amount you invest each month into your portfolio, on top of your monthly spend. Weighted based on asset size.</div>
         </div>
 
         <div class="field-row">
@@ -902,6 +918,7 @@
   </div>
 </div>
 
+<script src="calc.js"></script>
 <script>
 // ---------- Helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -935,10 +952,25 @@ function btcPriceHint() {
   if (p >= 1e3) return currencySymbol() + Math.round(p / 1e3) + "k";
   return currencySymbol() + Math.round(p);
 }
+const ALL_CURRENCIES = ["usd","eur","gbp","chf","cad","aud"];
+let btcPriceSource = "live"; // "live" | "cached"
+function saveBtcCache(prices) {
+  try { localStorage.setItem("btc_price_cache", JSON.stringify({ prices, ts: Date.now() })); } catch {}
+}
+function loadBtcCache(currency) {
+  try {
+    const d = JSON.parse(localStorage.getItem("btc_price_cache") || "null");
+    if (d && d.prices && d.prices[currency] > 0) return d.prices[currency];
+  } catch {}
+  return null;
+}
 function updateSavingsHint() {
   const isBtcMode = state.assets[0].unit === "btc";
   if (isBtcMode) {
-    $("savingsHint").textContent = "Live BTC price: " + btcPriceHint() + " — updated automatically.";
+    const hint = btcPriceSource === "cached"
+      ? "BTC price: " + btcPriceHint() + " (cached — no internet connection)."
+      : "Live BTC price: " + btcPriceHint() + " — updated automatically.";
+    $("savingsHint").textContent = hint;
   } else {
     $("savingsHint").textContent = "Each asset grows at its own rate.";
   }
@@ -1025,6 +1057,9 @@ function ymwText(totalMonths) {
 }
 
 // ---------- State ----------
+// Last computed hint strings — populated by calc(), read by export
+const lastHints = { accumulate: "", spendLess: "", btcPrice: "", coast: "", savings: "", survival: "", stopInvesting: "" };
+
 const state = {
   assets: [
     { name: "Bitcoin", amount: 2.1, growth: 10, unit: "btc", borrowable: true, borrowRate: 8 }
@@ -1038,8 +1073,9 @@ const state = {
   birthYear: 1990,
   life:     85,
   infl:     2,
-  income:       0,
-  incomeGrowth: 0,
+  income:        0,
+  incomeGrowth:  0,
+  monthlySavings: 0,
   mode:     "sell",
   currency: "usd",
   btcPrice: 95000,
@@ -1075,145 +1111,6 @@ function getModeHint(mode) {
 }
 
 // ---------- Core calculation (multi-asset) ----------
-function computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR) {
-  if (annualSpend <= 0) return Infinity;
-  const total = assets.reduce((s, a) => s + (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0);
-  if (total <= 0 && annualIncome < annualSpend) return 0;
-  // Sort pools by growth ascending — drain lowest-growth first
-  const pools = [...assets]
-    .map(a => ({
-      value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
-      mul: Math.pow(1 + a.growth / 100, 1 / 12),
-    }))
-    .sort((a, b) => a.mul - b.mul);
-  const inflMo    = Math.pow(1 + inflR,         1 / 12) - 1;
-  const incGrowMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
-  let mSpend  = annualSpend  / 12;
-  let mIncome = annualIncome / 12;
-  let m = 0;
-  while (m < 200 * 12) {
-    for (const p of pools) p.value *= p.mul;
-    const needed = Math.max(0, mSpend - mIncome);
-    const avail  = pools.reduce((s, p) => s + p.value, 0);
-    if (avail < needed) break;  // break BEFORE draining — pools still hold remaining value
-    let draw = needed;
-    for (const p of pools) {
-      if (draw <= 0) break;
-      const take = Math.min(p.value, draw);
-      p.value -= take;
-      draw -= take;
-    }
-    mSpend  *= (1 + inflMo);
-    mIncome *= (1 + incGrowMo);
-    m++;
-  }
-  if (m >= 200 * 12) return Infinity;
-  const finalW  = Math.max(0, mSpend - mIncome);
-  const rem     = pools.reduce((s, p) => s + p.value, 0);
-  const partial = (finalW > 0 && rem > 0) ? Math.min(rem / finalW, 0.999) : 0;
-  return (m + partial) / 12;
-}
-
-function computeYearsBorrow(assets, annualSpend, annualIncome, inflR, incomeGrowthR) {
-  if (annualSpend <= 0) return Infinity;
-  const borrowable = assets.filter(a => a.borrowable && a.borrowRate > 0);
-  if (borrowable.length === 0) return computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR);
-  const pools = assets.map(a => ({
-    value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
-    growthMul:  1 + a.growth / 100,
-    borrowable: a.borrowable && a.borrowRate > 0,
-    borrowRate: a.borrowRate / 100,
-    debt:       0,
-  }));
-  let spendAdj = annualSpend, incomeAdj = annualIncome;
-  for (let y = 0; y < 300; y++) {
-    for (const p of pools) p.value *= p.growthMul;
-    const bPools     = pools.filter(p => p.borrowable);
-    const collateral = bPools.reduce((s, p) => s + p.value, 0);
-    for (const p of bPools) p.debt *= (1 + p.borrowRate);
-    const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
-    const borrow     = Math.max(0, spendAdj - incomeAdj);
-    if (totalDebt + borrow > collateral) {
-      const partial = (borrow > 0 && collateral > totalDebt) ? Math.min((collateral - totalDebt) / borrow, 0.999) : 0;
-      return y + partial;
-    }
-    for (const p of bPools) p.debt += borrow * (p.value / collateral);
-    spendAdj  *= (1 + inflR);
-    incomeAdj *= (1 + incomeGrowthR);
-  }
-  return Infinity;
-}
-
-function computeYearsBorrowSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR) {
-  if (annualSpend <= 0) return Infinity;
-  const hasBorrowable = assets.some(a => a.borrowable && a.borrowRate > 0);
-  if (!hasBorrowable) return computeYearsSell(assets, annualSpend, annualIncome, inflR, incomeGrowthR);
-
-  const pools = assets.map(a => ({
-    value:      a.unit === "btc" ? a.amount * state.btcPrice : a.amount,
-    growthMul:  1 + a.growth / 100,
-    sellMul:    Math.pow(1 + a.growth / 100, 1 / 12),
-    borrowable: a.borrowable && a.borrowRate > 0,
-    borrowRate: a.borrowRate / 100,
-    debt:       0,
-  }));
-  const sortedPools = pools.slice().sort((a, b) => a.sellMul - b.sellMul);
-
-  let spendAdj = annualSpend, incomeAdj = annualIncome;
-
-  // Phase 1: borrow (yearly)
-  let y = 0;
-  for (; y < 300; y++) {
-    for (const p of pools) p.value *= p.growthMul;
-    const bPools     = pools.filter(p => p.borrowable);
-    const collateral = bPools.reduce((s, p) => s + p.value, 0);
-    for (const p of bPools) p.debt *= (1 + p.borrowRate);
-    const totalDebt  = bPools.reduce((s, p) => s + p.debt, 0);
-    const borrow     = Math.max(0, spendAdj - incomeAdj);
-    if (totalDebt + borrow > collateral) break;
-    for (const p of bPools) p.debt += borrow * (p.value / collateral);
-    spendAdj  *= (1 + inflR);
-    incomeAdj *= (1 + incomeGrowthR);
-  }
-  if (y >= 300) return Infinity;
-
-  // Transition: pay debt by selling lowest-growth first
-  let debt = pools.filter(p => p.borrowable).reduce((s, p) => s + p.debt, 0);
-  for (const p of sortedPools) {
-    if (debt <= 0) break;
-    const take = Math.min(p.value, debt);
-    p.value -= take;
-    debt -= take;
-  }
-  if (debt > 0) return y;
-
-  // Phase 2: sell (monthly)
-  const inflMo    = Math.pow(1 + inflR, 1 / 12) - 1;
-  const incGrowMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
-  let mSpend  = spendAdj  / 12;
-  let mIncome = incomeAdj / 12;
-  let m = 0;
-  while (y * 12 + m < 300 * 12) {
-    for (const p of pools) p.value *= p.sellMul;
-    const needed = Math.max(0, mSpend - mIncome);
-    const avail  = pools.reduce((s, p) => s + p.value, 0);
-    if (avail < needed) {
-      const partial = (needed > 0 && avail > 0) ? Math.min(avail / needed, 0.999) : 0;
-      return y + (m + partial) / 12;
-    }
-    let draw = needed;
-    for (const p of sortedPools) {
-      if (draw <= 0) break;
-      const take = Math.min(p.value, draw);
-      p.value -= take;
-      draw -= take;
-    }
-    mSpend  *= (1 + inflMo);
-    mIncome *= (1 + incGrowMo);
-    m++;
-  }
-  return Infinity;
-}
 
 // ---------- Calculator ----------
 function calc() {
@@ -1227,11 +1124,14 @@ function calc() {
     (state.mode === "borrow"      && hasBorrowable) ? "borrow" :
     (state.mode === "borrow-sell" && hasBorrowable) ? "borrow-sell" : "sell";
 
+  const mSavings = state.monthlySavings || 0;
   const years =
-    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR) :
-    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR) :
-    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR);
+    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR, mSavings, state.btcPrice) :
+    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR, mSavings, state.btcPrice) :
+    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR, mSavings, state.btcPrice);
   const isForever   = !isFinite(years) || years > 999;
+
+  $("monthlySavingsField").style.display = "";
 
   // Use Jan 1 of death year — matches device behavior and avoids bias from today's date
   const today          = new Date();
@@ -1291,14 +1191,13 @@ function calc() {
     survivalText = "FREEDOM time until age " + ageAtDepletion;
   }
 
-  // Reverse calc: how much more until FOREVER?
+  // Insights: compute each path to FOREVER independently
   const netAnnualSpend = Math.max(0, annualSpend - annualIncome);
-  let foreverHintText = "";
-  let coastText = "";
+  // Insight values (empty string = not shown)
+  let iAccumulate = "", iSpendLess = "", iBtcPrice = "", iCoast = "";
+
   if (!isForever && netAnnualSpend > 0) {
     const savingsTotal = totalSavingsUSD();
-    // Always use the sell-mode monthly formula — mode-independent, universally meaningful,
-    // and avoids misleadingly large thresholds when borrow rate ≈ growth rate.
     const rM = Math.pow(1 + weightedGrowthR(), 1 / 12) - 1;
     const iM = Math.pow(1 + inflR, 1 / 12) - 1;
     const sellRateGap = rM - iM;
@@ -1308,45 +1207,122 @@ function calc() {
       sustainableMonthly = savingsTotal * sellRateGap + annualIncome / 12;
     }
     const gap = pNeeded - savingsTotal;
+
+    // Accumulate more
     if (isFinite(pNeeded) && gap > 0) {
       const primaryIsBtc = state.assets.length === 1 && state.assets[0].unit === "btc";
       if (primaryIsBtc) {
-        // Ceiling-round so adding exactly the displayed BTC always reaches FOREVER
         const gapBtcCeiled = Math.ceil(gap / state.btcPrice * 100) / 100;
         if (gapBtcCeiled >= 0.01) {
-          const gapVal = gapBtcCeiled * state.btcPrice; // dollar cost of ceiling BTC
-          foreverHintText = "For FOREVER right now: " + gapBtcCeiled.toFixed(2) + " BTC more (worth " + fmtCurrency(gapVal) + " at current price)";
+          iAccumulate = gapBtcCeiled.toFixed(2) + " BTC more (worth " + fmtCurrency(gapBtcCeiled * state.btcPrice) + " at current price)";
         }
       } else if (gap >= 1) {
-        foreverHintText = "For FOREVER right now: " + fmtCurrency(gap) + " more, split across assets at current ratios";
-      }
-      if (sustainableMonthly > 0) {
-        const s = sustainableMonthly;
-        const sym = currencySymbol();
-        // Floor-round so the suggested spend is always at or below the sustainable threshold
-        const spendFmt = s >= 1e6
-          ? sym + (Math.floor(s / 1e5) / 10) + "M"
-          : s >= 1e3
-          ? sym + (Math.floor(s / 100) / 10) + "k"
-          : sym + Math.floor(s);
-        foreverHintText += (foreverHintText ? " — or reduce" : "Reduce") + " spend to " + spendFmt + "/mo";
+        iAccumulate = fmtCurrency(gap) + " more, split across assets at current ratios";
       }
     }
-    // CoastFIRE: how long until untouched portfolio grows to FOREVER threshold on its own
-    const g = weightedGrowthR();
+
+    // Spend less
+    if (sustainableMonthly > 0) {
+      const s = sustainableMonthly;
+      const sym = currencySymbol();
+      iSpendLess = "≤ " + (s >= 1e6
+        ? sym + (Math.floor(s / 1e5) / 10) + "M"
+        : s >= 1e3
+        ? sym + (Math.floor(s / 100) / 10) + "k"
+        : sym + Math.floor(s)) + "/mo";
+    }
+
+    // BTC price target
+    if (isBtcMode && state.assets[0].amount > 0 && isFinite(pNeeded) && state.btcPrice > 0) {
+      const btcAmt   = state.assets[0].amount;
+      const otherUSD = state.assets.slice(1).reduce((s, a) => s + (isFinite(a.amount) ? a.amount : 0), 0);
+      const targetPrice = (pNeeded - otherUSD) / btcAmt;
+      if (targetPrice > state.btcPrice && targetPrice < 100e6) {
+        const sym = currencySymbol();
+        iBtcPrice = (targetPrice >= 1e6
+          ? sym + (targetPrice / 1e6).toFixed(2) + "M"
+          : sym + Math.round(targetPrice / 1e3) + "k") + "/BTC";
+      }
+    }
+
+    // CoastFIRE — wait (+ invest if monthlySavings > 0)
+    const g  = weightedGrowthR();
+    const gM = Math.pow(1 + g, 1 / 12) - 1;
     if (isFinite(pNeeded) && pNeeded > savingsTotal && savingsTotal > 0 && g > 0) {
-      const coastYears = Math.log(pNeeded / savingsTotal) / Math.log(1 + g);
-      if (coastYears > 0 && coastYears < 200) {
-        const ageAtCoast = Math.floor(today.getFullYear() - state.birthYear + coastYears);
-        coastText = "Portfolio reaches FOREVER on its own in " + ymwText(coastYears * 12) + " at age " + ageAtCoast + " when not sold.";
+      let coastMonths;
+      const C = state.monthlySavings || 0;
+      if (C > 0 && gM > 0) {
+        const ratio = (pNeeded + C / gM) / (savingsTotal + C / gM);
+        coastMonths = ratio > 1 ? Math.log(ratio) / Math.log(1 + gM) : 0;
+      } else {
+        coastMonths = Math.log(pNeeded / savingsTotal) / Math.log(1 + g) * 12;
+      }
+      if (coastMonths > 0 && coastMonths < 200 * 12) {
+        const ageAtCoast = Math.floor(today.getFullYear() - state.birthYear + coastMonths / 12);
+        iCoast = "age " + ageAtCoast + " · " + ymwText(coastMonths);
+      }
+    }
+
+  }
+
+  // When investments make it FOREVER: find when portfolio becomes self-sustaining without them
+  let iStopInvesting = "";
+  if (isForever && state.monthlySavings > 0 && netAnnualSpend > 0) {
+    const savingsTotal = totalSavingsUSD();
+    const rM = Math.pow(1 + weightedGrowthR(), 1 / 12) - 1;
+    const iM = Math.pow(1 + inflR, 1 / 12) - 1;
+    const sellRateGap = rM - iM;
+    if (sellRateGap > 0 && savingsTotal > 0) {
+      const pNeeded = (netAnnualSpend / 12) / sellRateGap;
+      if (savingsTotal < pNeeded) {
+        const C = state.monthlySavings;
+        const netMonthly = netAnnualSpend / 12;
+        const offset = (C - netMonthly) / rM;
+        const A = savingsTotal + offset;
+        const B = pNeeded + offset;
+        if (A > 0 && B > 0 && B > A) {
+          const months = Math.log(B / A) / Math.log(1 + rM);
+          if (months > 0 && months < 200 * 12) {
+            const ageStop = Math.floor(today.getFullYear() - state.birthYear + months / 12);
+            iStopInvesting = "age " + ageStop + " · " + ymwText(months);
+          }
+        }
       }
     }
   }
-  const hintParts = [];
-  if (foreverHintText) hintParts.push(escapeHTML(foreverHintText));
-  if (coastText) hintParts.push(`<span style="display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)">${escapeHTML(coastText)}</span>`);
-  if (survivalText) hintParts.push(`<span style="display:block;margin-top:14px;padding-top:14px;border-top:1px solid var(--rule)">${escapeHTML(survivalText)}</span>`);
-  $("foreverHint").innerHTML = hintParts.join("");
+
+  // Persist for export
+  lastHints.accumulate     = iAccumulate;
+  lastHints.spendLess      = iSpendLess;
+  lastHints.btcPrice       = iBtcPrice;
+  lastHints.coast          = iCoast;
+  lastHints.savings        = "";
+  lastHints.survival       = survivalText;
+  lastHints.stopInvesting  = iStopInvesting;
+
+  // Render structured insights block
+  const rows = [
+    iAccumulate ? ["Stack more:", iAccumulate] : null,
+    iSpendLess  ? ["Spend less:",      iSpendLess]  : null,
+    iBtcPrice   ? ["BTC price:",       iBtcPrice]   : null,
+    iCoast      ? ["Wait, don't sell:",iCoast]       : null,
+  ].filter(Boolean);
+
+  let insightsHtml = "";
+  if (survivalText) {
+    insightsHtml += `<div class="insights-survival">${escapeHTML(survivalText)}.</div>`;
+  }
+  if (rows.length) {
+    insightsHtml += `<div class="insights-block"><div class="insights-header">To reach FOREVER:</div><div class="insights-rows">`;
+    rows.forEach(([k, v]) => {
+      insightsHtml += `<div class="insights-row"><span class="insights-key">${escapeHTML(k)}</span><span class="insights-val">${escapeHTML(v)}</span></div>`;
+    });
+    insightsHtml += `</div></div>`;
+  }
+  if (iStopInvesting) {
+    insightsHtml += `<div class="insights-survival">You can stop investing at ${escapeHTML(iStopInvesting)}.</div>`;
+  }
+  $("foreverHint").innerHTML = insightsHtml;
 
   // Share — the question only, no personal numbers
   const shareQuestion = "If you stopped earning tomorrow, how long could you keep living the life you want? freedomclock.io";
@@ -1368,11 +1344,12 @@ function bind(id, key, parser) {
   el.addEventListener("input", () => { state[key] = clamp(el.value); calc(); });
   el.addEventListener("blur",  () => { el.value = clamp(el.value); });
 }
-bind("spend",       "spend");
-bind("birthYear",   "birthYear");
-bind("life",        "life");
-bind("infl",        "infl");
-bind("incomeGrowth","incomeGrowth");
+bind("spend",          "spend");
+bind("birthYear",      "birthYear");
+bind("life",           "life");
+bind("infl",           "infl");
+bind("incomeGrowth",   "incomeGrowth");
+bind("monthlySavings", "monthlySavings");
 
 // Set birthYear max dynamically — prevent future birth years
 $("birthYear").max = new Date().getFullYear();
@@ -1398,10 +1375,13 @@ $("income").addEventListener("blur",   () => { $("income").value = clampIncome($
 // Currency selector
 $("currency").addEventListener("change", () => {
   state.currency = $("currency").value;
-  $("spendSuffix").textContent  = currencyLabel() + " / mo";
-  $("incomeSuffix").textContent = currencyLabel() + " / mo";
+  $("spendSuffix").textContent         = currencyLabel() + " / mo";
+  $("incomeSuffix").textContent        = currencyLabel() + " / mo";
+  $("monthlySavingsSuffix").textContent = currencyLabel() + " / mo";
   fetchBtcPrice(state.currency).then(price => {
-    if (price) { state.btcPrice = price; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); }
+    if (price) { btcPriceSource = "live"; state.btcPrice = price; }
+    else { const c = loadBtcCache(state.currency); if (c) { btcPriceSource = "cached"; state.btcPrice = c; } }
+    renderAssets(); renderBorrowSection(); updateSavingsHint(); calc();
   });
   renderAssets(); renderBorrowSection();
   updateBorrowSellVisibility();
@@ -1584,24 +1564,36 @@ $("addAssetBtn").addEventListener("click", addAsset);
 async function fetchBtcPrice(currency) {
   const cur = currency || state.currency || "usd";
   try {
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${cur}&precision=2`);
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${ALL_CURRENCIES.join(",")}&precision=2`);
     if (r.ok) {
       const d = await r.json();
-      if (d?.bitcoin?.[cur]) return d.bitcoin[cur];
+      if (d?.bitcoin) {
+        const prices = {};
+        ALL_CURRENCIES.forEach(c => { if (d.bitcoin[c]) prices[c] = d.bitcoin[c]; });
+        if (Object.keys(prices).length) { saveBtcCache(prices); return prices[cur] || null; }
+      }
     }
   } catch {}
   try {
     const r = await fetch("https://mempool.space/api/v1/prices");
     if (r.ok) {
       const d = await r.json();
-      const key = cur.toUpperCase();
-      if (d?.[key]) return d[key];
+      const prices = {};
+      ALL_CURRENCIES.forEach(c => { const v = d[c.toUpperCase()]; if (v) prices[c] = v; });
+      if (Object.keys(prices).length) { saveBtcCache(prices); return prices[cur] || null; }
     }
   } catch {}
   return null;
 }
 fetchBtcPrice().then(price => {
-  if (price) { state.btcPrice = price; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); }
+  if (price) {
+    btcPriceSource = "live";
+    state.btcPrice = price;
+  } else {
+    const cached = loadBtcCache(state.currency);
+    if (cached) { btcPriceSource = "cached"; state.btcPrice = cached; }
+  }
+  renderAssets(); renderBorrowSection(); updateSavingsHint(); calc();
 });
 fetchFxRates();
 
@@ -1632,7 +1624,7 @@ document.querySelectorAll("#topUnit button").forEach(b => {
       }
     }
     if (isBtc && state.btcPrice <= 0) {
-      fetchBtcPrice(state.currency).then(p => { if (p) { state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
+      fetchBtcPrice(state.currency).then(p => { if (p) { btcPriceSource = "live"; state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
     }
     renderAssets(); renderBorrowSection();
     updateBorrowSellVisibility();
@@ -1764,6 +1756,7 @@ function simulateYearly() {
   const annualIncome  = Math.max(state.income  * 12, 0);
   const inflR         = state.infl         / 100;
   const incomeGrowthR = state.incomeGrowth / 100;
+  const mSavings      = state.monthlySavings || 0;
   const isBtcMode     = state.assets[0].unit === "btc";
   const calcAssets    = state.assets;
   const hasBorrowable = calcAssets.some(a => a.borrowable && a.borrowRate > 0);
@@ -1805,6 +1798,7 @@ function simulateYearly() {
         yearWithdrawal += needed;
         let draw = needed;
         for (const p of pools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+        if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*(p.value/tv); }
         mSpend  *= (1 + inflMo);
         mIncome *= (1 + incGrowMo);
       }
@@ -1845,6 +1839,7 @@ function simulateYearly() {
       const borrow     = Math.max(0, spendAdj - incomeAdj);
       const exhausted  = totalDebt + borrow > collateral;
       for (const p of bPools) p.debt += borrow * (p.value / (collateral || 1));
+      if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*12*(p.value/tv); }
       const D = bPools.reduce((s, p) => s + p.debt, 0);
       const assetValues = new Array(calcAssets.length).fill(0);
       pools.forEach(p => { assetValues[p.idx] = p.value; });
@@ -1911,6 +1906,7 @@ function simulateYearly() {
         }
 
         for (const p of bPools) p.debt += borrow * (p.value / (collateral || 1));
+        if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*12*(p.value/tv); }
         const D = bPools.reduce((s, p) => s + p.debt, 0);
         const assetValues = new Array(calcAssets.length).fill(0);
         pools.forEach(p => { assetValues[p.idx] = p.value; });
@@ -1932,6 +1928,7 @@ function simulateYearly() {
           yearSpend += mSpend; yearWithdrawal += needed;
           let draw = needed;
           for (const p of sortedPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+          if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*(p.value/tv); }
           mSpend  *= (1 + inflMo);
           mIncome *= (1 + incGrowMo);
         }
@@ -1964,10 +1961,11 @@ function populateExportSummary() {
     (state.mode === "borrow"      && hasBorrowable) ? "borrow" :
     (state.mode === "borrow-sell" && hasBorrowable) ? "borrow-sell" : "sell";
   const incGrowthR = state.incomeGrowth / 100;
+  const mSav = state.monthlySavings || 0;
   const years =
-    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incGrowthR) :
-    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR) :
-    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR);
+    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incGrowthR, mSav, state.btcPrice) :
+    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR, mSav, state.btcPrice) :
+    computeYearsSell(state.assets, annualSpend, annualIncome, inflR, incGrowthR, mSav, state.btcPrice);
   const isForever = !isFinite(years) || years > 999;
   const resultText = isForever ? "FOREVER" : ymwText(years * 12);
   const sym = currencySymbol();
@@ -1977,8 +1975,10 @@ function populateExportSummary() {
   <table><tbody>
     <tr><td>Currency</td><td>${cur}</td></tr>
     <tr><td>Monthly spend</td><td>${sym}${Math.round(state.spend).toLocaleString()}</td></tr>
+    <tr><td>Annual net spend</td><td>${fmtCurrency(Math.max(annualSpend - annualIncome, 0))}</td></tr>
     <tr><td>Monthly income</td><td>${sym}${Math.round(state.income).toLocaleString()}</td></tr>
     ${state.income > 0 ? `<tr><td>Income growth</td><td>${state.incomeGrowth}% / yr</td></tr>` : ""}
+    ${state.monthlySavings > 0 ? `<tr><td>Monthly investments</td><td>${sym}${Math.round(state.monthlySavings).toLocaleString()}</td></tr>` : ""}
     <tr><td>Inflation</td><td>${state.infl}% / yr</td></tr>
     <tr><td>Spend model</td><td>${state.mode}</td></tr>
     <tr><td>Birth year</td><td>${state.birthYear}</td></tr>
@@ -1986,8 +1986,9 @@ function populateExportSummary() {
   </tbody></table>
   <div class="section-label">Savings</div>
   <table><thead><tr>
-    <th>Asset</th><th>Amount</th><th>Growth</th>
+    <th>Asset</th><th>Growth</th>
     ${effectiveMode === "borrow" || effectiveMode === "borrow-sell" ? "<th>Borrow rate</th>" : ""}
+    <th>Amount</th>
   </tr></thead><tbody>`;
 
   state.assets.forEach(a => {
@@ -2000,19 +2001,41 @@ function populateExportSummary() {
       : "";
     html += `<tr>
       <td>${escapeHTML(isBtcAsset ? "Bitcoin" : (a.name || "Asset"))}</td>
-      <td>${amtCell}</td>
       <td>${a.growth}% / yr</td>
       ${borrowCell}
+      <td>${amtCell}</td>
     </tr>`;
   });
 
-  html += `</tbody></table>
+  const borrowColspan = (effectiveMode === "borrow" || effectiveMode === "borrow-sell") ? 3 : 2;
+  html += `<tr><td colspan="${borrowColspan}" style="font-weight:500;padding-top:8px">Current portfolio value</td><td style="font-weight:500;padding-top:8px">${fmtCurrency(totalSavingsUSD())}</td></tr>
+  </tbody></table>
   <div class="section-label">Result</div>
   <table><tbody>
     <tr><td>Years of freedom</td><td style="font-weight:500">${resultText}</td></tr>
-    <tr><td>Total portfolio</td><td>${fmtCurrency(totalSavingsUSD())}</td></tr>
-    <tr><td>Annual net spend</td><td>${fmtCurrency(Math.max(annualSpend - annualIncome, 0))}</td></tr>
+    ${lastHints.survival ? `<tr><td>Freedom time until age</td><td style="font-weight:500">${escapeHTML(lastHints.survival.replace(/.*age\s*/, ""))}</td></tr>` : ""}
   </tbody></table>`;
+
+  const insightRows = [
+    lastHints.accumulate ? ["Stack more:", lastHints.accumulate] : null,
+    lastHints.spendLess  ? ["Spend less:",      lastHints.spendLess]  : null,
+    lastHints.btcPrice   ? ["BTC price:",        lastHints.btcPrice]  : null,
+    lastHints.coast      ? ["Wait, don't sell:", lastHints.coast]     : null,
+    lastHints.savings    ? ["Saving " + fmtCurrency(state.monthlySavings) + "/mo:", lastHints.savings] : null,
+  ].filter(Boolean);
+  if (insightRows.length || lastHints.stopInvesting) {
+    html += `<div class="section-label">Insights</div><table><tbody>`;
+    if (insightRows.length) {
+      html += `<tr><th colspan="2" style="padding-bottom:4px">To reach FOREVER</th></tr>`;
+      insightRows.forEach(([k, v]) => {
+        html += `<tr><td>${escapeHTML(k)}</td><td style="font-weight:500">${escapeHTML(v)}</td></tr>`;
+      });
+    }
+    if (lastHints.stopInvesting) {
+      html += `<tr><td>Can stop investing</td><td style="font-weight:500">${escapeHTML(lastHints.stopInvesting)}</td></tr>`;
+    }
+    html += `</tbody></table>`;
+  }
 
   $("exportSummaryTab").innerHTML = html;
   $("exportNote").textContent = "Generated " + new Date().toLocaleDateString();
@@ -2024,30 +2047,35 @@ function populateExportData() {
   const isBorrow     = effectiveMode === "borrow";
   const isBorrowSell = effectiveMode === "borrow-sell";
   const hasIncome    = state.income > 0;
+  const hasSavings   = state.monthlySavings > 0;
   const showPerAsset = assetNames.length > 1;
 
   let html = `<table><thead><tr><th>Year</th>`;
   if (isBorrowSell) html += `<th>Phase</th>`;
-  if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>`;
+  if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>${!isBorrow ? "<th>BTC sold</th>" : ""}`;
   html += `<th>Portfolio start</th><th>Growth</th>`;
-  if (showPerAsset) assetNames.forEach(n => { html += `<th>${n}</th>`; });
+  if (showPerAsset) assetNames.forEach(n => { html += `<th>${escapeHTML(n)}</th>`; });
   if (isBorrow || isBorrowSell) {
-    if (showPerAsset && isBorrow) assetNames.forEach((n, i) => { if (state.assets[i] && state.assets[i].borrowable) html += `<th>${n} borrowed</th>`; });
+    if (showPerAsset && isBorrow) assetNames.forEach((n, i) => { if (state.assets[i] && state.assets[i].borrowable) html += `<th>${escapeHTML(n)} borrowed</th>`; });
     html += `<th>Borrowed</th><th>Debt</th><th>Net equity</th>`;
   }
   if (!isBorrow) {
     if (hasIncome) html += `<th>Income</th><th>Spend</th>`;
     html += `<th>Withdrawal</th>`;
   }
+  if (hasSavings) html += `<th>Savings / yr</th>`;
   html += `<th>Portfolio end</th></tr></thead><tbody>`;
 
+  let prevBtcHeld = isBtcMode ? rows[0].btcHoldings : 0;
   rows.forEach(r => {
+    const btcSold = isBtcMode ? Math.max(0, prevBtcHeld - r.btcHoldings) : 0;
     html += `<tr>`;
     html += `<td>${r.year}</td>`;
     if (isBorrowSell) html += `<td style="color:var(--ink-mute);font-size:12px;text-transform:capitalize">${r.phase || ""}</td>`;
     if (isBtcMode) {
       html += `<td>${sym}${Math.round(r.btcPrice).toLocaleString()}</td>`;
       html += `<td>${r.btcHoldings.toFixed(4)}</td>`;
+      if (!isBorrow) html += `<td>${r.year === 0 ? "—" : btcSold.toFixed(4)}</td>`;
     }
     html += `<td>${fmtCurrency(r.portfolioStart)}</td><td>+${fmtCurrency(r.growth)}</td>`;
     if (showPerAsset) r.assetValues.forEach(v => { html += `<td>${fmtCurrency(v)}</td>`; });
@@ -2066,13 +2094,22 @@ function populateExportData() {
       if (hasIncome) html += `<td>${fmtCurrency(r.income)}</td><td>${fmtCurrency(r.spend)}</td>`;
       html += `<td>${fmtCurrency(r.withdrawal)}</td>`;
     }
+    if (hasSavings) html += `<td>${fmtCurrency(state.monthlySavings * 12)}</td>`;
     html += `<td>${fmtCurrency(r.portfolioEnd)}</td></tr>`;
+    prevBtcHeld = r.btcHoldings;
   });
 
   html += `</tbody></table>`;
   $("exportDataTab").innerHTML = html;
 }
 
+function escapeCSV(v) {
+  const s = String(v);
+  // Neutralise formula injection: prefix dangerous chars with a tab
+  if (/^[=+\-@]/.test(s)) return '"\t' + s.replace(/"/g, '""') + '"';
+  if (s.includes(",") || s.includes('"') || s.includes("\n")) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
 function buildCSV() {
   const { rows, effectiveMode, isBtcMode, assetNames } = simulateYearly();
   const isBorrow     = effectiveMode === "borrow";
@@ -2092,6 +2129,7 @@ function buildCSV() {
   lines.push(row2("Monthly spend (" + cur + ")", state.spend));
   lines.push(row2("Monthly income (" + cur + ")", state.income));
   if (hasIncome) lines.push(row2("Income growth %", state.incomeGrowth));
+  if (state.monthlySavings > 0) lines.push(row2("Monthly investments (" + cur + ")", state.monthlySavings));
   lines.push(row2("Inflation %", state.infl));
   lines.push(row2("Spend model", state.mode));
   lines.push(row2("Birth year", state.birthYear));
@@ -2120,24 +2158,27 @@ function buildCSV() {
   lines.push("YEAR BY YEAR");
   const hdrs = ["Year"];
   if (isBorrowSell) hdrs.push("Phase");
-  if (isBtcMode) hdrs.push("BTC price (" + cur + ")", "BTC held");
+  if (isBtcMode) { hdrs.push("BTC price (" + cur + ")", "BTC held"); if (!isBorrow) hdrs.push("BTC sold"); }
   hdrs.push("Portfolio start (" + cur + ")", "Growth (" + cur + ")");
-  if (showPerAsset) assetNames.forEach(n => hdrs.push(n + " (" + cur + ")"));
+  if (showPerAsset) assetNames.forEach(n => hdrs.push(escapeCSV(n) + " (" + cur + ")"));
   if (isBorrow || isBorrowSell) {
-    if (showPerAsset && isBorrow) assetNames.forEach(n => hdrs.push(n + " borrowed (" + cur + ")"));
+    if (showPerAsset && isBorrow) assetNames.forEach(n => hdrs.push(escapeCSV(n) + " borrowed (" + cur + ")"));
     hdrs.push("Total borrowed (" + cur + ")", "Total debt (" + cur + ")", "Net equity (" + cur + ")");
   }
   if (!isBorrow) {
     if (hasIncome) hdrs.push("Income (" + cur + ")", "Spend (" + cur + ")");
     hdrs.push("Withdrawal (" + cur + ")");
   }
+  if (state.monthlySavings > 0) hdrs.push("Savings / yr (" + cur + ")");
   hdrs.push("Portfolio end (" + cur + ")");
   lines.push(hdrs.join(","));
 
+  let prevBtcHeldCsv = isBtcMode ? rows[0].btcHoldings : 0;
   rows.forEach(r => {
+    const btcSoldCsv = isBtcMode ? Math.max(0, prevBtcHeldCsv - r.btcHoldings) : 0;
     const cols = [r.year];
     if (isBorrowSell) cols.push(r.phase || "");
-    if (isBtcMode) cols.push(Math.round(r.btcPrice), r.btcHoldings.toFixed(6));
+    if (isBtcMode) { cols.push(Math.round(r.btcPrice), r.btcHoldings.toFixed(6)); if (!isBorrow) cols.push(r.year === 0 ? "" : btcSoldCsv.toFixed(6)); }
     cols.push(Math.round(r.portfolioStart), Math.round(r.growth));
     if (showPerAsset) r.assetValues.forEach(v => cols.push(Math.round(v)));
     if (isBorrow || isBorrowSell) {
@@ -2154,8 +2195,10 @@ function buildCSV() {
       if (hasIncome) cols.push(Math.round(r.income), Math.round(r.spend));
       cols.push(Math.round(r.withdrawal));
     }
+    if (state.monthlySavings > 0) cols.push(Math.round(state.monthlySavings * 12));
     cols.push(Math.round(r.portfolioEnd));
     lines.push(cols.join(","));
+    prevBtcHeldCsv = r.btcHoldings;
   });
 
   return "﻿" + lines.join("\n");
@@ -2215,7 +2258,7 @@ async function decryptState(encoded, password) {
 
 function stateToShare() {
   return {
-    spend: state.spend, income: state.income, incomeGrowth: state.incomeGrowth,
+    spend: state.spend, income: state.income, incomeGrowth: state.incomeGrowth, monthlySavings: state.monthlySavings,
     infl: state.infl, birthYear: state.birthYear, life: state.life,
     mode: state.mode, currency: state.currency, btcBorrowRate: state.btcBorrowRate,
     _btcAmount: state._btcAmount, _btcGrowth: state._btcGrowth,
@@ -2227,16 +2270,18 @@ function stateToShare() {
 }
 
 function syncUIFromState() {
-  $("spend").value       = state.spend;
-  $("income").value      = state.income;
-  $("incomeGrowth").value = state.incomeGrowth;
-  $("infl").value        = state.infl;
-  $("birthYear").value   = state.birthYear;
-  $("life").value        = state.life;
+  $("spend").value          = state.spend;
+  $("income").value         = state.income;
+  $("incomeGrowth").value   = state.incomeGrowth;
+  $("monthlySavings").value = state.monthlySavings;
+  $("infl").value           = state.infl;
+  $("birthYear").value      = state.birthYear;
+  $("life").value           = state.life;
   $("incomeGrowthField").style.display = state.income > 0 ? "" : "none";
   $("currency").value = state.currency;
-  $("spendSuffix").textContent  = currencyLabel() + " / mo";
-  $("incomeSuffix").textContent = currencyLabel() + " / mo";
+  $("spendSuffix").textContent         = currencyLabel() + " / mo";
+  $("incomeSuffix").textContent        = currencyLabel() + " / mo";
+  $("monthlySavingsSuffix").textContent = currencyLabel() + " / mo";
   document.querySelectorAll("#mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === state.mode));
   $("modeHint").textContent = getModeHint(state.mode);
   const isBtc = state.assets[0].unit === "btc";
@@ -2247,7 +2292,7 @@ function syncUIFromState() {
   document.querySelectorAll("#topUnit button").forEach(b => b.classList.toggle("on", (b.dataset.tu === "btc") === isBtc));
   renderAssets(); renderBorrowSection(); updateBorrowSellVisibility(); updateSavingsHint(); updateBomPrices();
   if (isBtc) {
-    fetchBtcPrice(state.currency).then(p => { if (p) { state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
+    fetchBtcPrice(state.currency).then(p => { if (p) { btcPriceSource = "live"; state.btcPrice = p; renderAssets(); renderBorrowSection(); updateSavingsHint(); calc(); } });
   }
   calc();
 }
@@ -2392,7 +2437,7 @@ $("loadBtn").addEventListener("click", async () => {
   try {
     const params = new URLSearchParams(location.search);
     const s = await decryptState(params.get("c"), pw);
-    const allowed = ["spend","income","incomeGrowth","infl","birthYear","life","mode","currency","btcBorrowRate","_btcAmount","_btcGrowth","assets"];
+    const allowed = ["spend","income","incomeGrowth","monthlySavings","infl","birthYear","life","mode","currency","btcBorrowRate","_btcAmount","_btcGrowth","assets"];
     allowed.forEach(k => { if (k in s) state[k] = s[k]; });
     // Sanitise loaded values — prevent corrupt or malicious payloads from breaking the UI
     const validModes = ["sell","borrow","borrow-sell"];
@@ -2492,6 +2537,9 @@ document.querySelectorAll(".faq-item").forEach(item => {
   dots.forEach(d => d.addEventListener("click", () => goTo(+d.dataset.idx)));
   timer = setInterval(advance, 5000);
 })();
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
 </script>
 
 </body>
