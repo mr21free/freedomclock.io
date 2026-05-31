@@ -124,6 +124,44 @@ function computeYearsBorrowSell(assets, annualSpend, annualIncome, inflR, income
   return Infinity;
 }
 
+// Given a starting portfolio + spend/income rates, simulate 200 years and return true if it lasts.
+// Uses blended growth rate — accurate for single-asset, approximate for multi-asset.
+function isForeverFromNow(totalValue, mSpend, mIncome, inflR, incomeGrowthR, growthR) {
+  const rMo     = Math.pow(1 + growthR, 1 / 12) - 1;
+  const inflMo  = Math.pow(1 + inflR,   1 / 12) - 1;
+  const incGrMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+  let val = totalValue, spend = mSpend, income = mIncome;
+  for (let m = 0; m < 200 * 12; m++) {
+    val *= (1 + rMo);
+    const needed = Math.max(0, spend - income);
+    if (val < needed) return false;
+    val -= needed;
+    spend  *= (1 + inflMo);
+    income *= (1 + incGrMo);
+  }
+  return true;
+}
+
+// Binary-search for the minimum portfolio value that makes the simulation last > 200 years.
+// Uses blended growth rate (exact for single-asset, approximate for multi-asset).
+function findMinPortfolioForForever(annualSpend, annualIncome, inflR, incomeGrowthR, g) {
+  const mSpend  = annualSpend  / 12;
+  const mIncome = annualIncome / 12;
+  const rMo = Math.pow(1 + g,     1 / 12) - 1;
+  const iMo = Math.pow(1 + inflR, 1 / 12) - 1;
+  const gap = rMo - iMo;
+  if (gap <= 0) return Infinity;
+  let lo = 0;
+  let hi = mSpend / gap;
+  for (let k = 0; k < 10 && !isForeverFromNow(hi, mSpend, mIncome, inflR, incomeGrowthR, g); k++) hi *= 2;
+  if (!isForeverFromNow(hi, mSpend, mIncome, inflR, incomeGrowthR, g)) return Infinity;
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2;
+    if (isForeverFromNow(mid, mSpend, mIncome, inflR, incomeGrowthR, g)) hi = mid; else lo = mid;
+  }
+  return hi;
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { computeYearsSell, computeYearsBorrow, computeYearsBorrowSell };
+  module.exports = { computeYearsSell, computeYearsBorrow, computeYearsBorrowSell, isForeverFromNow, findMinPortfolioForForever };
 }

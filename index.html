@@ -522,7 +522,7 @@
             <input type="number" id="spend" value="10000" min="0" max="10000000" step="any" />
             <span class="suffix" id="spendSuffix">USD / mo</span>
           </div>
-          <div class="hint">What it costs to live the life you actually want, not just to survive. Living in a lower cost-of-living country can bring FREEDOM much closer — same lifestyle, lower price. Explore cities on <a href="https://www.expatistan.com/cost-of-living/city" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">expatistan.com</a>.</div>
+          <div class="hint">Net spend — what leaves your pocket after taxes and income are accounted for. What it costs to live the life you actually want, not just to survive. Living in a lower cost-of-living country can bring FREEDOM much closer — same lifestyle, lower price. Explore cities on <a href="https://www.expatistan.com/cost-of-living/city" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">expatistan.com</a>.</div>
         </div>
 
         <div class="field">
@@ -531,7 +531,7 @@
             <input type="number" id="income" value="0" min="0" max="10000000" step="any" />
             <span class="suffix" id="incomeSuffix">USD / mo</span>
           </div>
-          <div class="hint">Pension, rental income, or any recurring income that offsets what you withdraw.</div>
+          <div class="hint">Net income — after taxes. Pension, rental income, or any recurring income that offsets what you withdraw.</div>
         </div>
 
         <div class="field" id="incomeGrowthField" style="display:none">
@@ -1058,7 +1058,7 @@ function ymwText(totalMonths) {
 
 // ---------- State ----------
 // Last computed hint strings — populated by calc(), read by export
-const lastHints = { accumulate: "", spendLess: "", btcPrice: "", coast: "", savings: "", survival: "", stopInvesting: "" };
+const lastHints = { accumulate: "", spendLess: "", btcPrice: "", coast: "", savings: "", survival: "", stopInvesting: "", reachForever: "", incomeFree: "" };
 
 const state = {
   assets: [
@@ -1096,6 +1096,29 @@ function weightedGrowthR() {
     return sum + (a.growth / 100) * (isFinite(v) ? v : 0);
   }, 0) / total;
 }
+// Binary-search for the max gross monthly spend that keeps the portfolio going > 200 years.
+// Used when income grows slower than inflation (static perpetuity formula breaks down).
+function findSustainableGrossMonthly(annualIncome, inflR, incomeGrowthR, mSavings) {
+  const total = totalSavingsUSD();
+  if (total <= 0) return annualIncome / 12;
+  const rMo = Math.pow(1 + weightedGrowthR(), 1 / 12) - 1;
+  const iMo = Math.pow(1 + inflR, 1 / 12) - 1;
+  const gap  = rMo - iMo;
+  if (gap <= 0) return annualIncome / 12;
+  let lo = 0;
+  let hi = (total * gap + annualIncome / 12) * 2;
+  if (!isFinite(computeYearsSell(state.assets, hi * 12, annualIncome, inflR, incomeGrowthR, mSavings, state.btcPrice))) {
+    return hi;
+  }
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    const y = computeYearsSell(state.assets, mid * 12, annualIncome, inflR, incomeGrowthR, mSavings, state.btcPrice);
+    if (!isFinite(y)) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+// isForeverFromNow and findMinPortfolioForForever are defined in calc.js (loaded above).
 
 const modeHints = {
   borrow:       "Borrow against your portfolio each year instead of selling. Principal keeps compounding; accumulated debt compounds at the borrow rate. Freedom ends when debt reaches the portfolio value.",
@@ -1203,8 +1226,15 @@ function calc() {
     const sellRateGap = rM - iM;
     let pNeeded = Infinity, sustainableMonthly = 0;
     if (sellRateGap > 0) {
-      pNeeded = (netAnnualSpend / 12) / sellRateGap;
-      sustainableMonthly = savingsTotal * sellRateGap + annualIncome / 12;
+      if (annualIncome > 0 && state.incomeGrowth < state.infl) {
+        // Income erodes in real terms: static formula understates pNeeded and overstates
+        // sustainableMonthly. Binary-search the simulation for both.
+        pNeeded = findMinPortfolioForForever(annualSpend, annualIncome, inflR, incomeGrowthR, weightedGrowthR());
+        sustainableMonthly = findSustainableGrossMonthly(annualIncome, inflR, incomeGrowthR, mSavings);
+      } else {
+        pNeeded = (netAnnualSpend / 12) / sellRateGap;
+        sustainableMonthly = savingsTotal * sellRateGap + annualIncome / 12;
+      }
     }
     const gap = pNeeded - savingsTotal;
 
@@ -1221,8 +1251,8 @@ function calc() {
       }
     }
 
-    // Spend less
-    if (sustainableMonthly > 0) {
+    // Spend less: only show when the threshold is below current gross spend
+    if (sustainableMonthly > 0 && sustainableMonthly < annualSpend / 12) {
       const s = sustainableMonthly;
       const sym = currencySymbol();
       iSpendLess = "≤ " + (s >= 1e6
@@ -1265,26 +1295,200 @@ function calc() {
 
   }
 
-  // When investments make it FOREVER: find when portfolio becomes self-sustaining without them
+  // Weighted monthly borrow rate used by all forward simulations when in borrow mode.
+  const fwdIsBorrow = effectiveMode === "borrow" || effectiveMode === "borrow-sell";
+  let fwdBorrowRateMo = 0;
+  if (fwdIsBorrow) {
+    const bwTotal = state.assets.reduce((s, a) => !a.borrowable || !a.borrowRate
+      ? s : s + (a.unit === "btc" ? a.amount * state.btcPrice : a.amount), 0);
+    if (bwTotal > 0) {
+      const bwAnnual = state.assets.reduce((s, a) => {
+        if (!a.borrowable || !a.borrowRate) return s;
+        const v = a.unit === "btc" ? a.amount * state.btcPrice : a.amount;
+        return s + (v / bwTotal) * (a.borrowRate / 100);
+      }, 0);
+      fwdBorrowRateMo = Math.pow(1 + bwAnnual, 1 / 12) - 1;
+    }
+  }
+
+  // When investments make it FOREVER: find when portfolio is self-sustaining without them.
+  // Simulates forward WITH investments; at each month checks if portfolio sustains FOREVER
+  // without investments (mSavings=0). Correctly handles income erosion and borrow mode.
   let iStopInvesting = "";
-  if (isForever && state.monthlySavings > 0 && netAnnualSpend > 0) {
-    const savingsTotal = totalSavingsUSD();
-    const rM = Math.pow(1 + weightedGrowthR(), 1 / 12) - 1;
-    const iM = Math.pow(1 + inflR, 1 / 12) - 1;
-    const sellRateGap = rM - iM;
-    if (sellRateGap > 0 && savingsTotal > 0) {
-      const pNeeded = (netAnnualSpend / 12) / sellRateGap;
-      if (savingsTotal < pNeeded) {
-        const C = state.monthlySavings;
-        const netMonthly = netAnnualSpend / 12;
-        const offset = (C - netMonthly) / rM;
-        const A = savingsTotal + offset;
-        const B = pNeeded + offset;
-        if (A > 0 && B > 0 && B > A) {
-          const months = Math.log(B / A) / Math.log(1 + rM);
-          if (months > 0 && months < 200 * 12) {
-            const ageStop = Math.floor(today.getFullYear() - state.birthYear + months / 12);
-            iStopInvesting = "age " + ageStop + " · " + ymwText(months);
+  if (isForever && state.monthlySavings > 0) {
+    const g = weightedGrowthR();
+    const rMo     = Math.pow(1 + g,     1 / 12) - 1;
+    const inflMo  = Math.pow(1 + inflR, 1 / 12) - 1;
+    const incGrMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+    const sellRateGap = rMo - inflMo;
+    const currentTotal = totalSavingsUSD();
+    // Mode-aware check: FOREVER right now without investments?
+    const isForeverWithoutInvest = fwdIsBorrow
+      ? computeYearsBorrow(state.assets, annualSpend, annualIncome, inflR, incomeGrowthR, 0, state.btcPrice) === Infinity
+      : isForeverFromNow(currentTotal, annualSpend / 12, annualIncome / 12, inflR, incomeGrowthR, g);
+    if (isForeverWithoutInvest) {
+      const currentAge = today.getFullYear() - state.birthYear;
+      iStopInvesting = "age " + currentAge + " · right now";
+    } else if (sellRateGap > 0 || fwdIsBorrow) {
+      const siPools = state.assets
+        .map(a => ({ value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount, mul: Math.pow(1 + a.growth / 100, 1 / 12) }))
+        .sort((a, b) => a.mul - b.mul);
+      let siSpend  = annualSpend  / 12;
+      let siIncome = annualIncome / 12;
+      let siDebt   = 0;
+      for (let m = 0; m < 200 * 12; m++) {
+        for (const p of siPools) p.value *= p.mul;
+        const needed = Math.max(0, siSpend - siIncome);
+        if (fwdIsBorrow) {
+          siDebt = siDebt * (1 + fwdBorrowRateMo) + needed;
+          if (siDebt >= siPools.reduce((s, p) => s + p.value, 0)) break;
+        } else {
+          const avail = siPools.reduce((s, p) => s + p.value, 0);
+          if (avail < needed) break;
+          let draw = needed;
+          for (const p of siPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+        }
+        const tv = siPools.reduce((s, p) => s + p.value, 0);
+        if (tv > 0) for (const p of siPools) p.value += mSavings * (p.value / tv);
+        siSpend  *= (1 + inflMo);
+        siIncome *= (1 + incGrMo);
+        const siGross = siPools.reduce((s, p) => s + p.value, 0);
+        let foundStop = false;
+        if (fwdIsBorrow) {
+          // Borrow-mode FOREVER check from current sim state (no investments from this point)
+          let a = siGross, d = siDebt, sp = siSpend, inc = siIncome;
+          let ok = true;
+          for (let k = 0; k < 200 * 12; k++) {
+            a *= (1 + rMo);
+            d = d * (1 + fwdBorrowRateMo) + Math.max(0, sp - inc);
+            if (d >= a) { ok = false; break; }
+            sp *= (1 + inflMo); inc *= (1 + incGrMo);
+          }
+          foundStop = ok;
+        } else {
+          const siTotal = siGross;
+          if (siTotal * sellRateGap >= Math.max(0, siSpend - siIncome)) {
+            foundStop = isForeverFromNow(siTotal, siSpend, siIncome, inflR, incomeGrowthR, g);
+          }
+        }
+        if (foundStop) {
+          const ageStop = Math.floor(today.getFullYear() - state.birthYear + (m + 1) / 12);
+          iStopInvesting = "age " + ageStop + " · " + ymwText(m + 1);
+          break;
+        }
+      }
+    }
+  }
+
+  // Reach FOREVER (with income): simulate forward, find when portfolio sustains spend with income
+  let iReachForever = "";
+  if (!isForever) {
+    const g = weightedGrowthR();
+    const rMo     = Math.pow(1 + g,     1 / 12) - 1;
+    const inflMo  = Math.pow(1 + inflR, 1 / 12) - 1;
+    const incGrMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+    const sellRateGap = rMo - inflMo;
+    if (sellRateGap > 0) {
+      const fwdPools = state.assets
+        .map(a => ({ value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount, mul: Math.pow(1 + a.growth / 100, 1 / 12) }))
+        .sort((a, b) => a.mul - b.mul);
+      let fwdSpend  = annualSpend  / 12;
+      let fwdIncome = annualIncome / 12;
+      let rfDebt    = 0;
+      for (let m = 0; m < 200 * 12; m++) {
+        for (const p of fwdPools) p.value *= p.mul;
+        const needed = Math.max(0, fwdSpend - fwdIncome);
+        if (fwdIsBorrow) {
+          rfDebt = rfDebt * (1 + fwdBorrowRateMo) + needed;
+          if (rfDebt >= fwdPools.reduce((s, p) => s + p.value, 0)) break;
+        } else {
+          const avail = fwdPools.reduce((s, p) => s + p.value, 0);
+          if (avail < needed) break;
+          let draw = needed;
+          for (const p of fwdPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+        }
+        if (mSavings > 0) { const tv = fwdPools.reduce((s, p) => s + p.value, 0); if (tv > 0) for (const p of fwdPools) p.value += mSavings * (p.value / tv); }
+        fwdSpend  *= (1 + inflMo);
+        fwdIncome *= (1 + incGrMo);
+        const fwdGross = fwdPools.reduce((s, p) => s + p.value, 0);
+        const fwdTotal = fwdIsBorrow ? fwdGross - rfDebt : fwdGross;
+        const netNow   = Math.max(0, fwdSpend - fwdIncome);
+        if (fwdTotal * sellRateGap >= netNow) {
+          if (isForeverFromNow(fwdTotal, fwdSpend, fwdIncome, inflR, incomeGrowthR, g)) {
+            const rfMonths = m + 1;
+            const rfAge = Math.floor(today.getFullYear() - state.birthYear + rfMonths / 12);
+            iReachForever = "age " + rfAge + " · " + ymwText(rfMonths);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Income-free: find when portfolio can sustain spending FOREVER with zero income.
+  // Simulates forward while still receiving income, checks at each step without income.
+  let iIncomeFree = "";
+  if (annualIncome > 0) {
+    const g = weightedGrowthR();
+    const rMo     = Math.pow(1 + g,     1 / 12) - 1;
+    const inflMo  = Math.pow(1 + inflR, 1 / 12) - 1;
+    const incGrMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+    const sellRateGap = rMo - inflMo;
+    if (sellRateGap > 0 || fwdIsBorrow) {
+      const currentTotal = totalSavingsUSD();
+      // Mode-aware "right now" check: income-free means FOREVER with full spend and zero income
+      const isIncomeFreeNow = fwdIsBorrow
+        ? computeYearsBorrow(state.assets, annualSpend, 0, inflR, 0, 0, state.btcPrice) === Infinity
+        : isForeverFromNow(currentTotal, annualSpend / 12, 0, inflR, 0, g);
+      if (isIncomeFreeNow) {
+        const currentAge = today.getFullYear() - state.birthYear;
+        iIncomeFree = "age " + currentAge + " · right now";
+      } else {
+        const fwdPools = state.assets
+          .map(a => ({ value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount, mul: Math.pow(1 + a.growth / 100, 1 / 12) }))
+          .sort((a, b) => a.mul - b.mul);
+        let fwdSpend  = annualSpend  / 12;
+        let fwdIncome = annualIncome / 12;
+        let ifDebt    = 0;
+        for (let m = 0; m < 200 * 12; m++) {
+          for (const p of fwdPools) p.value *= p.mul;
+          const needed = Math.max(0, fwdSpend - fwdIncome);
+          if (fwdIsBorrow) {
+            ifDebt = ifDebt * (1 + fwdBorrowRateMo) + needed;
+            if (ifDebt >= fwdPools.reduce((s, p) => s + p.value, 0)) break;
+          } else {
+            const avail = fwdPools.reduce((s, p) => s + p.value, 0);
+            if (avail < needed) break;
+            let draw = needed;
+            for (const p of fwdPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
+          }
+          if (mSavings > 0) { const tv = fwdPools.reduce((s, p) => s + p.value, 0); if (tv > 0) for (const p of fwdPools) p.value += mSavings * (p.value / tv); }
+          fwdSpend  *= (1 + inflMo);
+          fwdIncome *= (1 + incGrMo);
+          const fwdGross = fwdPools.reduce((s, p) => s + p.value, 0);
+          let foundIncomeFree = false;
+          if (fwdIsBorrow) {
+            // Borrow-mode income-free check: sustain full spend (no income) from current state
+            let a = fwdGross, d = ifDebt, sp = fwdSpend;
+            let ok = true;
+            for (let k = 0; k < 200 * 12; k++) {
+              a *= (1 + rMo);
+              d = d * (1 + fwdBorrowRateMo) + sp;
+              if (d >= a) { ok = false; break; }
+              sp *= (1 + inflMo);
+            }
+            foundIncomeFree = ok;
+          } else {
+            const fwdTotal = fwdGross;
+            if (fwdTotal * sellRateGap >= fwdSpend) {
+              foundIncomeFree = isForeverFromNow(fwdTotal, fwdSpend, 0, inflR, 0, g);
+            }
+          }
+          if (foundIncomeFree) {
+            const ifMonths = m + 1;
+            const ifAge = Math.floor(today.getFullYear() - state.birthYear + ifMonths / 12);
+            iIncomeFree = "age " + ifAge + " · " + ymwText(ifMonths);
+            break;
           }
         }
       }
@@ -1299,18 +1503,30 @@ function calc() {
   lastHints.savings        = "";
   lastHints.survival       = survivalText;
   lastHints.stopInvesting  = iStopInvesting;
+  lastHints.reachForever   = iReachForever;
+  lastHints.incomeFree     = iIncomeFree;
+  // Test hook — read by browser tests via window.__fcResult
+  window.__fcResult = { years, isForever, effectiveMode, hints: { ...lastHints } };
 
   // Render structured insights block
   const rows = [
-    iAccumulate ? ["Stack more:", iAccumulate] : null,
-    iSpendLess  ? ["Spend less:",      iSpendLess]  : null,
-    iBtcPrice   ? ["BTC price:",       iBtcPrice]   : null,
-    iCoast      ? ["Wait, don't sell:",iCoast]       : null,
+    iAccumulate   ? ["Stack more:",       iAccumulate]   : null,
+    iSpendLess    ? ["Spend less:",       iSpendLess]    : null,
+    iBtcPrice     ? ["BTC price:",        iBtcPrice]     : null,
+    iCoast        ? ["Wait, don't sell:", iCoast]        : null,
+    iReachForever ? ["Reach forever:",    iReachForever] : null,
+    (!isForever && iIncomeFree) ? ["Income-free at", iIncomeFree] : null,
   ].filter(Boolean);
 
   let insightsHtml = "";
   if (survivalText) {
     insightsHtml += `<div class="insights-survival">${escapeHTML(survivalText)}.</div>`;
+  }
+  if (iStopInvesting) {
+    insightsHtml += `<div class="insights-survival">You can stop investing at ${escapeHTML(iStopInvesting)}.</div>`;
+  }
+  if (isForever && iIncomeFree) {
+    insightsHtml += `<div class="insights-survival">Income-free at ${escapeHTML(iIncomeFree)}.</div>`;
   }
   if (rows.length) {
     insightsHtml += `<div class="insights-block"><div class="insights-header">To reach FOREVER:</div><div class="insights-rows">`;
@@ -1318,9 +1534,6 @@ function calc() {
       insightsHtml += `<div class="insights-row"><span class="insights-key">${escapeHTML(k)}</span><span class="insights-val">${escapeHTML(v)}</span></div>`;
     });
     insightsHtml += `</div></div>`;
-  }
-  if (iStopInvesting) {
-    insightsHtml += `<div class="insights-survival">You can stop investing at ${escapeHTML(iStopInvesting)}.</div>`;
   }
   $("foreverHint").innerHTML = insightsHtml;
 
@@ -1781,12 +1994,13 @@ function simulateYearly() {
       .sort((a, b) => a.mul - b.mul);
     const inflMo    = Math.pow(1 + inflR,         1 / 12) - 1;
     const incGrowMo = Math.pow(1 + incomeGrowthR, 1 / 12) - 1;
+    const btcGrowth = isBtcMode ? calcAssets[0].growth / 100 : 0;
     let mSpend  = annualSpend  / 12;
     let mIncome = annualIncome / 12;
 
     for (let yr = 1; yr <= MAX_YEARS; yr++) {
       const startTotal = pools.reduce((s, p) => s + p.value, 0);
-      let yearGrowth = 0, yearIncome = 0, yearSpend = 0, yearWithdrawal = 0, exhausted = false;
+      let yearGrowth = 0, yearIncome = 0, yearSpend = 0, yearWithdrawal = 0, yearBtcBought = 0, exhausted = false;
 
       for (let mo = 0; mo < 12; mo++) {
         for (const p of pools) { const old = p.value; p.value *= p.mul; yearGrowth += p.value - old; }
@@ -1798,7 +2012,14 @@ function simulateYearly() {
         yearWithdrawal += needed;
         let draw = needed;
         for (const p of pools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
-        if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*(p.value/tv); }
+        if (mSavings > 0) {
+          const tv = pools.reduce((s,p)=>s+p.value,0);
+          if (tv > 0) for (const p of pools) p.value += mSavings*(p.value/tv);
+          if (isBtcMode) {
+            const btcPriceMo = state.btcPrice * Math.pow(1 + btcGrowth, yr - 1 + (mo + 1) / 12);
+            yearBtcBought += btcPriceMo > 0 ? mSavings / btcPriceMo : 0;
+          }
+        }
         mSpend  *= (1 + inflMo);
         mIncome *= (1 + incGrowMo);
       }
@@ -1812,6 +2033,7 @@ function simulateYearly() {
         const impliedPrice  = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr);
         row.btcPrice    = impliedPrice;
         row.btcHoldings = impliedPrice > 0 ? assetValues[0] / impliedPrice : 0;
+        row.btcBought   = yearBtcBought;
       }
       rows.push(row);
       if (exhausted || endTotal <= 0) break;
@@ -1848,6 +2070,7 @@ function simulateYearly() {
         const impliedPrice  = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr);
         row.btcPrice    = impliedPrice;
         row.btcHoldings = impliedPrice > 0 ? assetValues[0] / impliedPrice : 0;
+        row.btcBought   = (mSavings > 0 && impliedPrice > 0) ? mSavings * 12 / impliedPrice : 0;
       }
       rows.push(row);
       spendAdj  *= (1 + inflR);
@@ -1897,7 +2120,7 @@ function simulateYearly() {
           const assetValues = new Array(calcAssets.length).fill(0);
           pools.forEach(p => { assetValues[p.idx] = p.value; });
           const row = { year: yr, phase: "sell", portfolioStart: startTotal, growth, income: 0, spend: 0, withdrawal: 0, borrowed: 0, debt: 0, netEquity: afterDebt, portfolioEnd: afterDebt, assetValues };
-          if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+          if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; row.btcBought = 0; }
           rows.push(row);
           spendAdj *= (1 + inflR); incomeAdj *= (1 + incomeGrowthR);
           mSpend = spendAdj / 12;  mIncome = incomeAdj / 12;
@@ -1911,14 +2134,14 @@ function simulateYearly() {
         const assetValues = new Array(calcAssets.length).fill(0);
         pools.forEach(p => { assetValues[p.idx] = p.value; });
         const row = { year: yr, phase: "borrow", portfolioStart: startTotal, growth, income: incomeAdj, spend: spendAdj, borrowed: borrow, debt: D, netEquity: endTotal - D, portfolioEnd: endTotal, assetValues };
-        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; row.btcBought = (mSavings > 0 && ip > 0) ? mSavings * 12 / ip : 0; }
         rows.push(row);
         spendAdj  *= (1 + inflR);
         incomeAdj *= (1 + incomeGrowthR);
 
       } else {
         // Sell phase — monthly
-        let yearGrowth = 0, yearIncome = 0, yearSpend = 0, yearWithdrawal = 0, exhausted = false;
+        let yearGrowth = 0, yearIncome = 0, yearSpend = 0, yearWithdrawal = 0, yearBtcBought = 0, exhausted = false;
         for (let mo = 0; mo < 12; mo++) {
           for (const p of pools) { const old = p.value; p.value *= p.sellMul; yearGrowth += p.value - old; }
           const needed = Math.max(0, mSpend - mIncome);
@@ -1928,7 +2151,14 @@ function simulateYearly() {
           yearSpend += mSpend; yearWithdrawal += needed;
           let draw = needed;
           for (const p of sortedPools) { if (draw <= 0) break; const take = Math.min(p.value, draw); p.value -= take; draw -= take; }
-          if (mSavings > 0) { const tv = pools.reduce((s,p)=>s+p.value,0); if (tv>0) for (const p of pools) p.value += mSavings*(p.value/tv); }
+          if (mSavings > 0) {
+            const tv = pools.reduce((s,p)=>s+p.value,0);
+            if (tv>0) for (const p of pools) p.value += mSavings*(p.value/tv);
+            if (isBtcMode) {
+              const btcPriceMo = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr - 1 + (mo + 1) / 12);
+              yearBtcBought += btcPriceMo > 0 ? mSavings / btcPriceMo : 0;
+            }
+          }
           mSpend  *= (1 + inflMo);
           mIncome *= (1 + incGrowMo);
         }
@@ -1936,7 +2166,7 @@ function simulateYearly() {
         const assetValues = new Array(calcAssets.length).fill(0);
         pools.forEach(p => { assetValues[p.idx] = p.value; });
         const row = { year: yr, phase: "sell", portfolioStart: startTotal, growth: yearGrowth, income: yearIncome, spend: yearSpend, withdrawal: yearWithdrawal, borrowed: 0, debt: 0, netEquity: endTotal, portfolioEnd: endTotal, assetValues };
-        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; }
+        if (isBtcMode) { const ip = state.btcPrice * Math.pow(1 + calcAssets[0].growth / 100, yr); row.btcPrice = ip; row.btcHoldings = ip > 0 ? assetValues[0] / ip : 0; row.btcBought = yearBtcBought; }
         rows.push(row);
         if (exhausted || endTotal <= 0) break;
       }
@@ -1975,8 +2205,8 @@ function populateExportSummary() {
   <table><tbody>
     <tr><td>Currency</td><td>${cur}</td></tr>
     <tr><td>Monthly spend</td><td>${sym}${Math.round(state.spend).toLocaleString()}</td></tr>
-    <tr><td>Annual net spend</td><td>${fmtCurrency(Math.max(annualSpend - annualIncome, 0))}</td></tr>
     <tr><td>Monthly income</td><td>${sym}${Math.round(state.income).toLocaleString()}</td></tr>
+    <tr><td>Annual net spend</td><td>${fmtCurrency(Math.max(annualSpend - annualIncome, 0))}</td></tr>
     ${state.income > 0 ? `<tr><td>Income growth</td><td>${state.incomeGrowth}% / yr</td></tr>` : ""}
     ${state.monthlySavings > 0 ? `<tr><td>Monthly investments</td><td>${sym}${Math.round(state.monthlySavings).toLocaleString()}</td></tr>` : ""}
     <tr><td>Inflation</td><td>${state.infl}% / yr</td></tr>
@@ -2017,22 +2247,24 @@ function populateExportSummary() {
   </tbody></table>`;
 
   const insightRows = [
-    lastHints.accumulate ? ["Stack more:", lastHints.accumulate] : null,
-    lastHints.spendLess  ? ["Spend less:",      lastHints.spendLess]  : null,
-    lastHints.btcPrice   ? ["BTC price:",        lastHints.btcPrice]  : null,
-    lastHints.coast      ? ["Wait, don't sell:", lastHints.coast]     : null,
-    lastHints.savings    ? ["Saving " + fmtCurrency(state.monthlySavings) + "/mo:", lastHints.savings] : null,
+    lastHints.accumulate   ? ["Stack more:",      lastHints.accumulate]   : null,
+    lastHints.spendLess    ? ["Spend less:",      lastHints.spendLess]    : null,
+    lastHints.btcPrice     ? ["BTC price:",       lastHints.btcPrice]     : null,
+    lastHints.coast        ? ["Wait, don't sell:",lastHints.coast]        : null,
+    lastHints.reachForever ? ["Reach forever:",  lastHints.reachForever] : null,
+    lastHints.incomeFree   ? ["Income-free at",  lastHints.incomeFree]   : null,
+    lastHints.savings      ? ["Saving " + fmtCurrency(state.monthlySavings) + "/mo:", lastHints.savings] : null,
   ].filter(Boolean);
   if (insightRows.length || lastHints.stopInvesting) {
     html += `<div class="section-label">Insights</div><table><tbody>`;
+    if (lastHints.stopInvesting) {
+      html += `<tr><td>Can stop investing</td><td style="font-weight:500">${escapeHTML(lastHints.stopInvesting)}</td></tr>`;
+    }
     if (insightRows.length) {
-      html += `<tr><th colspan="2" style="padding-bottom:4px">To reach FOREVER</th></tr>`;
+      if (!lastHints.stopInvesting) html += `<tr><th colspan="2" style="padding-bottom:4px">To reach FOREVER</th></tr>`;
       insightRows.forEach(([k, v]) => {
         html += `<tr><td>${escapeHTML(k)}</td><td style="font-weight:500">${escapeHTML(v)}</td></tr>`;
       });
-    }
-    if (lastHints.stopInvesting) {
-      html += `<tr><td>Can stop investing</td><td style="font-weight:500">${escapeHTML(lastHints.stopInvesting)}</td></tr>`;
     }
     html += `</tbody></table>`;
   }
@@ -2050,9 +2282,11 @@ function populateExportData() {
   const hasSavings   = state.monthlySavings > 0;
   const showPerAsset = assetNames.length > 1;
 
+  const showBtcBought = isBtcMode && hasSavings;
   let html = `<table><thead><tr><th>Year</th>`;
   if (isBorrowSell) html += `<th>Phase</th>`;
   if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>${!isBorrow ? "<th>BTC sold</th>" : ""}`;
+  if (showBtcBought) html += `<th>BTC bought</th>`;
   html += `<th>Portfolio start</th><th>Growth</th>`;
   if (showPerAsset) assetNames.forEach(n => { html += `<th>${escapeHTML(n)}</th>`; });
   if (isBorrow || isBorrowSell) {
@@ -2063,12 +2297,13 @@ function populateExportData() {
     if (hasIncome) html += `<th>Income</th><th>Spend</th>`;
     html += `<th>Withdrawal</th>`;
   }
-  if (hasSavings) html += `<th>Savings / yr</th>`;
+  if (hasSavings) html += `<th>Investments / yr</th>`;
   html += `<th>Portfolio end</th></tr></thead><tbody>`;
 
   let prevBtcHeld = isBtcMode ? rows[0].btcHoldings : 0;
   rows.forEach(r => {
-    const btcSold = isBtcMode ? Math.max(0, prevBtcHeld - r.btcHoldings) : 0;
+    const btcBoughtAmt = r.btcBought || 0;
+    const btcSold = isBtcMode ? Math.max(0, prevBtcHeld + btcBoughtAmt - r.btcHoldings) : 0;
     html += `<tr>`;
     html += `<td>${r.year}</td>`;
     if (isBorrowSell) html += `<td style="color:var(--ink-mute);font-size:12px;text-transform:capitalize">${r.phase || ""}</td>`;
@@ -2077,6 +2312,7 @@ function populateExportData() {
       html += `<td>${r.btcHoldings.toFixed(4)}</td>`;
       if (!isBorrow) html += `<td>${r.year === 0 ? "—" : btcSold.toFixed(4)}</td>`;
     }
+    if (showBtcBought) html += `<td>${r.year === 0 ? "—" : btcBoughtAmt.toFixed(4)}</td>`;
     html += `<td>${fmtCurrency(r.portfolioStart)}</td><td>+${fmtCurrency(r.growth)}</td>`;
     if (showPerAsset) r.assetValues.forEach(v => { html += `<td>${fmtCurrency(v)}</td>`; });
     if (isBorrow || isBorrowSell) {
@@ -2156,9 +2392,11 @@ function buildCSV() {
 
   // Data table
   lines.push("YEAR BY YEAR");
+  const showBtcBoughtCsv = isBtcMode && state.monthlySavings > 0;
   const hdrs = ["Year"];
   if (isBorrowSell) hdrs.push("Phase");
   if (isBtcMode) { hdrs.push("BTC price (" + cur + ")", "BTC held"); if (!isBorrow) hdrs.push("BTC sold"); }
+  if (showBtcBoughtCsv) hdrs.push("BTC bought");
   hdrs.push("Portfolio start (" + cur + ")", "Growth (" + cur + ")");
   if (showPerAsset) assetNames.forEach(n => hdrs.push(escapeCSV(n) + " (" + cur + ")"));
   if (isBorrow || isBorrowSell) {
@@ -2169,16 +2407,18 @@ function buildCSV() {
     if (hasIncome) hdrs.push("Income (" + cur + ")", "Spend (" + cur + ")");
     hdrs.push("Withdrawal (" + cur + ")");
   }
-  if (state.monthlySavings > 0) hdrs.push("Savings / yr (" + cur + ")");
+  if (state.monthlySavings > 0) hdrs.push("Investments / yr (" + cur + ")");
   hdrs.push("Portfolio end (" + cur + ")");
   lines.push(hdrs.join(","));
 
   let prevBtcHeldCsv = isBtcMode ? rows[0].btcHoldings : 0;
   rows.forEach(r => {
-    const btcSoldCsv = isBtcMode ? Math.max(0, prevBtcHeldCsv - r.btcHoldings) : 0;
+    const btcBoughtAmtCsv = r.btcBought || 0;
+    const btcSoldCsv = isBtcMode ? Math.max(0, prevBtcHeldCsv + btcBoughtAmtCsv - r.btcHoldings) : 0;
     const cols = [r.year];
     if (isBorrowSell) cols.push(r.phase || "");
     if (isBtcMode) { cols.push(Math.round(r.btcPrice), r.btcHoldings.toFixed(6)); if (!isBorrow) cols.push(r.year === 0 ? "" : btcSoldCsv.toFixed(6)); }
+    if (showBtcBoughtCsv) cols.push(r.year === 0 ? "" : btcBoughtAmtCsv.toFixed(6));
     cols.push(Math.round(r.portfolioStart), Math.round(r.growth));
     if (showPerAsset) r.assetValues.forEach(v => cols.push(Math.round(v)));
     if (isBorrow || isBorrowSell) {
