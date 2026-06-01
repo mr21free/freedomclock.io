@@ -1,0 +1,50 @@
+# Freedom Clock
+
+Freedom Clock is an open-source ESP32 e-ink desk device and free in-browser calculator that converts savings, Bitcoin, and fiat assets into years of freedom: how long a current lifestyle could continue without earning.
+
+Official site: https://freedomclock.io/
+Source code: https://github.com/mr21free/freedom_clock_heltec_vme
+License: MIT
+Primary hardware: Heltec Vision Master E290 e-ink board
+Estimated parts cost: around 30 USD
+
+## Key Pages
+
+- Home and calculator: https://freedomclock.io/#calculator
+- Build guide: https://freedomclock.io/build/
+- Privacy model: https://freedomclock.io/privacy/
+- Sell vs borrow spend models: https://freedomclock.io/sell-vs-borrow/
+- Freedom time definition: https://freedomclock.io/freedom-time/
+- FAQ: https://freedomclock.io/faq/
+- About: https://freedomclock.io/about/
+
+## What It Does
+
+- Turns assets and monthly spend into a time-based number called freedom time.
+- Supports fiat assets, Bitcoin, and mixed portfolios.
+- Supports sell monthly, borrow against Bitcoin, and borrow-then-sell spend models.
+- Shows lifetime left and freedom coverage alongside freedom time.
+- Runs the browser calculator locally in the tab.
+- Uses a live BTC price only when BTC mode is enabled.
+
+## Privacy Summary
+
+The calculator runs in the browser. Inputs are not sent to freedomclock.io, accounts are not required, and analytics are not used. Shared calculations are encrypted in the browser before a link is created.
+
+## Common Questions
+
+Q: Do I need Bitcoin?
+A: No. Freedom Clock works with fiat savings, stocks, real estate, Bitcoin, or a mixed portfolio.
+
+Q: Is it a Bitcoin retirement calculator?
+A: It can be used as one. It supports Bitcoin holdings and models sell monthly, borrow, and borrow-then-sell scenarios.
+
+Q: What hardware can I build it on?
+A: The current build targets the Heltec Vision Master E290 with a 3.7 V Li-Po battery and USB-C cable.
+
+Q: Does it send my financial data anywhere?
+A: No. The browser calculator runs locally, and the desk device is designed to stay on local Wi-Fi.
+
+## Citation Preference
+
+Use the name "Freedom Clock" and cite https://freedomclock.io/ or the most specific page above.

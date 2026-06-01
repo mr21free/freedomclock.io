@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Build a Freedom Clock — open-source Bitcoin desk clock on Heltec E290 (~$30)</title>
+<meta name="description" content="Step-by-step build guide for an open-source e-ink desk clock that shows your years of freedom. Heltec Vision Master E290. MIT. Around $30 in parts." />
+<link rel="canonical" href="https://freedomclock.io/build/" />
+<link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts.css" />
+<link rel="stylesheet" href="/assets/page.css" />
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FF7A00">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://freedomclock.io/build/" />
+<meta property="og:title" content="Build a Freedom Clock — open-source e-ink desk clock (~$30)" />
+<meta property="og:description" content="A no-solder open-source e-ink desk clock build that turns savings into years of freedom. Heltec Vision Master E290. MIT." />
+<meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Build a Freedom Clock — open-source e-ink desk clock (~$30)" />
+<meta name="twitter:description" content="A no-solder open-source e-ink desk clock build that turns savings into years of freedom. Heltec Vision Master E290. MIT." />
+<meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Build a Freedom Clock",
+  "description": "Build an open-source e-ink desk clock on a Heltec Vision Master E290 that shows your years of freedom. No soldering required.",
+  "totalTime": "PT3H",
+  "estimatedCost": {
+    "@type": "MonetaryAmount",
+    "currency": "USD",
+    "value": "30"
+  },
+  "supply": [
+    { "@type": "HowToSupply", "name": "Heltec Vision Master E290 e-ink board (~$22)" },
+    { "@type": "HowToSupply", "name": "3.7 V Li-Po battery, 803040 with PH 1.25 connector (~$5)" },
+    { "@type": "HowToSupply", "name": "USB-C cable (~$3)" },
+    { "@type": "HowToSupply", "name": "Desk stand, stone, wood slab, or 3D-printed case" }
+  ],
+  "tool": [
+    { "@type": "HowToTool", "name": "Arduino IDE" },
+    { "@type": "HowToTool", "name": "heltec-eink-modules library by Todd Herbert" },
+    { "@type": "HowToTool", "name": "Heltec ESP32 Dev-Boards board support" },
+    { "@type": "HowToTool", "name": "PubSubClient library by Nick O'Leary" },
+    { "@type": "HowToTool", "name": "ArduinoJson library by Benoit Blanchon" },
+    { "@type": "HowToTool", "name": "Adafruit GFX Library" }
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Order the parts",
+      "text": "Buy the Heltec Vision Master E290 (~$22), a 3.7 V Li-Po battery 803040 with PH 1.25 connector (~$5), and a USB-C cable (~$3). Total around $30."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Install the Arduino IDE",
+      "text": "Download and install the Arduino IDE from arduino.cc. It is free and available for Mac, Windows, and Linux."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Install the five required libraries",
+      "text": "In the Arduino IDE, open Library Manager (Tools > Manage Libraries). Install: heltec-eink-modules by Todd Herbert, Heltec ESP32 Dev-Boards, PubSubClient by Nick O'Leary, ArduinoJson by Benoit Blanchon, Adafruit GFX Library by Adafruit."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "Open the Freedom Clock firmware",
+      "text": "Download or clone the repository from github.com/mr21free/freedom_clock_heltec_vme and open Freedom_Clock_HeltecVME.ino in the Arduino IDE."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 5,
+      "name": "Connect the board and select the port",
+      "text": "Plug the Heltec board in via USB-C. In the Arduino IDE, go to Tools > Port and select the board port (usually /dev/cu.usbmodem1101 on Mac or COM3 on Windows)."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 6,
+      "name": "Select the board profile",
+      "text": "In Tools > Board, select Heltec Vision Master E290 for the E290, or Heltec Vision Master E213 for the E213. Use the correct profile — flashing the wrong binary will not work."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 7,
+      "name": "Upload the firmware",
+      "text": "Click Upload. When the IDE shows the upload progress bar, press the RST button on the board once. The upload completes in about a minute."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 8,
+      "name": "Join the setup Wi-Fi and configure",
+      "text": "After upload, the board creates a local setup Wi-Fi network. The name and password appear on the e-ink screen. Join from your phone or laptop, open the setup page in your browser, enter your Wi-Fi credentials and financial settings, then save. The device connects to your network and shows your freedom time on first refresh."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<nav class="top"></nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Build guide</span>
+      <h1>Build a Freedom Clock.</h1>
+      <p class="lede">Freedom Clock is an open-source ESP32 e-ink desk device that turns your savings into years of freedom. This page covers the actual hardware build: parts, libraries, upload, and first setup. No soldering. Around $30. An afternoon.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Open the firmware on GitHub</a>
+        <a class="btn" href="/#calculator">Try the browser calculator first</a>
+      </div>
+    </div>
+    <p class="side-note">If you are not sure the number will mean something yet, start with the browser calculator on the homepage. The hardware is more satisfying when the freedom time number already feels real.</p>
+  </div>
+</header>
+
+<main>
+
+<!-- PARTS -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Parts list</span>
+      <h2>What you need.</h2>
+    </div>
+    <p>The list is short on purpose. Two boards are supported — the E290 is recommended because the larger display reads better from across a desk. The E213 is a valid alternative if you want something smaller.</p>
+  </div>
+  <div class="container">
+    <table>
+      <thead>
+        <tr><th>Part</th><th>Notes</th><th>Approx. cost</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Heltec Vision Master E290</strong> (recommended)</td>
+          <td>2.90″ e-ink, 296&times;128 px. ESP32-S3, Wi-Fi, USB-C, Li-Po charge circuit built in. Search "Heltec Vision Master E290" on Heltec's site or AliExpress.</td>
+          <td>~$22</td>
+        </tr>
+        <tr>
+          <td>Heltec Vision Master E213 (alternative)</td>
+          <td>2.13″ e-ink, 250&times;122 px. Same firmware, smaller display. Both boards are hardware-tested.</td>
+          <td>~$18</td>
+        </tr>
+        <tr>
+          <td>3.7 V Li-Po battery</td>
+          <td>803040 size, PH 1.25 connector (the standard Heltec battery connector). ~800–1000 mAh is enough for weeks between charges at a 1-day refresh interval.</td>
+          <td>~$5</td>
+        </tr>
+        <tr>
+          <td>USB-C cable</td>
+          <td>For uploading firmware and charging the battery. Any standard USB-C data cable works.</td>
+          <td>~$3</td>
+        </tr>
+        <tr>
+          <td>Desk stand or case</td>
+          <td>A flat stone, a wood block, a 3D-printed case, or a small metal stand. The board is light and stands at whatever angle you like. STL files are in the repo.</td>
+          <td>$0+</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- LIBRARIES -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Arduino libraries</span>
+      <h2>Five installs in the Library Manager.</h2>
+    </div>
+    <p>Open Arduino IDE, go to <strong>Tools &gt; Manage Libraries</strong>, and search for each by name. Install the version shown in the Library Manager — the firmware is tested against current stable releases of each.</p>
+  </div>
+  <div class="container grid-2">
+    <div class="panel">
+      <h3>heltec-eink-modules</h3>
+      <p>By Todd Herbert. Drives the e-ink display on both Heltec board variants. This is the core display library — the firmware will not compile without it.</p>
+    </div>
+    <div class="panel">
+      <h3>Heltec ESP32 Dev-Boards</h3>
+      <p>Board support package for the Heltec ESP32 family. Also installs the Heltec board definitions in <strong>Tools &gt; Board</strong> so you can select E213 or E290.</p>
+    </div>
+    <div class="panel">
+      <h3>ArduinoJson</h3>
+      <p>By Benoit Blanchon. Used for parsing BTC price responses from CoinGecko and mempool.space, and for reading saved settings off flash storage.</p>
+    </div>
+    <div class="panel">
+      <h3>PubSubClient</h3>
+      <p>By Nick O'Leary. MQTT client used in MQTT portfolio mode. Required even if you do not plan to use MQTT — the firmware includes it.</p>
+    </div>
+    <div class="panel">
+      <h3>Adafruit GFX Library</h3>
+      <p>By Adafruit. Graphics primitives used by the display layer. Install this before the heltec-eink-modules library or the dependency check will flag it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD STEPS -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Upload steps</span>
+      <h2>Eight steps, one upload.</h2>
+    </div>
+    <p>The hard parts — display driver, Wi-Fi setup portal, BTC price fetching, OTA updates — are already done. You are running existing code, not writing new code.</p>
+  </div>
+  <div class="container content">
+    <ol>
+      <li><strong>Download and install the Arduino IDE</strong> from <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a>. Free, available for Mac, Windows, and Linux.</li>
+      <li><strong>Install the five libraries</strong> listed above via <strong>Tools &gt; Manage Libraries</strong>.</li>
+      <li><strong>Download the firmware</strong> from <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">github.com/mr21free/freedom_clock_heltec_vme</a>. Use the green "Code &gt; Download ZIP" button if you are not using git. Unzip the folder.</li>
+      <li><strong>Open <code>Freedom_Clock_HeltecVME.ino</code></strong> in the Arduino IDE. It is in the root of the downloaded folder.</li>
+      <li><strong>Connect the board via USB-C.</strong> Go to <strong>Tools &gt; Port</strong> and select the board port — usually <code>/dev/cu.usbmodem1101</code> on Mac or <code>COM3</code> on Windows.</li>
+      <li><strong>Select the correct board profile.</strong> Go to <strong>Tools &gt; Board</strong> and select <em>Heltec Vision Master E290</em> (or E213 if that is your board). Do not flash the wrong profile — an E213 binary will not run on an E290.</li>
+      <li><strong>Click Upload.</strong> Watch for the progress bar. When it appears, press the <strong>RST</strong> button on the board once. The upload takes about a minute.</li>
+      <li><strong>Join the setup Wi-Fi.</strong> After upload, the e-ink display shows a Wi-Fi network name and password. Join from your phone or laptop, open a browser, and follow the setup page to enter your home Wi-Fi, financial settings, and display preferences. Save. The device connects and shows your freedom time on its first refresh.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- SETUP PAGE -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">First setup</span>
+      <h2>What the setup page asks for.</h2>
+    </div>
+    <p>On first boot — or after a factory reset — the device creates its own local Wi-Fi network. The name is stable and unique per board, based on a short ID derived from the hardware MAC. Join it from any browser and configure:</p>
+  </div>
+  <div class="container grid-2">
+    <div class="panel">
+      <h3>Identity and life model</h3>
+      <p>Owner name (shown on the settings screen), birth year, and life expectancy. These feed the lifetime-left calculation. They stay on the device and are never sent anywhere.</p>
+    </div>
+    <div class="panel">
+      <h3>Portfolio model</h3>
+      <p>Choose between three modes: <strong>Static net worth</strong> (enter total wealth in your currency), <strong>Static BTC + price online</strong> (enter a BTC amount; device fetches live price from CoinGecko), or <strong>Automatic BTC via MQTT</strong> (price and balance come from your local MQTT broker).</p>
+    </div>
+    <div class="panel">
+      <h3>Spend model</h3>
+      <p>Monthly selling or yearly borrowing (borrow against BTC). Set monthly expenses, optional monthly income, spend growth (inflation), and optional borrow fee. These are the same inputs as the browser calculator.</p>
+    </div>
+    <div class="panel">
+      <h3>Display and refresh</h3>
+      <p>Light or dark theme. Refresh interval — 1 day is the default and the most battery-friendly. Daily refresh time and timezone. Privacy toggles to hide the wealth change and settings screens from button navigation.</p>
+    </div>
+    <div class="panel">
+      <h3>Wi-Fi and MQTT</h3>
+      <p>Home Wi-Fi credentials. Optional MQTT broker address, port, and topics for automatic BTC mode. Saved to encrypted flash storage on the device.</p>
+    </div>
+    <div class="panel">
+      <h3>Setup PIN (optional)</h3>
+      <p>A numeric PIN that locks the setup page. Useful if the device is in a shared space. Stored as a hash — the PIN itself is never saved in plaintext.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">What it shows</span>
+      <h2>The screens.</h2>
+    </div>
+    <p>The <strong>FUNCTION</strong> button (GPIO21, marked "x" on the case) wakes the display and cycles through the enabled screens. The <strong>HOME</strong> button (RST, marked "o") restarts and returns to the main screen.</p>
+  </div>
+  <div class="container grid-3">
+    <div class="panel">
+      <h3>Main screen</h3>
+      <p>Expected freedom time, expected lifetime left, and freedom coverage — the three quiet signals. A small warning icon appears if the displayed data is stale.</p>
+    </div>
+    <div class="panel">
+      <h3>Quote screen</h3>
+      <p>A short motivational line from the built-in library, with compact freedom time, coverage, and lifetime stats along the bottom edge. Rotates between quotes on each refresh. You can edit or replace the library.</p>
+    </div>
+    <div class="panel">
+      <h3>Freedom change screen</h3>
+      <p>Shows how freedom time has moved since the last reading — the trend over time, not just the current number. Opened with the FUNCTION button.</p>
+    </div>
+    <div class="panel">
+      <h3>Wealth change screen</h3>
+      <p>Current portfolio value and recent change in selected currency. Can be hidden from the setup page for privacy.</p>
+    </div>
+    <div class="panel">
+      <h3>Settings screen</h3>
+      <p>Saved parameters and firmware version. Useful for confirming what the device is calculating with. Can be hidden from the setup page.</p>
+    </div>
+    <div class="panel">
+      <h3>Unavailable data</h3>
+      <p>If BTC price or balance cannot be fetched, the device shows N/A instead of a misleading number. It can reuse the last-good cached price and balance, with a timestamp shown so you know how stale it is.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO MODES -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Portfolio modes</span>
+      <h2>Three ways to feed it numbers.</h2>
+    </div>
+    <p>The device is not opinionated about where your numbers come from. Pick the mode that fits your setup.</p>
+  </div>
+  <div class="container grid-3">
+    <div class="panel">
+      <h3>Static net worth</h3>
+      <p>Enter total wealth directly in USD, EUR, or CHF on the setup page. The device uses this fixed number with your growth and inflation assumptions. Best for people who do not hold Bitcoin or who want a simple, stable starting point.</p>
+    </div>
+    <div class="panel">
+      <h3>Static BTC + price online</h3>
+      <p>Enter a BTC amount on the setup page. The device fetches the live BTC price from CoinGecko on each refresh, with mempool.space as a fallback. The price provider can see your network IP — noted for privacy-minded builders.</p>
+    </div>
+    <div class="panel">
+      <h3>Automatic BTC via MQTT</h3>
+      <p>BTC amount and price come from local MQTT topics published by your own infrastructure — a home server, Bitcoin node, or self-hosted dashboard. No external price fetch. Best for people who already run local node infrastructure and want full data sovereignty.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3D CASE -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">3D-printable case</span>
+      <h2>A case for the E290.</h2>
+    </div>
+    <p>The repository includes a printable case for the E290 in <code>hardware/case/</code>. Two parts: body and cover. The source model is in OpenSCAD so you can adapt it.</p>
+  </div>
+  <div class="container grid-3">
+    <div class="panel">
+      <h3>body.stl</h3>
+      <p>The main shell. Holds the board and battery. Print in PLA or PETG. No supports needed on most printers.</p>
+    </div>
+    <div class="panel">
+      <h3>cover.stl</h3>
+      <p>Snaps over the back. Keeps the battery contained. Print in the same material as the body.</p>
+    </div>
+    <div class="panel">
+      <h3>freedom_clock_e290_case.scad</h3>
+      <p>The OpenSCAD source. Change wall thickness, add ventilation, adapt the stand angle, or remix entirely. OpenSCAD is free and available at openscad.org.</p>
+    </div>
+  </div>
+  <div class="container" style="margin-top: 24px;">
+    <p style="color: var(--ink-soft); font-size: 14px;">No printer? A flat stone or a short piece of wood works fine. The board is light enough that a small easel-style stand holds it at a readable angle.</p>
+  </div>
+</section>
+
+<!-- FIRMWARE UPDATES -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Staying current</span>
+      <h2>Firmware updates.</h2>
+    </div>
+    <p>Once the device is running, you do not need the Arduino IDE again to update it. Two paths from the setup page:</p>
+  </div>
+  <div class="container grid-2">
+    <div class="panel">
+      <h3>Online check from GitHub</h3>
+      <p>The setup page can check for the latest GitHub Release and install it over Wi-Fi. HTTPS certificate validation is required — if the device cannot sync time via NTP, online updates fail closed. Automatic updates can also be enabled.</p>
+    </div>
+    <div class="panel">
+      <h3>Manual .bin upload</h3>
+      <p>Download the correct release asset from GitHub Releases (<code>FreedomClock-&lt;version&gt;-E290-manual-update-open.bin</code> for the E290) and upload it from the setup page. Works from a phone or laptop. Use the E290 binary for E290 boards — the assets are board-specific.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="container section-head">
+    <div>
+      <span class="eyebrow">Build questions</span>
+      <h2>Things builders ask first.</h2>
+    </div>
+  </div>
+  <div class="container faq-list">
+    <div class="faq-item">
+      <h3>Do I need to solder?</h3>
+      <p>No. The Heltec boards have the display, Wi-Fi, USB-C port, and battery charge circuit built in. The battery clips onto a standard connector. The only tools you need are a computer and a USB-C cable.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Which board should I buy — E290 or E213?</h3>
+      <p>The E290 (2.90″) is recommended. The larger display is easier to read from across a desk, which is the whole point of the object. The E213 (2.13″) works with the same firmware and is a valid choice if you want something smaller or if the E290 is out of stock.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What battery fits?</h3>
+      <p>An 803040 Li-Po with a PH 1.25 connector. This is the standard Heltec battery connector — search for "803040 PH1.25" or "3.7V 1000mAh PH1.25" on AliExpress or your preferred electronics supplier. An 800–1000 mAh cell is enough for weeks between charges at a one-day refresh interval.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Does it need to be connected to the internet?</h3>
+      <p>It needs your home Wi-Fi for initial setup and for fetching live BTC price if you use Static BTC + price online mode. In Static net worth mode, it only needs Wi-Fi for the setup page and OTA updates — it does not make external calls during normal operation. MQTT mode keeps everything on your local network.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I use it without any Bitcoin?</h3>
+      <p>Yes. Static net worth mode takes a total portfolio value in USD, EUR, or CHF. Enter your savings, set your spend and growth rates, and the device calculates freedom time from those numbers alone.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is there a 3D-printable case?</h3>
+      <p>Yes. The repository includes <code>body.stl</code>, <code>cover.stl</code>, and an OpenSCAD source file in <code>hardware/case/</code>. The STL files are ready to slice. If you do not have a printer, a flat stone or small wood block works just as well.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How do I reset the device to factory settings?</h3>
+      <p>Hold the <strong>SETUP</strong> button (marked with a square on the case back, physical BOOT/GPIO0) for approximately 10 seconds. This clears saved Wi-Fi, MQTT, and settings and returns the device to the first-boot setup mode. Avoid pressing SETUP and HOME simultaneously — that combination can enter the ESP32 bootloader.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can I contribute to the project?</h3>
+      <p>Yes. The firmware is MIT-licensed and the repository is open. Practical fixes, better build notes, and improvements that keep the object useful without making it noisier are welcome. Open an issue or pull request on GitHub.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer></footer>
+<script src="/assets/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "freedomclock.io",
+  "version": "1.0.0",
+  "description": "Freedom clock web site",
+  "main": "calc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mr21free/freedomclock.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mr21free/freedomclock.io/issues"
+  },
+  "homepage": "https://github.com/mr21free/freedomclock.io#readme",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

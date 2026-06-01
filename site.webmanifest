@@ -1,11 +1,14 @@
 {
   "name": "Freedom Clock",
   "short_name": "Freedom Clock",
-  "description": "Turn your savings into time.",
+  "description": "A calm, open-source desk device and private in-browser calculator that turns savings into years of freedom.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#F6EFE2",
   "theme_color": "#FF7A00",
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "/assets/icons/icon-192.png",
@@ -24,6 +27,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/device-hero.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The Freedom Clock e-ink desk device showing years of freedom"
+    },
+    {
+      "src": "/assets/device-hero-2.png",
+      "sizes": "1448x1086",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The Freedom Clock showing a short quote between calculator updates"
     }
   ]
 }

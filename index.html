@@ -4,9 +4,11 @@
 <meta charset="utf-8" />
 <meta name="referrer" content="no-referrer" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Freedom Clock · Turn your savings into time</title>
-<meta name="description" content="A calm, open-source desk device that turns your savings into the number that actually matters: how much of your life you've already bought back." />
+<title>Freedom Clock · Turn savings into time — open-source Bitcoin &amp; FIRE calculator</title>
+<meta name="description" content="A calm, open-source desk device and free in-browser calculator. See how many years of freedom your savings already bought. Local-only. MIT." />
 <link rel="canonical" href="https://freedomclock.io/" />
+<link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="/assets/device-hero.webp" type="image/webp" fetchpriority="high">
 
 <!-- Icons -->
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -20,24 +22,128 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://freedomclock.io/" />
-<meta property="og:title" content="Freedom Clock · Turn your savings into time" />
-<meta property="og:description" content="A calm, open-source desk device. No notifications. No noise. Just one number: how much of your life you've already bought back." />
+<meta property="og:title" content="Freedom Clock · Open-source Bitcoin &amp; FIRE calculator" />
+<meta property="og:description" content="A calm desk device and private browser calculator that turns savings, Bitcoin, and fiat assets into years of freedom." />
 <meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
+<meta property="og:image:width" content="1448" />
+<meta property="og:image:height" content="1086" />
+<meta property="og:image:alt" content="The Freedom Clock e-ink display on a wooden desk" />
 <meta property="og:site_name" content="Freedom Clock" />
 
 <!-- Twitter / X card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Freedom Clock · Turn your savings into time" />
-<meta name="twitter:description" content="A calm, open-source desk device. No notifications. No noise. Just one number: how much of your life you've already bought back." />
+<meta name="twitter:title" content="Freedom Clock · Open-source Bitcoin &amp; FIRE calculator" />
+<meta name="twitter:description" content="A calm desk device and private browser calculator that turns savings, Bitcoin, and fiat assets into years of freedom." />
 <meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
 <meta name="twitter:image:alt" content="The Freedom Clock — a small orange e-ink display on a stone on a wooden desk" />
 
 <!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/fonts.css" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://freedomclock.io/#org",
+      "name": "Freedom Clock",
+      "url": "https://freedomclock.io/",
+      "logo": "https://freedomclock.io/assets/logo_120_transparent.svg",
+      "sameAs": [
+        "https://github.com/mr21free/freedom_clock_heltec_vme"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://freedomclock.io/#site",
+      "url": "https://freedomclock.io/",
+      "name": "Freedom Clock",
+      "description": "A calm, open-source desk device and free in-browser calculator that turns your savings into years of freedom.",
+      "publisher": { "@id": "https://freedomclock.io/#org" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "Freedom Clock",
+      "codeRepository": "https://github.com/mr21free/freedom_clock_heltec_vme",
+      "programmingLanguage": ["C++", "JavaScript"],
+      "license": "https://opensource.org/licenses/MIT",
+      "runtimePlatform": "Heltec Vision Master E290 (ESP32)",
+      "about": "Open-source e-ink desk clock that shows how many years of freedom your savings have bought."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Do I need to own Bitcoin to use this?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, GBP, CHF, CAD, or AUD — each with its own growth rate. Bitcoin is fully supported and can be combined with other assets in the same portfolio."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it accurate?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It's a thoughtful estimate, not a guarantee. A Details screen shows every assumption — real return, spend rate, and whether your portfolio is self-sustaining. Change an input and the number adapts."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does FOREVER mean?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "When your portfolio's real annual return (growth minus inflation) covers your annual spend without touching the principal, your money lasts indefinitely. At that point the clock shows FOREVER and coverage shows INF."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does my data go?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nowhere. The device runs on your local Wi-Fi. The browser calculator runs entirely in your tab. The only external call is to CoinGecko for a live BTC price if you switch to BTC mode."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "I can't code. Can I still build it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You install the Arduino IDE, open a file from the GitHub page, and click upload. The README walks you through it in plain English."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why not just an app on my phone?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Because phones are noisy. The Freedom Clock is meant to be glance-able and unobtrusive: a physical reminder, not another notification."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Freedom Clock a Bitcoin retirement calculator?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It can be used as one. The calculator supports Bitcoin holdings alongside fiat assets and offers three spend models: sell monthly, borrow against, or borrow-then-sell. The result is your freedom time — how many years your savings could carry your lifestyle."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What hardware does the desk device run on?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A Heltec Vision Master E290 e-ink board, a 3.7 V Li-Po battery (~1000 mAh), and a USB-C cable. Total around $30. Open source, MIT-licensed."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 
 <style>
   :root{
@@ -84,6 +190,7 @@
   .hero h1{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(32px,4.2vw,56px);line-height:1.02;letter-spacing:-0.03em}
   .hero h1 em{font-style:normal;color:var(--accent-deep);font-weight:500}
   .hero p.lede{margin-top:20px;font-size:16px;line-height:1.55;color:var(--ink-soft);max-width:44ch}
+  .hero p.lede + p.lede{margin-top:12px}
   .hero .ctas{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
   .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;font-size:14px;font-weight:500;transition:transform .15s ease, background .2s ease}
   .btn-primary{background:var(--ink);color:var(--bg)}
@@ -100,7 +207,8 @@
   /* carousel */
   .hero-carousel{position:relative;border-radius:8px;overflow:hidden}
   .hero-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);will-change:transform}
-  .hero-track img{width:100%;height:auto;display:block;flex-shrink:0;flex-basis:100%}
+  .hero-track picture{display:block;width:100%;flex:0 0 100%}
+  .hero-track img{width:100%;height:auto;display:block}
   .hero-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:3}
   .hero-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.45);cursor:pointer;transition:background .2s,transform .2s;border:0}
   .hero-dots span.on{background:#fff;transform:scale(1.15)}
@@ -110,6 +218,13 @@
   .question .ask{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(28px,3.6vw,46px);line-height:1.18;max-width:26ch;margin:0 auto;letter-spacing:-0.02em}
   .question .ask em{font-style:normal;color:var(--accent-deep);font-weight:500}
   .question .below{margin-top:32px;color:var(--ink-soft);max-width:58ch;margin-left:auto;margin-right:auto;font-size:17px}
+
+  /* ABOUT */
+  .about{padding:100px 0;background:var(--paper);border-top:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft)}
+  .about-grid{display:grid;grid-template-columns:0.8fr 1.2fr;gap:64px;align-items:start}
+  .about h2{font-family:"IBM Plex Mono",monospace;font-weight:300;font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-0.025em;margin-top:14px}
+  .about p{color:var(--ink-soft);font-size:17px;max-width:64ch}
+  .about p + p{margin-top:18px}
 
   /* SIGNALS */
   .signals{padding:80px 0 40px}
@@ -155,7 +270,7 @@
 
   /* device readout */
   .device{position:sticky;top:96px}
-  .device-shell{background:var(--accent);padding:14px 0 14px 20px;border-radius:14px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%), inset 0 1px 0 color-mix(in oklab, white 30%, transparent), inset 0 -2px 0 color-mix(in oklab, black 15%, transparent);display:flex;flex-direction:row;align-items:stretch}
+  .device-shell{background:var(--accent);padding:14px 0 14px 20px;border-radius:14px;box-shadow:0 30px 60px -30px color-mix(in oklab, var(--accent) 50%, black 30%), inset 0 1px 0 color-mix(in oklab, white 30%, transparent), inset 0 -2px 0 color-mix(in oklab, black 15%, transparent);display:flex;flex-direction:row;align-items:stretch;aspect-ratio:346/150;max-width:620px;margin:0 auto}
   .device-screen-part{flex:1;aspect-ratio:250/122;display:flex;flex-direction:column;overflow:hidden;min-height:0}
   .device-btn-side{width:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
   .device-btn-side img{width:70%;max-height:70%;object-fit:contain;opacity:0.5}
@@ -333,6 +448,7 @@
   footer{padding:48px 0 60px;color:var(--ink-mute);font-size:13px;border-top:1px solid var(--rule-soft)}
   footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
   footer a:hover{color:var(--ink)}
+  footer .footer-links{display:flex;gap:22px;flex-wrap:wrap}
 
   /* toast */
   .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1C1916;color:#F4EFE6;padding:12px 22px;border-radius:999px;font-size:14px;z-index:999;font-family:"IBM Plex Mono",monospace;box-shadow:0 12px 40px rgba(0,0,0,0.2);pointer-events:none;opacity:0;transition:opacity .2s}
@@ -349,6 +465,7 @@
   }
   @media (max-width:980px){
     .section-head{grid-template-columns:1fr;gap:20px}
+    .about-grid{grid-template-columns:1fr;gap:24px}
     .calc .section-head{grid-template-columns:1fr;gap:20px}
     .calc-grid{grid-template-columns:1fr;gap:40px}
     .device{position:static}
@@ -363,8 +480,8 @@
     .device-btn-side{width:52px}
     .device-shell{padding:10px 0 10px 14px}
     .share-grid{grid-template-columns:1fr}
-    nav.top .links{display:none}
-    nav.top .cta{display:none}
+    nav.top .row{height:auto;flex-direction:column;align-items:flex-start;padding:12px 22px;gap:10px}
+    nav.top .links{flex-wrap:wrap;gap:10px 18px;font-size:13px}
   }
   @media (max-width:560px){
     .container{padding:0 22px}
@@ -384,18 +501,7 @@
 <!-- toast element (reused) -->
 <div class="toast" id="toast"></div>
 
-<nav class="top">
-  <div class="container row">
-    <a href="#" class="brand"><img src="assets/logo_120_transparent.svg" alt="Freedom Clock logo" /> Freedom Clock</a>
-    <div class="links">
-      <a href="#calculator">Calculator</a>
-      <a href="#build">Build it</a>
-      <a href="#faq">FAQ</a>
-      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>
-    </div>
-    <a class="cta" href="#build">Build your own →</a>
-  </div>
-</nav>
+<nav class="top"></nav>
 
 <!-- HERO -->
 <header class="hero">
@@ -404,9 +510,10 @@
       <span class="eyebrow">An open-source clock</span>
       <h1 style="margin-top:18px">Turn your savings into <em>time</em>.</h1>
       <p class="lede">The Freedom Clock is a calm little screen for your desk. No prices, no notifications, no badge counters. It just sits there and quietly answers one question: <b style="color:var(--ink)">how much of your life have you already bought back?</b></p>
+      <p class="lede">Freedom Clock is an open-source desk device and browser calculator that converts your savings — in Bitcoin or fiat — into the number of years your current lifestyle could continue without earning.</p>
       <div class="ctas">
         <a class="btn btn-primary" href="#calculator">Try the calculator <span class="arrow">→</span></a>
-        <a class="btn btn-ghost" href="#build">See how it's built</a>
+        <a class="btn btn-ghost" href="/build/">See how it's built</a>
       </div>
       <div class="badges">
         <span><b>Open source</b></span>
@@ -418,9 +525,18 @@
     <div class="hero-photo">
       <div class="hero-carousel" id="heroCarousel">
         <div class="hero-track" id="heroTrack">
-          <img src="assets/device-hero.png" alt="The Freedom Clock — a small orange e-ink display sitting on a stone on a wooden desk, showing freedom time" loading="eager" />
-          <img src="assets/device-hero-2.png" alt="The Freedom Clock showing a motivational quote on its e-ink screen" loading="lazy" />
-          <img src="assets/device-hero-3.png" alt="The Freedom Clock — another view of the device on a desk" loading="lazy" />
+          <picture>
+            <source srcset="assets/device-hero.webp" type="image/webp" />
+            <img src="assets/device-hero.png" alt="The Freedom Clock — a small orange e-ink display sitting on a stone on a wooden desk, showing freedom time" width="1448" height="1086" loading="eager" fetchpriority="high" />
+          </picture>
+          <picture>
+            <source srcset="assets/device-hero-2.webp" type="image/webp" />
+            <img src="assets/device-hero-2.png" alt="The Freedom Clock showing a motivational quote on its e-ink screen" width="1448" height="1086" loading="lazy" />
+          </picture>
+          <picture>
+            <source srcset="assets/device-hero-3.webp" type="image/webp" />
+            <img src="assets/device-hero-3.png" alt="The Freedom Clock — another view of the device on a desk" width="1448" height="1086" loading="lazy" />
+          </picture>
         </div>
         <div class="hero-dots" id="heroDots">
           <span class="on" data-idx="0"></span>
@@ -442,6 +558,19 @@
   </div>
 </section>
 
+<section class="about" id="about">
+  <div class="container about-grid">
+    <div>
+      <span class="eyebrow">What this is</span>
+      <h2>Open-source calm tech for your money.</h2>
+    </div>
+    <div>
+      <p>Freedom Clock is an open-source ESP32 e-ink desk device and free in-browser calculator that converts savings, Bitcoin, and fiat assets into freedom time: the number of years your current lifestyle could continue without earning.</p>
+      <p>The calculator runs in the browser, the device on your local network. The point is not to watch markets minute by minute; it is to make one long-term personal finance question visible enough that you can make calmer decisions.</p>
+    </div>
+  </div>
+</section>
+
 <!-- SIGNALS -->
 <section class="signals">
   <div class="container">
@@ -450,7 +579,7 @@
         <span class="eyebrow">What it shows</span>
         <h2 style="margin-top:14px">Three quiet<br/>signals.</h2>
       </div>
-      <p>The main screen is intentionally simple, so you can read it in one glance.</p>
+      <p>The main screen is intentionally simple, so you can read it in one glance. We call this your freedom time — a single number you'd otherwise need a FIRE spreadsheet or Bitcoin lifestyle calculator to compute.</p>
     </div>
     <div class="signal-grid">
       <div class="signal">
@@ -492,7 +621,7 @@
         <span class="eyebrow">Try it now</span>
         <h2 style="margin-top:14px">Your freedom,<br/>on screen.</h2>
       </div>
-      <p>All numbers stay in your browser. Nothing is sent anywhere.</p>
+      <p>All numbers stay in your browser. Nothing is sent anywhere. Use it as a private FIRE calculator, a Bitcoin retirement calculator, or just a sanity check on how far your savings already reach.</p>
     </div>
 
     <div class="calc-grid">
@@ -642,7 +771,7 @@
           </div>
           </div><!-- /device-screen-part -->
           <div class="device-btn-side">
-            <img src="assets/logo_black_transparent.svg" alt="">
+            <img src="assets/logo_black_transparent.svg" alt="" width="1024" height="1024">
           </div>
         </div>
 
@@ -708,7 +837,7 @@
         <span class="eyebrow">The point of it</span>
         <h2 style="margin-top:14px">Calm,<br/>by design.</h2>
       </div>
-      <p>It's not a dashboard or a notification. It's a small personal object that lives in your peripheral vision and asks one good question whenever you happen to look at it.</p>
+      <p>It's not a dashboard or a notification. It's a small local-first financial tool that lives in your peripheral vision and asks one good question whenever you happen to look at it.</p>
     </div>
     <div class="pillar-grid">
       <div class="pillar">
@@ -743,7 +872,7 @@
         <span class="eyebrow">Build it yourself</span>
         <h2 style="margin-top:14px">An afternoon.<br/>Maybe a coffee.</h2>
       </div>
-      <p>You don't need to be a developer. You don't need to solder. The hard parts (the software, the math, the layout) are already done. You just plug a few things together.</p>
+      <p>You don't need to be a developer. You don't need to solder. The DIY Bitcoin clock build runs on a Heltec Vision Master E290 e-ink board, and the hard parts (the software, the math, the layout) are already done.</p>
     </div>
     <div class="steps">
       <div class="step">
@@ -824,6 +953,14 @@
         <div class="q">What's the motivational quote thing?<span class="plus">+</span></div>
         <div class="a">Between updates of your freedom number, the screen rotates a small library of short lines worth re-reading: on time, on attention, on what enough looks like. You can edit the list, replace it with your own, or turn it off entirely.</div>
       </div>
+      <div class="faq-item">
+        <div class="q">Is Freedom Clock a Bitcoin retirement calculator?<span class="plus">+</span></div>
+        <div class="a">It can be used as one. The calculator supports Bitcoin holdings alongside fiat assets and offers three spend models: sell monthly, borrow against, or borrow-then-sell. The result is your freedom time — how many years your savings could carry your lifestyle.</div>
+      </div>
+      <div class="faq-item">
+        <div class="q">What can I build it on?<span class="plus">+</span></div>
+        <div class="a">The desk device runs on a Heltec Vision Master E290 (2.90″, recommended) or E213 (2.13″) e-ink board, a 3.7 V Li-Po battery, and a USB-C cable. Parts cost around $30. The code is open source under the MIT license.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -839,22 +976,13 @@
   </div>
 </section>
 
-<footer>
-  <div class="container row">
-    <div>Built openly. MIT licensed. Make it yours.</div>
-    <div style="display:flex;gap:22px">
-      <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">Build guide</a>
-      <a href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">The story</a>
-      <a href="#calculator">Calculator</a>
-    </div>
-  </div>
-</footer>
+<footer></footer>
 
 <!-- Share modal -->
 <div id="shareModal" class="export-modal" style="display:none" aria-modal="true" role="dialog">
   <div class="export-panel" style="max-width:480px">
     <div class="export-hdr">
-      <span style="font-weight:500">Share calculation</span>
+      <span style="font-weight:500">Share freedom time</span>
       <button id="shareClose" style="font-size:20px;line-height:1;padding:2px 6px;border:none;background:none;cursor:pointer;color:var(--ink-mute)">×</button>
     </div>
     <div class="export-body" style="padding:20px">
@@ -2811,5 +2939,6 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
+<script src="/assets/shared.js"></script>
 </body>
 </html>

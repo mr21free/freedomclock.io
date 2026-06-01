@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Private FIRE Calculator · no cloud, no account, no tracking</title>
+<meta name="description" content="A retirement and Bitcoin freedom calculator that runs entirely in your browser. Your numbers never leave the tab. Open-source, MIT-licensed." />
+<link rel="canonical" href="https://freedomclock.io/privacy/" />
+<link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts.css" />
+<link rel="stylesheet" href="/assets/page.css" />
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FF7A00">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://freedomclock.io/privacy/" />
+<meta property="og:title" content="Private FIRE Calculator · no cloud, no account" />
+<meta property="og:description" content="Freedom Clock runs the calculator in your browser tab. No accounts, no tracking, and no server-side financial data." />
+<meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Private FIRE Calculator · no cloud, no account" />
+<meta name="twitter:description" content="Freedom Clock runs the calculator in your browser tab. No accounts, no tracking, and no server-side financial data." />
+<meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does Freedom Clock send my financial inputs to a server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The browser calculator runs locally in your tab, and the desk device is designed for local Wi-Fi. Your financial inputs are not sent to freedomclock.io."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Freedom Clock use analytics?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No analytics are included in the site source. The only live external request in the calculator is a BTC price lookup when Bitcoin mode is enabled."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<nav class="top"></nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Privacy</span>
+      <h1>Your numbers, your tab.</h1>
+      <p class="lede">Freedom Clock is a private FIRE calculator and open-source desk device that requires no account. It turns savings, Bitcoin, and fiat assets into years of freedom without making your financial life somebody else's database row.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/#calculator">Open the calculator</a>
+        <a class="btn" href="/build/">Build the device</a>
+      </div>
+    </div>
+    <p class="side-note">Privacy here is boring on purpose. No login. No dashboard account. No cloud profile. No analytics script quietly watching from the corner.</p>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container grid-2">
+      <div class="panel">
+        <h3>Why local-only</h3>
+        <p>This question is too personal to turn into another account. The calculator runs in the browser, so your spend, income, growth, and inflation guesses stay in the tab.</p>
+      </div>
+      <div class="panel">
+        <h3>What we don't do</h3>
+        <p>No account creation. No portfolio stored on a server. No ad pixels, analytics bundle, or hidden sync service. The site has no server-side storage — it is a static site that runs entirely in your browser. If you share your freedom time with someone, the numbers are encrypted in your browser before the link is generated; the link contains the encrypted data, nothing is stored anywhere.</p>
+      </div>
+      <div class="panel">
+        <h3>What we do</h3>
+        <p>If you use Bitcoin mode, the calculator can fetch a live BTC price. The rest is plain site plumbing: images, fonts, manifest, service worker, and the open web files crawlers expect.</p>
+      </div>
+      <div class="panel">
+        <h3>How to verify</h3>
+        <p>Open developer tools, watch the Network tab, and inspect the source. The project is MIT licensed, so the privacy claim is something you can check instead of politely believing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Comparison</span>
+          <h2>Quiet by default.</h2>
+        </div>
+        <p>Most online retirement calculators make you trade convenience for custody of your assumptions. Freedom Clock keeps the useful part and leaves out the account.</p>
+      </div>
+      <table>
+        <thead><tr><th>Capability</th><th>Freedom Clock</th><th>Typical cloud calculator</th></tr></thead>
+        <tbody>
+          <tr><td>Account required</td><td>No</td><td>Often</td></tr>
+          <tr><td>Financial inputs stored server-side</td><td>No</td><td>Often unclear</td></tr>
+          <tr><td>Bitcoin-aware spend models</td><td>Sell, borrow, borrow-then-sell</td><td>Usually no</td></tr>
+          <tr><td>Source code</td><td>Open source, MIT</td><td>Usually closed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer></footer>
+<script src="/assets/shared.js"></script>
+</body>
+</html>

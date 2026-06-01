@@ -1,0 +1,12 @@
+/* TEAM */
+Project: Freedom Clock
+Site: https://freedomclock.io/
+Source: https://github.com/mr21free/freedom_clock_heltec_vme
+
+/* THANKS */
+Built for people who would rather see time than balances.
+
+/* SITE */
+Standards: HTML, CSS, JavaScript, JSON-LD, Web App Manifest
+Fonts: IBM Plex Mono, VT323
+License: MIT

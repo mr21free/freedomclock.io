@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Freedom Clock FAQ · Bitcoin, FIRE, hardware, privacy</title>
+<meta name="description" content="Honest answers to the most common questions about the Freedom Clock device, the free calculator, and the math behind the freedom-time number." />
+<link rel="canonical" href="https://freedomclock.io/faq/" />
+<link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts.css" />
+<link rel="stylesheet" href="/assets/page.css" />
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FF7A00">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://freedomclock.io/faq/" />
+<meta property="og:title" content="Freedom Clock FAQ" />
+<meta property="og:description" content="Questions about Bitcoin, FIRE, hardware, privacy, and the freedom-time number." />
+<meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Freedom Clock FAQ" />
+<meta name="twitter:description" content="Questions about Bitcoin, FIRE, hardware, privacy, and the freedom-time number." />
+<meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need to own Bitcoin to use this?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, GBP, CHF, CAD, or AUD, each with its own growth rate. Bitcoin is supported, but it is not required." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it accurate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It is a thoughtful estimate, not a guarantee. The Details screen shows the assumptions behind the result, including real return, spend rate, and whether the portfolio appears self-sustaining." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does FOREVER mean?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When your portfolio's real annual return covers your annual spend without touching principal, the model lasts indefinitely. At that point Freedom Clock shows FOREVER and coverage shows INF." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does my data go?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nowhere by default. The browser calculator runs in your tab, and the device is designed for local Wi-Fi. The only external call is to CoinGecko for a live BTC price if BTC mode is enabled." }
+    },
+    {
+      "@type": "Question",
+      "name": "I cannot code. Can I still build it?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. You install the Arduino IDE, open the firmware from GitHub, connect the board, and upload. The recommended hardware is the Heltec Vision Master E290." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just an app on my phone?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Phones are noisy. Freedom Clock is meant to be glance-able and unobtrusive: a physical reminder, not another notification." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the motivational quote mode?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Between updates of your freedom number, the screen can rotate a small library of short quotes about time, attention, and enough. You can edit the list or turn it off." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Freedom Clock a Bitcoin retirement calculator?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It can be used as one. The calculator supports Bitcoin holdings alongside fiat assets and offers sell monthly, borrow against, and borrow-then-sell spend models." }
+    },
+    {
+      "@type": "Question",
+      "name": "What hardware does the desk device run on?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The current build runs on a Heltec Vision Master E290 e-ink board with a 3.7 V Li-Po battery and USB-C cable. The parts cost is around $30." }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<nav class="top"></nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">FAQ</span>
+      <h1>Things people ask first.</h1>
+      <p class="lede">Freedom Clock is an open-source desk device and private browser calculator. These are the questions people tend to ask first, usually right after the number starts to feel a little too real.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/#calculator">Try the calculator</a>
+        <a class="btn" href="/build/">Build one</a>
+      </div>
+    </div>
+    <p class="side-note">Short answers. No financial advice. No pretending the future is more predictable than it is.</p>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container faq-list">
+      <article class="faq-item">
+        <h2>Do I need to own Bitcoin to use this?</h2>
+        <p>No. You can enter savings, real estate, stocks, or any mix of assets in USD, EUR, GBP, CHF, CAD, or AUD, each with its own growth rate. Bitcoin is supported, but not required.</p>
+      </article>
+      <article class="faq-item">
+        <h2>Is it accurate?</h2>
+        <p>It is a thoughtful estimate, not a promise. The Details screen shows the assumptions behind the result: real return, spend rate, and whether the portfolio appears self-sustaining.</p>
+      </article>
+      <article class="faq-item">
+        <h2>What does FOREVER mean?</h2>
+        <p>FOREVER means the model did not deplete the portfolio because real annual return covers annual spend under the assumptions you entered. Nice word. Still just a model.</p>
+      </article>
+      <article class="faq-item">
+        <h2>Where does my data go?</h2>
+        <p>The browser calculator runs in your tab. The device is designed for local Wi-Fi. The only external request in BTC mode is a live price lookup.</p>
+      </article>
+      <article class="faq-item">
+        <h2>I cannot code. Can I still build it?</h2>
+        <p>Yes. The plain path is Arduino IDE, Heltec Vision Master E290, USB-C, upload, configure. The build guide keeps the steps boring, which is a feature.</p>
+      </article>
+      <article class="faq-item">
+        <h2>Why not just an app on my phone?</h2>
+        <p>Because phones are noisy. Freedom Clock is meant to be glance-able and physically present without becoming another feed.</p>
+      </article>
+      <article class="faq-item">
+        <h2>What is the motivational quote mode?</h2>
+        <p>Between updates, the e-ink screen can show short quotes about time, attention, and enough. You can edit the library or turn it off.</p>
+      </article>
+      <article class="faq-item">
+        <h2>Is Freedom Clock a Bitcoin retirement calculator?</h2>
+        <p>It can be used as one. It supports Bitcoin and fiat assets together, plus sell monthly, borrow, and borrow-then-sell spend models.</p>
+      </article>
+      <article class="faq-item">
+        <h2>What hardware does the desk device run on?</h2>
+        <p>The current build targets the Heltec Vision Master E290 e-ink board, a 3.7 V Li-Po battery, and a USB-C cable. The total parts cost is around $30.</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer></footer>
+<script src="/assets/shared.js"></script>
+</body>
+</html>
