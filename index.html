@@ -236,8 +236,11 @@
   .export-body{flex:1;overflow:auto;padding:16px 20px;min-height:0}
   .export-section{font-size:12px;font-family:"IBM Plex Mono",monospace}
   .export-section table{width:100%;border-collapse:collapse}
-  .export-section th{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:500;padding:6px 10px;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap}
-  .export-section td{padding:6px 10px;border-bottom:1px solid var(--rule-soft);color:var(--ink);vertical-align:top;white-space:nowrap}
+  .export-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .export-scroll table{width:auto}
+  .export-scroll th,.export-scroll td{white-space:nowrap}
+  .export-section th{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mute);font-weight:500;padding:6px 10px;border-bottom:1px solid var(--rule);text-align:left}
+  .export-section td{padding:6px 10px;border-bottom:1px solid var(--rule-soft);color:var(--ink);vertical-align:top}
   .export-section tr:last-child td{border-bottom:none}
   .export-section td:not(:first-child),.export-section th:not(:first-child){text-align:right}
   .export-section .section-label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mute);font-weight:500;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
@@ -248,6 +251,9 @@
     .ar-header,.ar-main{grid-template-columns:1fr 1fr 36px}
     .ar-header .ar-hcol:first-child,.ar-header>:last-child{display:none}
     .ar-name-col{grid-column:1/-1}
+    .export-modal{padding:8px}
+    .export-body{padding:12px}
+    .export-section th,.export-section td{padding:5px 8px}
 }
   .toggle-screen{margin-top:12px;display:flex;justify-content:center;gap:8px}
   .toggle-screen button{padding:6px 14px;font-size:12px;color:var(--ink-mute);border:1px solid var(--rule);border-radius:999px;transition:all .15s}
@@ -2215,30 +2221,21 @@ function populateExportSummary() {
     <tr><td>Life expectancy</td><td>${state.life} yrs</td></tr>
   </tbody></table>
   <div class="section-label">Savings</div>
-  <table><thead><tr>
-    <th>Asset</th><th>Growth</th>
-    ${effectiveMode === "borrow" || effectiveMode === "borrow-sell" ? "<th>Borrow rate</th>" : ""}
-    <th>Amount</th>
-  </tr></thead><tbody>`;
+  <table><thead><tr><th>Asset</th><th>Amount</th></tr></thead><tbody>`;
 
   state.assets.forEach(a => {
     const isBtcAsset = a.unit === "btc";
+    const name = escapeHTML(isBtcAsset ? "Bitcoin" : (a.name || "Asset"));
+    const hasBorrow = (effectiveMode === "borrow" || effectiveMode === "borrow-sell") && a.borrowable && a.borrowRate > 0;
+    const rates = `${a.growth}% growth${hasBorrow ? ` · ${a.borrowRate}% borrow` : ""}`;
+    const nameCell = `${name}<br><span style="color:var(--ink-mute);font-size:11px">${rates}</span>`;
     const amtCell = isBtcAsset
       ? `${a.amount} BTC<br><span style="color:var(--ink-mute);font-size:11px">≈ ${sym}${Math.round(a.amount * state.btcPrice).toLocaleString()} at ${btcPriceHint()}</span>`
       : `${sym}${Math.round(a.amount).toLocaleString()}`;
-    const borrowCell = (effectiveMode === "borrow" || effectiveMode === "borrow-sell")
-      ? `<td>${a.borrowable ? a.borrowRate + "% / yr" : "—"}</td>`
-      : "";
-    html += `<tr>
-      <td>${escapeHTML(isBtcAsset ? "Bitcoin" : (a.name || "Asset"))}</td>
-      <td>${a.growth}% / yr</td>
-      ${borrowCell}
-      <td>${amtCell}</td>
-    </tr>`;
+    html += `<tr><td>${nameCell}</td><td>${amtCell}</td></tr>`;
   });
 
-  const borrowColspan = (effectiveMode === "borrow" || effectiveMode === "borrow-sell") ? 3 : 2;
-  html += `<tr><td colspan="${borrowColspan}" style="font-weight:500;padding-top:8px">Current portfolio value</td><td style="font-weight:500;padding-top:8px">${fmtCurrency(totalSavingsUSD())}</td></tr>
+  html += `<tr><td style="font-weight:500;padding-top:8px">Current portfolio value</td><td style="font-weight:500;padding-top:8px">${fmtCurrency(totalSavingsUSD())}</td></tr>
   </tbody></table>
   <div class="section-label">Result</div>
   <table><tbody>
@@ -2283,7 +2280,7 @@ function populateExportData() {
   const showPerAsset = assetNames.length > 1;
 
   const showBtcBought = isBtcMode && hasSavings;
-  let html = `<table><thead><tr><th>Year</th>`;
+  let html = `<div class="export-scroll"><table><thead><tr><th>Year</th>`;
   if (isBorrowSell) html += `<th>Phase</th>`;
   if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>${!isBorrow ? "<th>BTC sold</th>" : ""}`;
   if (showBtcBought) html += `<th>BTC bought</th>`;
@@ -2335,7 +2332,7 @@ function populateExportData() {
     prevBtcHeld = r.btcHoldings;
   });
 
-  html += `</tbody></table>`;
+  html += `</tbody></table></div>`;
   $("exportDataTab").innerHTML = html;
 }
 
@@ -2389,6 +2386,38 @@ function buildCSV() {
     });
   }
   lines.push("");
+
+  // Result
+  const csvAnnualSpend  = Math.max(state.spend  * 12, 0);
+  const csvAnnualIncome = Math.max(state.income * 12, 0);
+  const csvInflR        = state.infl / 100;
+  const csvIncGrowthR   = state.incomeGrowth / 100;
+  const csvMSav         = state.monthlySavings || 0;
+  const csvYears =
+    effectiveMode === "borrow"      ? computeYearsBorrow(state.assets, csvAnnualSpend, csvAnnualIncome, csvInflR, csvIncGrowthR, csvMSav, state.btcPrice) :
+    effectiveMode === "borrow-sell" ? computeYearsBorrowSell(state.assets, csvAnnualSpend, csvAnnualIncome, csvInflR, csvIncGrowthR, csvMSav, state.btcPrice) :
+    computeYearsSell(state.assets, csvAnnualSpend, csvAnnualIncome, csvInflR, csvIncGrowthR, csvMSav, state.btcPrice);
+  const csvIsForever = !isFinite(csvYears) || csvYears > 999;
+  lines.push("RESULT");
+  lines.push(row2("Years of freedom", csvIsForever ? "FOREVER" : ymwText(csvYears * 12)));
+  if (lastHints.survival) lines.push(row2("Freedom time until age", lastHints.survival.replace(/.*age\s*/, "")));
+  lines.push("");
+
+  // Insights
+  const csvInsights = [
+    lastHints.stopInvesting ? ["Can stop investing",  lastHints.stopInvesting] : null,
+    lastHints.accumulate    ? ["Stack more",           lastHints.accumulate]    : null,
+    lastHints.spendLess     ? ["Spend less",           lastHints.spendLess]     : null,
+    lastHints.btcPrice      ? ["BTC price",            lastHints.btcPrice]      : null,
+    lastHints.coast         ? ["Wait, don't sell",     lastHints.coast]         : null,
+    lastHints.reachForever  ? ["Reach forever",        lastHints.reachForever]  : null,
+    lastHints.incomeFree    ? ["Income-free at",       lastHints.incomeFree]    : null,
+  ].filter(Boolean);
+  if (csvInsights.length) {
+    lines.push("INSIGHTS");
+    csvInsights.forEach(([k, v]) => lines.push(row2(escapeCSV(k), escapeCSV(v))));
+    lines.push("");
+  }
 
   // Data table
   lines.push("YEAR BY YEAR");
