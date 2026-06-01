@@ -22,6 +22,7 @@
         <a href="/build/">Build guide</a>
         <a href="/privacy/">Privacy</a>
         <a href="/freedom-time/">Freedom time</a>
+        <a href="/sell-vs-borrow/">Sell vs borrow</a>
         <a href="/faq/">FAQ</a>
         <a href="/about/">About</a>
         <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>
