@@ -1200,7 +1200,7 @@ function ymwText(totalMonths) {
 
 // ---------- State ----------
 // Last computed hint strings — populated by calc(), read by export
-const lastHints = { accumulate: "", spendLess: "", btcPrice: "", coast: "", savings: "", survival: "", stopInvesting: "", reachForever: "", incomeFree: "" };
+const lastHints = { accumulate: "", spendLess: "", btcPrice: "", coast: "", savings: "", survival: "", stopInvesting: "", stopInvestingAge: 0, reachForever: "", incomeFree: "", incomeFreeAge: 0 };
 
 const state = {
   assets: [
@@ -1456,7 +1456,7 @@ function calc() {
   // When investments make it FOREVER: find when portfolio is self-sustaining without them.
   // Simulates forward WITH investments; at each month checks if portfolio sustains FOREVER
   // without investments (mSavings=0). Correctly handles income erosion and borrow mode.
-  let iStopInvesting = "";
+  let iStopInvesting = ""; let stopInvestingAge = 0;
   if (isForever && state.monthlySavings > 0) {
     const g = weightedGrowthR();
     const rMo     = Math.pow(1 + g,     1 / 12) - 1;
@@ -1471,6 +1471,7 @@ function calc() {
     if (isForeverWithoutInvest) {
       const currentAge = today.getFullYear() - state.birthYear;
       iStopInvesting = "age " + currentAge + " · right now";
+      stopInvestingAge = currentAge;
     } else if (sellRateGap > 0 || fwdIsBorrow) {
       const siPools = state.assets
         .map(a => ({ value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount, mul: Math.pow(1 + a.growth / 100, 1 / 12) }))
@@ -1516,6 +1517,7 @@ function calc() {
         if (foundStop) {
           const ageStop = Math.floor(today.getFullYear() - state.birthYear + (m + 1) / 12);
           iStopInvesting = "age " + ageStop + " · " + ymwText(m + 1);
+          stopInvestingAge = ageStop;
           break;
         }
       }
@@ -1569,7 +1571,7 @@ function calc() {
 
   // Income-free: find when portfolio can sustain spending FOREVER with zero income.
   // Simulates forward while still receiving income, checks at each step without income.
-  let iIncomeFree = "";
+  let iIncomeFree = ""; let incomeFreeAge = 0;
   if (annualIncome > 0) {
     const g = weightedGrowthR();
     const rMo     = Math.pow(1 + g,     1 / 12) - 1;
@@ -1585,6 +1587,7 @@ function calc() {
       if (isIncomeFreeNow) {
         const currentAge = today.getFullYear() - state.birthYear;
         iIncomeFree = "age " + currentAge + " · right now";
+        incomeFreeAge = currentAge;
       } else {
         const fwdPools = state.assets
           .map(a => ({ value: a.unit === "btc" ? a.amount * state.btcPrice : a.amount, mul: Math.pow(1 + a.growth / 100, 1 / 12) }))
@@ -1630,6 +1633,7 @@ function calc() {
             const ifMonths = m + 1;
             const ifAge = Math.floor(today.getFullYear() - state.birthYear + ifMonths / 12);
             iIncomeFree = "age " + ifAge + " · " + ymwText(ifMonths);
+            incomeFreeAge = ifAge;
             break;
           }
         }
@@ -1644,9 +1648,11 @@ function calc() {
   lastHints.coast          = iCoast;
   lastHints.savings        = "";
   lastHints.survival       = survivalText;
-  lastHints.stopInvesting  = iStopInvesting;
-  lastHints.reachForever   = iReachForever;
-  lastHints.incomeFree     = iIncomeFree;
+  lastHints.stopInvesting    = iStopInvesting;
+  lastHints.stopInvestingAge = stopInvestingAge;
+  lastHints.reachForever     = iReachForever;
+  lastHints.incomeFree       = iIncomeFree;
+  lastHints.incomeFreeAge    = incomeFreeAge;
   // Test hook — read by browser tests via window.__fcResult
   window.__fcResult = { years, isForever, effectiveMode, hints: { ...lastHints } };
 
@@ -1660,18 +1666,32 @@ function calc() {
     (!isForever && iIncomeFree) ? ["Income-free at", iIncomeFree] : null,
   ].filter(Boolean);
 
+  const stopInvestingLate = isForever && stopInvestingAge > 0 && stopInvestingAge > state.life;
+  const incomeFreeLate    = isForever && incomeFreeAge    > 0 && incomeFreeAge    > state.life;
+  const insightCount = (survivalText ? 1 : 0) + (iStopInvesting ? 1 : 0) + (isForever && iIncomeFree ? 1 : 0) + rows.length;
+  const independentNote = `<div style="font-size:11px;color:var(--ink-mute);margin-bottom:14px;line-height:1.5">Each scenario is independent — other inputs must stay constant.</div>`;
   let insightsHtml = "";
+  if (insightCount > 0 && !rows.length) {
+    insightsHtml += `<div class="insights-header">Insights</div>`;
+    if (insightCount > 1) insightsHtml += independentNote;
+  }
   if (survivalText) {
     insightsHtml += `<div class="insights-survival">${escapeHTML(survivalText)}.</div>`;
   }
   if (iStopInvesting) {
-    insightsHtml += `<div class="insights-survival">You can stop investing at ${escapeHTML(iStopInvesting)}.</div>`;
+    insightsHtml += `<div class="insights-survival">You can stop investing at ${escapeHTML(iStopInvesting)}.`;
+    if (stopInvestingLate) insightsHtml += ` <span style="color:var(--ink-mute)">Past your life expectancy.</span>`;
+    insightsHtml += `</div>`;
   }
   if (isForever && iIncomeFree) {
-    insightsHtml += `<div class="insights-survival">Income-free at ${escapeHTML(iIncomeFree)}.</div>`;
+    insightsHtml += `<div class="insights-survival">Income-free at ${escapeHTML(iIncomeFree)}.`;
+    if (incomeFreeLate) insightsHtml += ` <span style="color:var(--ink-mute)">Past your life expectancy.</span>`;
+    insightsHtml += `</div>`;
   }
   if (rows.length) {
-    insightsHtml += `<div class="insights-block"><div class="insights-header">To reach FOREVER:</div><div class="insights-rows">`;
+    insightsHtml += `<div class="insights-block"><div class="insights-header">To reach FOREVER:</div>`;
+    if (insightCount > 1) insightsHtml += independentNote;
+    insightsHtml += `<div class="insights-rows">`;
     rows.forEach(([k, v]) => {
       insightsHtml += `<div class="insights-row"><span class="insights-key">${escapeHTML(k)}</span><span class="insights-val">${escapeHTML(v)}</span></div>`;
     });
@@ -2385,13 +2405,21 @@ function populateExportSummary() {
     lastHints.btcPrice     ? ["BTC price:",       lastHints.btcPrice]     : null,
     lastHints.coast        ? ["Wait, don't sell:",lastHints.coast]        : null,
     lastHints.reachForever ? ["Reach forever:",  lastHints.reachForever] : null,
-    lastHints.incomeFree   ? ["Income-free at",  lastHints.incomeFree]   : null,
+    lastHints.incomeFree   ? ["Income-free at",  lastHints.incomeFree + (lastHints.incomeFreeAge > 0 && lastHints.incomeFreeAge > state.life ? " · past life expectancy" : "")] : null,
     lastHints.savings      ? ["Saving " + fmtCurrency(state.monthlySavings) + "/mo:", lastHints.savings] : null,
   ].filter(Boolean);
   if (insightRows.length || lastHints.stopInvesting) {
-    html += `<div class="section-label">Insights</div><table><tbody>`;
+    const exportStopLate   = lastHints.stopInvestingAge > 0 && lastHints.stopInvestingAge > state.life;
+    const exportIncomeLate = lastHints.incomeFreeAge    > 0 && lastHints.incomeFreeAge    > state.life;
+    const exportInsightCount = (lastHints.stopInvesting ? 1 : 0) + insightRows.length;
+    html += `<div class="section-label">Insights</div>`;
+    if (exportInsightCount > 1) {
+      html += `<div style="font-size:11px;color:var(--ink-mute);margin-bottom:10px;line-height:1.5">Each scenario is independent — other inputs must stay constant.</div>`;
+    }
+    html += `<table><tbody>`;
     if (lastHints.stopInvesting) {
-      html += `<tr><td>Can stop investing</td><td style="font-weight:500">${escapeHTML(lastHints.stopInvesting)}</td></tr>`;
+      const siLate = exportStopLate ? " · past life expectancy" : "";
+      html += `<tr><td>Can stop investing</td><td style="font-weight:500">${escapeHTML(lastHints.stopInvesting + siLate)}</td></tr>`;
     }
     if (insightRows.length) {
       if (!lastHints.stopInvesting) html += `<tr><th colspan="2" style="padding-bottom:4px">To reach FOREVER</th></tr>`;
@@ -2542,13 +2570,13 @@ function buildCSV() {
 
   // Insights
   const csvInsights = [
-    lastHints.stopInvesting ? ["Can stop investing",  lastHints.stopInvesting] : null,
+    lastHints.stopInvesting ? ["Can stop investing",  lastHints.stopInvesting + (lastHints.stopInvestingAge > 0 && lastHints.stopInvestingAge > state.life ? " · past life expectancy" : "")] : null,
     lastHints.accumulate    ? ["Stack more",           lastHints.accumulate]    : null,
     lastHints.spendLess     ? ["Spend less",           lastHints.spendLess]     : null,
     lastHints.btcPrice      ? ["BTC price",            lastHints.btcPrice]      : null,
     lastHints.coast         ? ["Wait, don't sell",     lastHints.coast]         : null,
     lastHints.reachForever  ? ["Reach forever",        lastHints.reachForever]  : null,
-    lastHints.incomeFree    ? ["Income-free at",       lastHints.incomeFree]    : null,
+    lastHints.incomeFree    ? ["Income-free at",       lastHints.incomeFree + (lastHints.incomeFreeAge > 0 && lastHints.incomeFreeAge > state.life ? " · past life expectancy" : "")] : null,
   ].filter(Boolean);
   if (csvInsights.length) {
     lines.push("INSIGHTS");
