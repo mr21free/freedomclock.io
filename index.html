@@ -1080,6 +1080,12 @@ function fmtCurrency(n) {
   if (abs >= 1e3) return sign + sym + Math.round(abs / 1e3) + "k";
   return sign + sym + Math.round(abs);
 }
+function fmtExact(n) {
+  if (!isFinite(n) || isNaN(n)) return "—";
+  const sym  = currencySymbol();
+  const sign = n < 0 ? "-" : "";
+  return sign + sym + Math.round(Math.abs(n)).toLocaleString();
+}
 
 function btcPriceHint() {
   const p = state.btcPrice;
@@ -2408,13 +2414,14 @@ function populateExportData() {
   const hasIncome    = state.income > 0;
   const hasSavings   = state.monthlySavings > 0;
   const showPerAsset = assetNames.length > 1;
+  const portfolioStartLabel = assetNames.length === 1 ? escapeHTML(assetNames[0]) : "Portfolio start";
 
   const showBtcBought = isBtcMode && hasSavings;
   let html = `<div class="export-scroll"><table><thead><tr><th>Year</th>`;
   if (isBorrowSell) html += `<th>Phase</th>`;
   if (isBtcMode) html += `<th>BTC price</th><th>BTC held</th>${!isBorrow ? "<th>BTC sold</th>" : ""}`;
   if (showBtcBought) html += `<th>BTC bought</th>`;
-  html += `<th>Portfolio start</th><th>Growth</th>`;
+  html += `<th>${portfolioStartLabel}</th><th>Growth</th>`;
   if (showPerAsset) assetNames.forEach(n => { html += `<th>${escapeHTML(n)}</th>`; });
   if (isBorrow || isBorrowSell) {
     if (showPerAsset && isBorrow) assetNames.forEach((n, i) => { if (state.assets[i] && state.assets[i].borrowable) html += `<th>${escapeHTML(n)} borrowed</th>`; });
@@ -2440,25 +2447,25 @@ function populateExportData() {
       if (!isBorrow) html += `<td>${r.year === 0 ? "—" : btcSold.toFixed(4)}</td>`;
     }
     if (showBtcBought) html += `<td>${r.year === 0 ? "—" : btcBoughtAmt.toFixed(4)}</td>`;
-    html += `<td>${fmtCurrency(r.portfolioStart)}</td><td>+${fmtCurrency(r.growth)}</td>`;
-    if (showPerAsset) r.assetValues.forEach(v => { html += `<td>${fmtCurrency(v)}</td>`; });
+    html += `<td>${fmtExact(r.portfolioStart)}</td><td>${r.growth >= 0 ? "+" : ""}${fmtExact(r.growth)}</td>`;
+    if (showPerAsset) r.assetValues.forEach(v => { html += `<td>${fmtExact(v)}</td>`; });
     if (isBorrow || isBorrowSell) {
       if (showPerAsset && isBorrow) {
         const totalCollateral = state.assets.reduce((s, a, i) => s + (a.borrowable ? r.assetValues[i] : 0), 0);
         state.assets.forEach((a, i) => {
           if (!a.borrowable) return;
           const share = totalCollateral > 0 ? r.assetValues[i] / totalCollateral : 0;
-          html += `<td>${fmtCurrency(r.borrowed * share)}</td>`;
+          html += `<td>${fmtExact(r.borrowed * share)}</td>`;
         });
       }
-      html += `<td>${fmtCurrency(r.borrowed)}</td><td>${fmtCurrency(r.debt)}</td><td>${fmtCurrency(r.netEquity)}</td>`;
+      html += `<td>${fmtExact(r.borrowed)}</td><td>${fmtExact(r.debt)}</td><td>${fmtExact(r.netEquity)}</td>`;
     }
     if (!isBorrow) {
-      if (hasIncome) html += `<td>${fmtCurrency(r.income)}</td><td>${fmtCurrency(r.spend)}</td>`;
-      html += `<td>${fmtCurrency(r.withdrawal)}</td>`;
+      if (hasIncome) html += `<td>${fmtExact(r.income)}</td><td>${fmtExact(r.spend)}</td>`;
+      html += `<td>${fmtExact(r.withdrawal)}</td>`;
     }
-    if (hasSavings) html += `<td>${fmtCurrency(state.monthlySavings * 12)}</td>`;
-    html += `<td>${fmtCurrency(r.portfolioEnd)}</td></tr>`;
+    if (hasSavings) html += `<td>${fmtExact(state.monthlySavings * 12)}</td>`;
+    html += `<td>${fmtExact(r.portfolioEnd)}</td></tr>`;
     prevBtcHeld = r.btcHoldings;
   });
 
