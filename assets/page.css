@@ -131,10 +131,9 @@ h1 {
 .panel h3 { font-size: 18px; font-weight: 500; line-height: 1.25; }
 .panel p, .panel li { margin-top: 12px; color: var(--ink-soft); font-size: 15px; }
 .panel ul, .content ul, .content ol { padding-left: 1.25rem; }
-.content { max-width: 760px; }
-.content p, .content li { color: var(--ink-soft); }
+.content p, .content li { color: var(--ink-soft); max-width: 760px; }
 .content p + p, .content ul, .content ol { margin-top: 16px; }
-.content h2 { margin-top: 42px; }
+.content h2 { margin-top: 42px; max-width: none; }
 .content h2:first-child { margin-top: 0; }
 .content h3 { margin-top: 28px; font-size: 20px; font-weight: 500; }
 .quote-box {
