@@ -1,4 +1,4 @@
-const CACHE = "freedomclock-2026-06-02-3";
+const CACHE = "freedomclock-2026-06-03-50";
 const STATIC = [
   "/",
   "/index.html",

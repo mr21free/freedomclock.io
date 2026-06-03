@@ -131,9 +131,10 @@
     <p>The list is short on purpose. Two boards are supported — the E290 is recommended because the larger display reads better from across a desk. The E213 is a valid alternative if you want something smaller.</p>
   </div>
   <div class="container">
+    <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Part</th><th>Notes</th><th>Approx. cost</th></tr>
+        <tr><th>Part</th><th>Notes</th><th>Cost</th></tr>
       </thead>
       <tbody>
         <tr>
@@ -163,6 +164,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </section>
 
@@ -212,7 +214,7 @@
     <ol>
       <li><strong>Download and install the Arduino IDE</strong> from <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a>. Free, available for Mac, Windows, and Linux.</li>
       <li><strong>Install the five libraries</strong> listed above via <strong>Tools &gt; Manage Libraries</strong>.</li>
-      <li><strong>Download the firmware</strong> from <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">github.com/mr21free/freedom_clock_heltec_vme</a>. Use the green "Code &gt; Download ZIP" button if you are not using git. Unzip the folder.</li>
+      <li><strong>Download the firmware</strong> from <a href="https://github.com/mr21free/freedom_clock_heltec_vme" target="_blank" rel="noopener">GitHub</a>. Use the green "Code &gt; Download ZIP" button if you are not using git. Unzip the folder.</li>
       <li><strong>Open <code>Freedom_Clock_HeltecVME.ino</code></strong> in the Arduino IDE. It is in the root of the downloaded folder.</li>
       <li><strong>Connect the board via USB-C.</strong> Go to <strong>Tools &gt; Port</strong> and select the board port — usually <code>/dev/cu.usbmodem1101</code> on Mac or <code>COM3</code> on Windows.</li>
       <li><strong>Select the correct board profile.</strong> Go to <strong>Tools &gt; Board</strong> and select <em>Heltec Vision Master E290</em> (or E213 if that is your board). Do not flash the wrong profile — an E213 binary will not run on an E290.</li>
