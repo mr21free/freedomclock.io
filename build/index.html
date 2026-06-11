@@ -70,7 +70,7 @@
       "@type": "HowToStep",
       "position": 4,
       "name": "Open the Freedom Clock firmware",
-      "text": "Download or clone the repository from github.com/mr21free/freedom-clock and open Freedom_Clock_HeltecVME.ino in the Arduino IDE."
+      "text": "Download or clone the repository from github.com/mr21free/freedom-clock and open Freedom_Clock.ino in the Arduino IDE."
     },
     {
       "@type": "HowToStep",
@@ -213,8 +213,8 @@
     <ol>
       <li><strong>Download and install the Arduino IDE</strong> from <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a>. Free, available for Mac, Windows, and Linux.</li>
       <li><strong>Install the five libraries</strong> listed above via <strong>Tools &gt; Manage Libraries</strong>.</li>
-      <li><strong>Download the firmware</strong> from <a href="https://github.com/mr21free/freedom-clock" target="_blank" rel="noopener">GitHub</a>. Use the green "Code &gt; Download ZIP" button and unzip it, or if using git: <code>git clone https://github.com/mr21free/freedom-clock Freedom_Clock_HeltecVME</code> (the target folder name must match the sketch name for Arduino IDE).</li>
-      <li><strong>Open <code>Freedom_Clock_HeltecVME.ino</code></strong> in the Arduino IDE. It is in the root of the downloaded folder.</li>
+      <li><strong>Download the firmware</strong> from <a href="https://github.com/mr21free/freedom-clock" target="_blank" rel="noopener">GitHub</a>. Use the green "Code &gt; Download ZIP" button and unzip it, or if using git: <code>git clone https://github.com/mr21free/freedom-clock Freedom_Clock</code> (the target folder name must match the sketch name for Arduino IDE).</li>
+      <li><strong>Open <code>Freedom_Clock.ino</code></strong> in the Arduino IDE. It is in the root of the downloaded folder.</li>
       <li><strong>Connect the board via USB-C.</strong> Go to <strong>Tools &gt; Port</strong> and select the board port — usually <code>/dev/cu.usbmodem1101</code> on Mac or <code>COM3</code> on Windows.</li>
       <li><strong>Select the correct board profile.</strong> Go to <strong>Tools &gt; Board</strong> and select <em>Heltec Vision Master E290</em> (or E213 if that is your board). Do not flash the wrong profile — an E213 binary will not run on an E290.</li>
       <li><strong>Click Upload.</strong> Watch for the progress bar. When it appears, press the <strong>RST</strong> button on the board once. The upload takes about a minute.</li>
@@ -373,42 +373,30 @@
 
 <!-- FAQ -->
 <section class="section">
-  <div class="container section-head">
-    <div>
-      <span class="eyebrow">Build questions</span>
-      <h2>Things builders ask first.</h2>
-    </div>
-  </div>
-  <div class="container faq-list">
-    <div class="faq-item">
+  <div class="container content">
+    <h2>FAQ</h2>
+    <div style="margin-top:20px">
       <h3>Do I need to solder?</h3>
       <p>No. The Heltec boards have the display, Wi-Fi, USB-C port, and battery charge circuit built in. The battery clips onto a standard connector. The only tools you need are a computer and a USB-C cable.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>Which board should I buy — E290 or E213?</h3>
       <p>The E290 (2.90″) is recommended. The larger display is easier to read from across a desk, which is the whole point of the object. The E213 (2.13″) works with the same firmware and is a valid choice if you want something smaller or if the E290 is out of stock.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>What battery fits?</h3>
       <p>An 803040 Li-Po with a PH 1.25 connector. This is the standard Heltec battery connector — search for "803040 PH1.25" or "3.7V 1000mAh PH1.25" on AliExpress or your preferred electronics supplier. An 800–1000 mAh cell is enough for weeks between charges at a one-day refresh interval.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>Does it need to be connected to the internet?</h3>
       <p>It needs your home Wi-Fi for initial setup and for fetching live BTC price if you use Static BTC + price online mode. In Static net worth mode, it only needs Wi-Fi for the setup page and OTA updates — it does not make external calls during normal operation. MQTT mode keeps everything on your local network.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>Can I use it without any Bitcoin?</h3>
       <p>Yes. Static net worth mode takes a total portfolio value in USD, EUR, or CHF. Enter your savings, set your spend and growth rates, and the device calculates freedom time from those numbers alone.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>Is there a 3D-printable case?</h3>
       <p>Yes. The repository includes <code>body.stl</code>, <code>cover.stl</code>, and an OpenSCAD source file in <code>hardware/case/</code>. The STL files are ready to slice. If you do not have a printer, a flat stone or small wood block works just as well.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>How do I reset the device to factory settings?</h3>
       <p>Hold the <strong>SETUP</strong> button (marked with a square on the case back, physical BOOT/GPIO0) for approximately 10 seconds. This clears saved Wi-Fi, MQTT, and settings and returns the device to the first-boot setup mode. Avoid pressing SETUP and HOME simultaneously — that combination can enter the ESP32 bootloader.</p>
-    </div>
-    <div class="faq-item">
+
       <h3>Can I contribute to the project?</h3>
       <p>Yes. The firmware is MIT-licensed and the repository is open. Practical fixes, better build notes, and improvements that keep the object useful without making it noisier are welcome. Open an issue or pull request on GitHub.</p>
     </div>
