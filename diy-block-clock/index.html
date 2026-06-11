@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DIY bitcoin clock, open block clock</title>
+<meta name="description" content="Build a DIY block clock for about $30, open source, with MQTT data from your node or online data from mempool.space." />
+<link rel="canonical" href="https://freedomclock.io/diy-block-clock/" />
+<link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts.css" />
+<link rel="stylesheet" href="/assets/page.css" />
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FF7A00">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://freedomclock.io/diy-block-clock/" />
+<meta property="og:title" content="DIY bitcoin clock, open block clock" />
+<meta property="og:description" content="Build a DIY block clock for about $30, open source, with MQTT data from your node or online data from mempool.space." />
+<meta property="og:image" content="https://freedomclock.io/assets/blockclock-desk.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="DIY bitcoin clock, open block clock" />
+<meta name="twitter:description" content="Build a DIY block clock for about $30, open source, with MQTT or mempool.space data." />
+<meta name="twitter:image" content="https://freedomclock.io/assets/blockclock-desk.jpg" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://freedomclock.io/diy-block-clock/",
+      "url": "https://freedomclock.io/diy-block-clock/",
+      "name": "DIY bitcoin clock, open block clock",
+      "description": "Build a DIY block clock for about $30, open source, with MQTT data from your node or online data from mempool.space.",
+      "isPartOf": { "@id": "https://freedomclock.io/#site" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://freedomclock.io/diy-block-clock/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does it show block height?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The block clock firmware shows block height from MQTT or online sources such as mempool.space."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to run a Bitcoin node?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. If you run a node or Home Assistant, use MQTT. If you do not, use online mode, which fetches public Bitcoin data from sources such as mempool.space. Freedom Clock also does not require a node when used in its standard CoinGecko price mode."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can one board run both?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The block clock firmware supports both Heltec Vision Master E213 and E290 boards. The same hardware family can run the block clock firmware or Freedom Clock firmware, so you can flash one and switch later."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this a BLOCKCLOCK alternative?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There are two answers. The DIY block clock is the closest alternative if you want block height, halving countdown, BTC price, and hashrate on open hardware. Freedom Clock is different: it shows how much time your savings have already bought, with BTC price as one input."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<nav class="top"></nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">DIY build</span>
+      <h1>Build a DIY block clock.</h1>
+      <p class="lede">A DIY bitcoin clock can be built for about $30 in parts, it is open source, and unlike commercial devices it can read Bitcoin data from your own node or from online sources such as mempool.space. The same firmware supports the E213 and E290 boards, with MQTT for local data and online mode when you do not run that setup.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/mr21free/blockclock" target="_blank" rel="noopener">Block clock repo</a>
+        <a class="btn" href="/build/">Freedom Clock build</a>
+      </div>
+    </div>
+    <p class="side-note">Use MQTT if you already publish Bitcoin data from your node or Home Assistant. Use online mode if you want the clock to fetch public Bitcoin data from mempool.space itself.</p>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="container content">
+
+      <h2>The block clock</h2>
+      <div style="margin-top:20px">
+        <p>The block clock has two data modes. In MQTT mode it subscribes to topics on your network, usually published by your own Bitcoin node or Home Assistant, then refreshes the e-ink display and goes back to deep sleep.</p>
+        <p>In online mode the clock fetches public Bitcoin data directly from mempool.space and compatible public endpoints. MQTT is still the best privacy setup if you prefer local infrastructure. Online mode is for the more normal case: you want a clock, not another small server project.</p>
+        <p>It can show block height, blocks remaining to the next halving, BTC price, network hashrate, battery voltage, estimated battery percentage, and the last update time. With MQTT, retained messages still matter because the device wakes, reads the newest values, refreshes, and sleeps again.</p>
+        <p>The hardware is the Heltec Vision Master E213 or E290, both ESP32-S3 e-ink boards in the same family used by Freedom Clock. Add a 3.7 V LiPo battery with the right connector. The E213 build reports about one week of runtime on a 500 mAh battery with hourly refreshes.</p>
+        <p>The source is MIT licensed on GitHub: <a href="https://github.com/mr21free/blockclock" target="_blank" rel="noopener">mr21free/blockclock</a>.</p>
+
+        <div class="grid-2" style="margin-top:24px">
+          <figure>
+            <img src="/assets/blockclock-desk.webp" alt="DIY block clock on a desk showing Bitcoin block data on an e-ink display" width="1600" height="1201" loading="lazy">
+          </figure>
+          <figure>
+            <img src="/assets/blockclock-front.webp" alt="Front view of the Heltec Vision Master E213 running the DIY block clock firmware" width="1600" height="1201" loading="lazy">
+          </figure>
+        </div>
+      </div>
+
+      <h2>How it compares</h2>
+      <div style="margin-top:20px">
+        <p>BLOCKCLOCK is polished plug-and-play hardware. Buy it if that is what you want. The DIY block clock is cheaper and open, with local MQTT mode for node runners and online mode for people who just want the clock to fetch public Bitcoin data from mempool.space.</p>
+        <p>BLOCKCLOCK mini and micro prices below were verified at coinkite.com on June 11 2026. DIY prices reflect the Heltec board and battery class used by these projects.</p>
+        <div class="table-wrap" style="margin-top:20px">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>BLOCKCLOCK mini</th>
+                <th>BLOCKCLOCK micro</th>
+                <th>My block clock</th>
+                <th>Freedom Clock</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Price</strong></td>
+                <td>$399</td>
+                <td>$189</td>
+                <td>~$30 in parts</td>
+                <td>~$30 in parts</td>
+              </tr>
+              <tr>
+                <td><strong>Display</strong></td>
+                <td>7 E Ink digits, 30x10 cm</td>
+                <td>Single e-ink, 11x7 cm</td>
+                <td>2.13 or 2.90 inch e-ink, E213 or E290</td>
+                <td>2.13 or 2.90 inch e-ink, E213 or E290</td>
+              </tr>
+              <tr>
+                <td><strong>Shows</strong></td>
+                <td>BTC price, block height, Moscow time, sats/dollar</td>
+                <td>BTC price, block height, Moscow time, sats/dollar, MSTR</td>
+                <td>Block height, halving countdown, BTC price, hashrate</td>
+                <td>Freedom time, lifetime left, coverage, BTC price</td>
+              </tr>
+              <tr>
+                <td><strong>Data source</strong></td>
+                <td>Coinkite servers</td>
+                <td>Coinkite servers</td>
+                <td>MQTT, mempool.space, CoinGecko</td>
+                <td>MQTT, CoinGecko</td>
+              </tr>
+              <tr>
+                <td><strong>Firmware</strong></td>
+                <td>Source not published</td>
+                <td>Source not published</td>
+                <td>MIT open source</td>
+                <td>MIT open source</td>
+              </tr>
+              <tr>
+                <td><strong>Setup</strong></td>
+                <td>Finished device</td>
+                <td>Finished device</td>
+                <td>Flash firmware, configure setup page</td>
+                <td>Flash firmware, configure setup page</td>
+              </tr>
+              <tr>
+                <td><strong>Soldering</strong></td>
+                <td>None</td>
+                <td>None</td>
+                <td>None</td>
+                <td>None</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2>The clock I built next</h2>
+      <div style="margin-top:20px">
+        <p>The block clock sat on my desk, and after a while I stopped checking block height. I started asking how much time my savings had already bought. That question became <a href="/freedom-time/">freedom time</a>, then the browser <a href="/#calculator">calculator</a>, then the <a href="/build/">Freedom Clock</a> firmware.</p>
+        <p>The same E213 board can run both firmwares, and the block clock also supports E290. Flash the block clock if you want Bitcoin network data on your desk, or flash Freedom Clock if you want a small display for savings, BTC price, and time coverage. You can switch later by flashing the other firmware.</p>
+      </div>
+
+      <h2>FAQ</h2>
+      <div id="faq" style="margin-top:20px">
+        <h3>Does it show block height?</h3>
+        <p>Yes. The block clock firmware shows block height from MQTT or online sources such as mempool.space. Freedom Clock is a separate firmware for freedom time and BTC price.</p>
+
+        <h3>Do I need to run a Bitcoin node?</h3>
+        <p>No. If you run a node or Home Assistant, use MQTT. If you do not, use online mode, which fetches public Bitcoin data from sources such as mempool.space. For Freedom Clock, no. The standard mode fetches BTC price from CoinGecko and uses settings saved on the device.</p>
+
+        <h3>Can one board run both?</h3>
+        <p>Yes. The block clock firmware supports both Heltec Vision Master E213 and E290 boards. The same hardware family can run the block clock firmware or the Freedom Clock firmware. Flash one now and switch later by flashing the other firmware.</p>
+
+        <h3>Is this a BLOCKCLOCK alternative?</h3>
+        <p>There are two answers. The DIY block clock is the closest alternative if you want block height, halving countdown, BTC price, and hashrate on open hardware. Freedom Clock is different: it shows how much time your savings have already bought, with BTC price as one input.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer></footer>
+<script src="/assets/shared.js"></script>
+</body>
+</html>

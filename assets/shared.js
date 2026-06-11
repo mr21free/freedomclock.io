@@ -23,7 +23,7 @@
         <a href="/privacy/">Privacy</a>
         <a href="/freedom-time/">Freedom time</a>
         <a href="/use-freedom-time/">Use freedom time</a>
-        <a href="/diy-bitcoin-clock/">DIY bitcoin clock</a>
+        <a href="/diy-block-clock/">DIY block clock</a>
         <a href="/sell-vs-borrow/">Sell vs borrow</a>
         <a href="/faq/">FAQ</a>
         <a href="/about/">About</a>

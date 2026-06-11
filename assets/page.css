@@ -26,7 +26,7 @@ html, body {
 body { overflow-x: hidden; }
 a { color: inherit; text-decoration: none; }
 p a, li a { color: var(--accent-deep); text-decoration: underline; text-underline-offset: 3px; }
-img { display: block; max-width: 100%; }
+img { display: block; max-width: 100%; height: auto; }
 .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
 .eyebrow {
   color: var(--ink-mute);

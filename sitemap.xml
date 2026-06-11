@@ -54,9 +54,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freedomclock.io/diy-bitcoin-clock/</loc>
+    <loc>https://freedomclock.io/diy-block-clock/</loc>
     <lastmod>2026-06-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://freedomclock.io/assets/blockclock-desk.jpg</image:loc>
+      <image:title>DIY block clock on a desk</image:title>
+    </image:image>
   </url>
 </urlset>
