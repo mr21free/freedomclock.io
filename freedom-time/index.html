@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="referrer" content="no-referrer" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Freedom time · what your savings buy in years, not dollars</title>
-<meta name="description" content="A unit of measure for personal finance: how many years your current portfolio could carry your current lifestyle. Definition, math, and a free calculator." />
+<title>What is freedom time? | Freedom Clock</title>
+<meta name="description" content="A plain definition of freedom time, how it is calculated, how it differs from FIRE number, runway, and net worth, plus a simple example." />
 <link rel="canonical" href="https://freedomclock.io/freedom-time/" />
 <link rel="preload" as="font" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css" />
@@ -16,19 +16,75 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://freedomclock.io/freedom-time/" />
 <meta property="og:title" content="Freedom time · savings in years, not dollars" />
-<meta property="og:description" content="Freedom time is how many years your current savings could carry your current lifestyle." />
+<meta property="og:description" content="A plain definition of freedom time, how it is calculated, and how it differs from FIRE number, runway, and net worth." />
 <meta property="og:image" content="https://freedomclock.io/assets/device-hero.png" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Freedom time · savings in years, not dollars" />
-<meta name="twitter:description" content="Freedom time is how many years your current savings could carry your current lifestyle." />
+<meta name="twitter:description" content="A plain definition of freedom time, how it is calculated, and how it differs from FIRE number, runway, and net worth." />
 <meta name="twitter:image" content="https://freedomclock.io/assets/device-hero.png" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "DefinedTerm",
-  "name": "Freedom time",
-  "description": "The number of years a current portfolio could fund a current lifestyle without earning.",
-  "inDefinedTermSet": "https://freedomclock.io/freedom-time/"
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "@id": "https://freedomclock.io/freedom-time/#defined-term",
+      "name": "Freedom time",
+      "description": "Freedom time is the number of years and months your savings, Bitcoin, and other assets could support your current monthly spending without new earned income. It answers the plain question: if I stopped earning tomorrow, how long could I keep living the life I want?",
+      "url": "https://freedomclock.io/freedom-time/",
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "Freedom Clock glossary",
+        "url": "https://freedomclock.io/freedom-time/"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://freedomclock.io/freedom-time/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a freedom number?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A freedom number is the target amount of money a person needs before work becomes optional. In the FIRE community, it is often estimated by multiplying annual spending by 25. Freedom time uses the same concern, but expresses the answer in years and months instead of dollars."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is freedom time the same as FIRE?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. FIRE is a broader financial independence and early retirement movement. Freedom time is a measurement inside that conversation: how much time your current assets could buy at your current spending level."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is freedom time calculated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A simple version divides assets by net annual spending. A better version grows each asset at its own rate, subtracts inflation, subtracts net monthly spending after income, and repeats until the assets run out or become self-sustaining."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does freedom time include Bitcoin?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It can. Freedom time can include Bitcoin, cash, stocks, real estate, or any other asset you choose to model. The important part is that each asset has an amount and an assumed growth rate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can freedom time be FOREVER?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In a model, yes. If real investment return covers spending after inflation, the assets do not run out. That does not mean the future is guaranteed. It means the assumptions entered into the model are self-sustaining."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 </head>
@@ -40,102 +96,62 @@
     <div>
       <span class="eyebrow">Definition</span>
       <h1>What is freedom time?</h1>
-      <p class="lede">Freedom time is the number of years your current portfolio could carry your current lifestyle without earning. Freedom Clock turns that slightly strange, useful question into a calculator and an e-ink desk device.</p>
+      <p class="lede">Freedom time is the number of years and months your savings, Bitcoin, and other assets could support your current monthly spending without new earned income. It answers the plain question: if I stopped earning tomorrow, how long could I keep living the life I want?</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="/#calculator">Calculate yours</a>
-        <a class="btn" href="/sell-vs-borrow/">Compare spend models</a>
+        <a class="btn btn-primary" href="/#calculator">Open the calculator</a>
+        <a class="btn" href="/build/">Build the device</a>
       </div>
     </div>
-    <p class="side-note">The number moves. That's the point. Not a static net worth figure. A live answer to a human question.</p>
+    <p class="side-note">Not a prediction. A translation: assets and spending into time.</p>
   </div>
 </header>
 
 <main>
   <section class="section">
-    <div class="container section-head">
-      <div>
-        <span class="eyebrow">The basics</span>
-        <h2>Four parts of the readout.</h2>
-      </div>
-      <p>None of these are forecasts. They're honest readouts of the numbers you put in, useful because they update the moment your assumptions do.</p>
-    </div>
-    <div class="container grid-2">
-      <div class="panel">
-        <h3>The definition</h3>
-        <p>Freedom time is a unit of measure for personal finance. Instead of "what's my net worth?", it asks "how much time has that net worth already bought?" If your portfolio can cover spending indefinitely after inflation, the answer is FOREVER.</p>
-      </div>
-      <div class="panel">
-        <h3>The math</h3>
-        <p>The calculator grows your assets, subtracts the gap between monthly spend and income, adjusts for inflation, then does it again. The result is the point where the portfolio runs out, in years and months. Bitcoin-aware modes add borrow rate and collateral, because a stack you can borrow against behaves differently from a savings account.</p>
-      </div>
-      <div class="panel">
-        <h3>Lifetime left</h3>
-        <p>An estimate of the years between your current age and the life expectancy you enter. It isn't a prediction. It's a reminder that money is only useful inside a life, and the life is the shorter clock.</p>
-      </div>
-      <div class="panel">
-        <h3>Freedom coverage</h3>
-        <p>Freedom time divided by lifetime left, as a percentage. Ten years of freedom with forty of expected life left is 25%. A small number, maybe. But it moves with every decision you make.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
     <div class="container content">
-      <h2>Now what?</h2>
+      <h2>The formula in plain words</h2>
       <div style="margin-top:20px">
-        <p>You have a number. The useful question is no longer how big it is, but what it's for. Freedom time only matters if it changes how the next week goes.</p>
-        <p>The number can move in two ways. You can extend the life you have to spend (sleep, movement, food, less bad stress), and you can grow what funds it (earn more, spend less, invest the difference). Most plans pick one lever and ignore the other.</p>
+        <p>At the simplest level, freedom time is assets divided by net spending. The better version is less tidy: grow each asset at its own expected rate, subtract the drag of inflation, subtract net monthly spending after income, then express the result in years and months.</p>
+        <p>For the <a href="/#calculator">Freedom Clock calculator</a>, assets can include Bitcoin, cash, stocks, real estate, or anything else you model. Each asset can have its own growth rate. Spending means what your life costs each month after recurring income. If income covers part of your lifestyle, it reduces the monthly draw. If assets grow faster than the draw after inflation, the model can become self-sustaining.</p>
+        <p><strong>Example:</strong> suppose you have $240,000 in savings and assets, no income, and you spend $4,000 per month. A simple no-growth calculation gives about 60 months, or 5 years of freedom time. If some assets grow, inflation rises, or spending changes, the number moves. That movement is the point.</p>
       </div>
 
-      <h2>Five things to do with the number</h2>
+      <h2>How it differs from related concepts</h2>
       <div style="margin-top:20px">
-        <p><strong>1. Re-run it with one change at a time.</strong> Bump growth from 4% to 6%. Cut monthly spend by 15%. Move income to zero. The lever that moves the number most is where your attention belongs.</p>
-        <p><strong>2. Test "what if I stopped earning today."</strong> Set income to zero. The result is your runway. If it is shorter than you thought, you know what to work on. If it is longer, you have more room than you have been telling yourself.</p>
-        <p><strong>3. Compare cities.</strong> Moving from London to Lisbon, Toronto to Mexico City, or San Francisco to a smaller town can shift freedom time by years for the same lifestyle. The calculator's monthly spend field links to expatistan.com for cost-of-living comparisons.</p>
-        <p><strong>4. Pick a coverage target and back into it.</strong> If you want freedom coverage at 100% by age 60, work backwards. How much would savings, growth, or spend need to shift to get there? The calculator does the math; you bring the honesty.</p>
-        <p><strong>5. Re-run it every quarter.</strong> The number moves with markets, spending, and life. Once a quarter is frequent enough to notice trends and rare enough to stay calm.</p>
+        <h3>FIRE number</h3>
+        <p>A FIRE number is the target amount of money needed for financial independence. The common shortcut is annual spending multiplied by 25, based on a 4% withdrawal rule. A freedom number is the same established FIRE community idea: the target amount. Freedom time is that idea expressed in time instead of money.</p>
+
+        <h3>Financial runway</h3>
+        <p>Financial runway usually means how long cash or liquid savings can cover expenses. It is common in startups and personal finance. Freedom time is similar, but it can include long-term assets, Bitcoin, growth assumptions, inflation, income, and spend models.</p>
+
+        <h3>Net worth</h3>
+        <p>Net worth tells you what you own minus what you owe. It is useful, but it is not enough. The same net worth can mean very different things for two people with different spending, income, age, health, family obligations, and risk tolerance.</p>
       </div>
 
-      <h2>Healthspan, not just lifespan</h2>
+      <h2>Why time, not money?</h2>
       <div style="margin-top:20px">
-        <p>The clock doesn't only measure money. The years you have left aren't interchangeable. Your fifties are not your eighties. Peter Attia, in <em>Outlive</em>, calls the slow decline at the end the "Marginal Decade" and argues it's shaped, decades in advance, by how you train, sleep, and eat now.</p>
-        <p>Extending healthspan is the other half of what freedom time measures. A long runway you can't enjoy isn't freedom.</p>
-        <p><strong>Practical move:</strong> sleep seven or eight hours, build muscle now while it's easier, walk daily, keep close friends, eat real food, sit less. None of it is glamorous. None of it is optional. These compound the same way money does, just on a slower curve.</p>
+        <p>Money is abstract. Time is harder to dodge. A portfolio balance can look large and still buy very little freedom if spending is high. A smaller balance can buy years if the lifestyle is light, the income floor is real, or the person lives somewhere less expensive.</p>
+        <p>Freedom time also makes tradeoffs easier to see. Cutting one recurring expense may buy back weeks or months. Moving to a cheaper city may change the shape of the next decade. Earning more can become time, if the extra does not disappear into lifestyle creep.</p>
+        <p>The number is still only a model. Markets can disappoint. Inflation can bite. Life can get weird. But a rough time-based answer is often more useful than a precise-looking net worth figure. It points back to the real question: what is the money for?</p>
       </div>
 
-      <h2>Time is the currency</h2>
+      <h2>FAQ</h2>
       <div style="margin-top:20px">
-        <p style="font-style:italic;color:var(--ink-soft)">"Money is something you choose to trade your life energy for."<br/><span style="font-style:normal;font-size:13px">— Vicki Robin, <em>Your Money or Your Life</em></span></p>
-        <p>You can't buy time with money, but you can buy money with time. That asymmetry is what freedom time tracks. Every expense is priced in hours of life. Thoreau put it the same way: the cost of anything is the amount of life you exchange for it. The job that pays well but eats your evenings has a real price. So does the cheap thing you bought to soothe a bad afternoon. Freedom time makes that price visible. Every cut in monthly spend buys back months of runway, sometimes years.</p>
-        <p><strong>Practical move:</strong> list the three largest line items in your monthly spend. For each one, ask whether it's worth what it costs in life hours. Keep the ones that pass. Rework the ones that don't.</p>
-      </div>
+        <h3>What is a freedom number?</h3>
+        <p>A freedom number is the target amount of money a person needs before work becomes optional. In the FIRE community, it is often estimated by multiplying annual spending by 25. Freedom time uses the same concern, but expresses the answer in years and months instead of dollars.</p>
 
-      <h2>Spend the time, don't bank it</h2>
-      <div style="margin-top:20px">
-        <p style="font-style:italic;color:var(--ink-soft)">"Unlike material possessions, which seem exciting at the beginning but then often depreciate quickly, experiences actually gain in value over time: they pay what I call a memory dividend."<br/><span style="font-style:normal;font-size:13px">— Bill Perkins, <em>Die with Zero</em></span></p>
-        <p>Perkins' argument is sharp: dying with money is dying with unspent life. Health, energy, and the people who matter most are time-limited resources. Money is the easier one to keep, which is part of the trap. Morgan Housel makes a smaller version of the same point: the real dividend money pays is control over your time.</p>
-        <p><strong>Practical move:</strong> take the trip with parents and small children while everyone can still travel well. Move the dream sabbatical from "someday" onto a calendar. Pay for the long visit instead of the heroic gift. Bank accounts depreciate either way. Experiences quietly appreciate.</p>
-      </div>
+        <h3>Is freedom time the same as FIRE?</h3>
+        <p>No. FIRE is a broader financial independence and early retirement movement. Freedom time is a measurement inside that conversation: how much time your current assets could buy at your current spending level.</p>
 
-      <h2>The deferred life</h2>
-      <div style="margin-top:20px">
-        <p style="font-style:italic;color:var(--ink-soft)">"I wish I'd had the courage to live a life true to myself, not the life others expected of me."&nbsp;·&nbsp;"I wish I hadn't worked so hard."<br/><span style="font-style:normal;font-size:13px">— Bronnie Ware, <em>The Top Five Regrets of the Dying</em></span></p>
-        <p>Most career plans assume real life begins after the work ends. The dying disagree. Tim Ferriss called this the deferred-life plan and pointed out, accurately, that there's no good reason to wait. The boldest thing freedom time can do is make the deferred plan a little less defensible. Leaving the job that takes too much. Starting the business. Taking the trip. Switching the city. Working four days instead of five.</p>
-        <p><strong>Practical move:</strong> name one thing you've been deferring for "someday." Pick a date for it this year. If the freedom-time number says you can't afford it, the calculator will tell you in months and years instead of vague worry, and you can decide honestly whether the deferral is real or just a habit.</p>
-      </div>
+        <h3>How is freedom time calculated?</h3>
+        <p>A simple version divides assets by net annual spending. A better version grows each asset at its own rate, subtracts inflation, subtracts net monthly spending after income, and repeats until the assets run out or become self-sustaining.</p>
 
-      <h2>The point of the number</h2>
-      <div style="margin-top:20px">
-        <p>Two old framings still help. Seneca's complaint about his contemporaries was that they didn't have a short time to live, they wasted most of it. And Oliver Burkeman's reminder that an eighty-year life is about four thousand weeks, end to end. Neither tells you what to do. Both insist the question is overdue. Edward Snowden put it simply: freedom is not a goal, but a direction. The number doesn't tell you that you've arrived — it tells you which way you're moving.</p>
-        <p>Your freedom-time number is small, or it's large. Neither answer is the point. The point is to look at it honestly and then do something today. Invest more. Spend less. Leave the job that costs too much life. Move somewhere cheaper. Take the week off. Call the person you've been meaning to call. Time is the only line item that can't be earned back.</p>
-      </div>
+        <h3>Does freedom time include Bitcoin?</h3>
+        <p>It can. Freedom time can include Bitcoin, cash, stocks, real estate, or any other asset you choose to model. The important part is that each asset has an amount and an assumed growth rate.</p>
 
-      <h2>One example</h2>
-      <div style="margin-top:20px">
-        <p>If it helps to see what this looks like for one person (leaving conventional work, deciding what enough means, the wrong turns and the right ones), here's one honest account from the person who built Freedom Clock.</p>
-        <div style="margin-top:24px">
-          <a class="btn btn-primary" href="https://miroremias.com/blog/freedom-journey/" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Read the maker's journey</a>
-        </div>
+        <h3>Can freedom time be FOREVER?</h3>
+        <p>In a model, yes. If real investment return covers spending after inflation, the assets do not run out. That does not mean the future is guaranteed. It means the assumptions entered into the model are self-sustaining.</p>
+        <p>You can calculate your own number with the <a href="/#calculator">Freedom Clock calculator</a>, read <a href="/use-freedom-time/">how to use freedom time</a>, or <a href="/build/">build the Freedom Clock device</a> if you want the number on an e-ink display.</p>
       </div>
     </div>
   </section>
