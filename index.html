@@ -447,14 +447,12 @@
   .badges span:last-child::after{content:""}
 
   /* faq */
-  .faq{padding:100px 0;background:var(--paper)}
-  .faq-list{margin-top:36px;border-top:1px solid var(--rule)}
-  .faq-item{border-bottom:1px solid var(--rule);padding:24px 0;cursor:pointer}
-  .faq-item .q{display:flex;justify-content:space-between;align-items:center;font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:18px;letter-spacing:-0.015em}
-  .faq-item .plus{color:var(--accent-deep);transition:transform .25s ease;font-size:22px;line-height:1;flex-shrink:0;margin-left:16px}
-  .faq-item.open .plus{transform:rotate(45deg)}
-  .faq-item .a{max-height:0;overflow:hidden;color:var(--ink-soft);transition:max-height .3s ease, margin-top .3s ease;font-size:16px;max-width:62ch}
-  .faq-item.open .a{max-height:300px;margin-top:14px}
+  .section{padding:72px 0}
+  .content p,.content li{color:var(--ink-soft);max-width:760px}
+  .content p+p{margin-top:16px}
+  .content h2{margin-top:42px;max-width:none}
+  .content h2:first-child{margin-top:0}
+  .content h3{margin-top:28px;font-size:20px;font-weight:500}
 
   /* closing */
   .closing{padding:120px 0;text-align:center;background:#fafaf7}
@@ -2945,11 +2943,6 @@ $("qSwap").addEventListener("click", () => {
   if (!quotes.length) return;
   qi = (qi + 1) % quotes.length;
   showCurrentQuote();
-});
-
-// ---------- FAQ accordion ----------
-document.querySelectorAll(".faq-item").forEach(item => {
-  item.addEventListener("click", () => item.classList.toggle("open"));
 });
 
 // ---------- Hero carousel ----------
