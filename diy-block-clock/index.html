@@ -17,11 +17,11 @@
 <meta property="og:url" content="https://freedomclock.io/diy-block-clock/" />
 <meta property="og:title" content="DIY bitcoin clock, open block clock" />
 <meta property="og:description" content="Build a DIY block clock for about $30, open source, with MQTT data from your node or online data from mempool.space." />
-<meta property="og:image" content="https://freedomclock.io/assets/blockclock-desk.jpg" />
+<meta property="og:image" content="https://freedomclock.io/assets/blockclock-front.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="DIY bitcoin clock, open block clock" />
 <meta name="twitter:description" content="Build a DIY block clock for about $30, open source, with MQTT or mempool.space data." />
-<meta name="twitter:image" content="https://freedomclock.io/assets/blockclock-desk.jpg" />
+<meta name="twitter:image" content="https://freedomclock.io/assets/blockclock-front.jpg" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -99,27 +99,24 @@
     <div class="container content">
 
       <h2>The block clock</h2>
-      <div style="margin-top:20px">
-        <p>The block clock has two data modes. In MQTT mode it subscribes to topics on your network, usually published by your own Bitcoin node or Home Assistant, then refreshes the e-ink display and goes back to deep sleep.</p>
-        <p>In online mode the clock fetches public Bitcoin data directly from mempool.space and compatible public endpoints. MQTT is still the best privacy setup if you prefer local infrastructure. Online mode is for the more normal case: you want a clock, not another small server project.</p>
-        <p>It can show block height, blocks remaining to the next halving, BTC price, network hashrate, battery voltage, estimated battery percentage, and the last update time. With MQTT, retained messages still matter because the device wakes, reads the newest values, refreshes, and sleeps again.</p>
-        <p>The hardware is the Heltec Vision Master E213 or E290, both ESP32-S3 e-ink boards in the same family used by Freedom Clock. Add a 3.7 V LiPo battery with the right connector. The E213 build reports about one week of runtime on a 500 mAh battery with hourly refreshes.</p>
-        <p>The source is MIT licensed on GitHub: <a href="https://github.com/mr21free/blockclock" target="_blank" rel="noopener">mr21free/blockclock</a>.</p>
-
-        <div class="grid-2" style="margin-top:24px">
-          <figure>
-            <img src="/assets/blockclock-desk.webp" alt="DIY block clock on a desk showing Bitcoin block data on an e-ink display" width="1600" height="1201" loading="lazy">
-          </figure>
-          <figure>
-            <img src="/assets/blockclock-front.webp" alt="Front view of the Heltec Vision Master E213 running the DIY block clock firmware" width="1600" height="1201" loading="lazy">
-          </figure>
-        </div>
+      <div class="grid-2" style="margin-top:20px">
+        <figure>
+          <img src="/assets/blockclock-front.webp" alt="Front view of the DIY block clock showing block height, halving countdown, BTC price, and hashrate on an e-ink display" width="1448" height="1086" loading="lazy">
+        </figure>
+        <figure>
+          <img src="/assets/blockclock-side.webp" alt="Side view of the DIY block clock case, showing the slim e-ink module on the Heltec Vision Master board" width="1448" height="1086" loading="lazy">
+        </figure>
+      </div>
+      <div style="margin-top:24px">
+        <p>A block clock is a small desk display that shows live Bitcoin network data: block height, blocks to the next halving, BTC price, and network hashrate. It refreshes every few minutes, then sleeps to save battery.</p>
+        <p>This DIY version runs on the Heltec Vision Master E213 or E290 boards and costs about $30 in parts. It reads data from your own Bitcoin node over MQTT, or fetches it from mempool.space if you do not run a node. About a week of runtime on a small LiPo battery.</p>
+        <p>Source, wiring, flashing, and case files are on GitHub: <a href="https://github.com/mr21free/blockclock" target="_blank" rel="noopener">mr21free/blockclock</a>.</p>
       </div>
 
       <h2>How it compares</h2>
       <div style="margin-top:20px">
-        <p>BLOCKCLOCK is polished plug-and-play hardware. Buy it if that is what you want. The DIY block clock is cheaper and open, with local MQTT mode for node runners and online mode for people who just want the clock to fetch public Bitcoin data from mempool.space.</p>
-        <p>BLOCKCLOCK mini and micro prices below were verified at coinkite.com on June 11 2026. DIY prices reflect the Heltec board and battery class used by these projects.</p>
+        <p><a href="https://coinkite.com/" target="_blank" rel="noopener">BLOCKCLOCK</a> by Coinkite is polished plug-and-play hardware. Buy it if that is what you want. The DIY block clock is cheaper and open, with local MQTT mode for node runners and online mode for people who just want the clock to fetch public Bitcoin data from mempool.space.</p>
+        <p>BLOCKCLOCK mini and micro prices below were verified at <a href="https://coinkite.com/" target="_blank" rel="noopener">coinkite.com</a> on June 11 2026. DIY prices reflect the Heltec board and battery class used by these projects.</p>
         <div class="table-wrap" style="margin-top:20px">
           <table>
             <thead>

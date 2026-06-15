@@ -125,6 +125,8 @@ main > section:nth-child(even) { background: #fafaf7; }
 .section-head p { color: var(--ink-soft); max-width: 56ch; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+figure { margin: 0; }
+figure img { display: block; width: 100%; height: auto; border-radius: 10px; }
 .panel {
   border-left: 2px solid var(--accent-deep);
   padding: 24px 24px 24px 22px;
