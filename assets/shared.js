@@ -14,7 +14,7 @@
   const footer = document.querySelector('footer');
   if (footer) footer.innerHTML = `
     <div class="container row">
-      <div class="footer-tagline"><b>Built openly. MIT licensed. Make it yours.</b></div>
+      <div class="footer-tagline"><b>Built openly. MIT licensed. Make it yours.</b><br><span style="font-weight:400">© 2026 Freedom Clock</span></div>
       <div class="footer-links">
         <a href="https://miroremias.com/projects/from-bitcoin-block-clock-to-freedom-clock/" target="_blank" rel="noopener">The story</a>
         <a href="/freedom-time/">Freedom time</a>
