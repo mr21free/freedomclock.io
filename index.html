@@ -1153,7 +1153,7 @@ function updateBomPrices() {
 
 async function fetchFxRates() {
   try {
-    const r = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,GBP,CHF,CAD,AUD");
+    const r = await fetch("https://api.frankfurter.dev/v1/latest?from=USD&to=EUR,GBP,CHF,CAD,AUD");
     if (r.ok) {
       const d = await r.json();
       if (d?.rates?.EUR) state.fxRates.eur = d.rates.EUR;
